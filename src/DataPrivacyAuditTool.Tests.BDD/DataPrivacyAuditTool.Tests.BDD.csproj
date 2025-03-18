@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Reqnroll" Version="2.4.0" />
+    <PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="2.4.0" />
+    <PackageReference Include="Reqnroll.xUnit" Version="2.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataPrivacyAuditTool.Core\DataPrivacyAuditTool.Core.csproj" />
+    <ProjectReference Include="..\DataPrivacyAuditTool.Infrastructure\DataPrivacyAuditTool.Infrastructure.csproj" />
+    <ProjectReference Include="..\DataPrivacyAuditTool\DataPrivacyAuditTool.csproj" />
+  </ItemGroup>
+
+</Project>
