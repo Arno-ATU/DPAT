@@ -1,0 +1,38 @@
+// Contains incorrect type-values
+
+{
+    "App Settings": [],
+    "App Lists": "not-an-array",
+    "Search Engines": [
+        {
+            "safe_for_autoreplace": "not-a-boolean",
+            "is_active": 123,
+            "short_name": null,
+            "url": {}
+        }
+    ],
+    "Apps": [
+        {
+            "app_launch_ordinal": true,
+            "extension": "should-be-object"
+        }
+    ],
+    "Preferences": [
+        {
+            "name": "profile.content_settings.exceptions.cookies",
+            "value": "{not-valid-json"
+        },
+        {
+            "value": "missing-name-property"
+        }
+    ],
+    "Priority Preferences": [
+        {
+            "preference": {
+                "name": "sync.demographics",
+                "value": "not-valid-json-object"
+            }
+        }
+    ],
+    "Web Apps": null
+}

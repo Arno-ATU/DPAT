@@ -1,0 +1,28 @@
+{
+    "App Settings": [],
+    "Search Engines": [
+        {
+            "suggestions_url": "https://duckduckgo.com/ac/?q={searchTerms}&type=list",
+            "favicon_url": "https://duckduckgo.com/favicon.ico",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_TRUE",
+            "url": "https://duckduckgo.com/?q={searchTerms}",
+            "short_name": "DuckDuckGo",
+            "keyword": "duckduckgo.com",
+            "input_encodings": "UTF-8"
+        }
+    ],
+    "Apps": [],
+    "Preferences": [
+        {
+            "name": "net.network_prediction_options",
+            "value": "1"
+        },
+        {
+            "name": "profile.content_settings.exceptions.cookies",
+            "value": "{}"
+        }
+    ],
+    "Themes": [],
+    "Priority Preferences": []
+}
