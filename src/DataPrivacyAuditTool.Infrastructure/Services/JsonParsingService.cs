@@ -10,7 +10,6 @@ namespace DataPrivacyAuditTool.Infrastructure.Services
 {
     public class JsonParsingService:IJsonParsingService
     {
-
         // Parsing for Settings.json file
         public async Task<SettingsData> ParseSettingsJsonAsync(IFormFile file)
         {
@@ -24,21 +23,28 @@ namespace DataPrivacyAuditTool.Infrastructure.Services
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = null, // Setting to null keeps original property casing
+                ReadCommentHandling = JsonCommentHandling.Skip,
+                AllowTrailingCommas = true
             };
 
             try
             {
-                return JsonSerializer.Deserialize<SettingsData>(jsonContent, options);
+                var result = JsonSerializer.Deserialize<SettingsData>(jsonContent, options);
+
+                // Debug the result
+                System.Diagnostics.Debug.WriteLine($"Parsed SettingsData: SearchEngines={result?.SearchEngines?.Count ?? 0}, Preferences={result?.Preferences?.Count ?? 0}");
+
+                return result;
             }
             catch (JsonException ex)
             {
+                System.Diagnostics.Debug.WriteLine($"JSON Exception: {ex.Message}");
                 throw new FormatException("Failed to parse Settings.json file.", ex);
             }
         }
 
-
-        //Json Parsing for Addresses and more.json file
+        // Json Parsing for Addresses and more.json file
         public async Task<AddressData> ParseAddressesJsonAsync(IFormFile file)
         {
             if (file == null)
@@ -51,15 +57,23 @@ namespace DataPrivacyAuditTool.Infrastructure.Services
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = null, // Setting to null keeps original property casing
+                ReadCommentHandling = JsonCommentHandling.Skip,
+                AllowTrailingCommas = true
             };
 
             try
             {
-                return JsonSerializer.Deserialize<AddressData>(jsonContent, options);
+                var result = JsonSerializer.Deserialize<AddressData>(jsonContent, options);
+
+                // Debug the result
+                System.Diagnostics.Debug.WriteLine($"Parsed AddressData: Autofill={result?.Autofill?.Count ?? 0}, Profiles={result?.AutofillProfile?.Count ?? 0}, Contacts={result?.ContactInfo?.Count ?? 0}");
+
+                return result;
             }
             catch (JsonException ex)
             {
+                System.Diagnostics.Debug.WriteLine($"JSON Exception: {ex.Message}");
                 throw new FormatException("Failed to parse Addresses and more.json file.", ex);
             }
         }
