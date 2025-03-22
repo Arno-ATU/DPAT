@@ -1,12 +1,7 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using System.Text.Json;
-using DataPrivacyAuditTool.Core.Interfaces;
 using DataPrivacyAuditTool.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Moq;
-using Xunit;
 
 namespace DataPrivacyAuditTool.Tests.Unit.Services
 {
