@@ -23,7 +23,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
             var mockFile = CreateMockFile("Settings.json", fileContent); 
 
             // Act
-            var result = await fileValidationService.ValidateFileAsync(mockFile.Object);
+            var result = await fileValidationService.ValidateSettingsFileAsync(mockFile.Object);
 
             // Assert
             Assert.True(result);
@@ -38,7 +38,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
             var mockFile = CreateMockFile("Settings.json", malformedJson);
 
             // Act
-            var result = await fileValidationService.ValidateFileAsync(mockFile.Object);
+            var result = await fileValidationService.ValidateSettingsFileAsync(mockFile.Object);
 
             // Assert
             Assert.False(result);
@@ -53,7 +53,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
             var mockFile = CreateMockFile("Settings.json", jsonWithMissingSections); 
 
             // Act
-            var result = await fileValidationService.ValidateFileAsync(mockFile.Object);
+            var result = await fileValidationService.ValidateSettingsFileAsync(mockFile.Object);
 
             // Assert
             Assert.False(result);
@@ -68,7 +68,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
             var mockFile = CreateMockFile("Settings.json", fileContent); 
 
             // Act
-            var result = await fileValidationService.ValidateFileAsync(mockFile.Object);
+            var result = await fileValidationService.ValidateSettingsFileAsync(mockFile.Object);
 
             // Assert
             Assert.False(result);
@@ -83,7 +83,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
             var mockFile = CreateMockFile("Settings.json", fileContent); 
 
             // Act
-            var result = await fileValidationService.ValidateFileAsync(mockFile.Object);
+            var result = await fileValidationService.ValidateSettingsFileAsync(mockFile.Object);
 
             // Assert
             Assert.True(result);
