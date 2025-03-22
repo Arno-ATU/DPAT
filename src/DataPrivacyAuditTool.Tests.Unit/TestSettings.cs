@@ -20,7 +20,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
             // Arrange
             var fileValidationService = new FileValidationService();
             var fileContent = await File.ReadAllTextAsync(_validSettingsPath);
-            var mockFile = CreateMockFile("Settings.json", fileContent); // Using correct case for the filename
+            var mockFile = CreateMockFile("Settings.json", fileContent); 
 
             // Act
             var result = await fileValidationService.ValidateFileAsync(mockFile.Object);
@@ -35,7 +35,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
             // Arrange
             var fileValidationService = new FileValidationService();
             var malformedJson = "{ This is not valid JSON";
-            var mockFile = CreateMockFile("Settings.json", malformedJson); // Using correct case
+            var mockFile = CreateMockFile("Settings.json", malformedJson);
 
             // Act
             var result = await fileValidationService.ValidateFileAsync(mockFile.Object);
@@ -50,7 +50,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
             // Arrange
             var fileValidationService = new FileValidationService();
             var jsonWithMissingSections = "{ \"App Settings\": [], \"Preferences\": [] }";
-            var mockFile = CreateMockFile("Settings.json", jsonWithMissingSections); // Using correct case
+            var mockFile = CreateMockFile("Settings.json", jsonWithMissingSections); 
 
             // Act
             var result = await fileValidationService.ValidateFileAsync(mockFile.Object);
@@ -65,7 +65,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
             // Arrange
             var fileValidationService = new FileValidationService();
             var fileContent = await File.ReadAllTextAsync(_malformedPath);
-            var mockFile = CreateMockFile("Settings.json", fileContent); // Using correct case
+            var mockFile = CreateMockFile("Settings.json", fileContent); 
 
             // Act
             var result = await fileValidationService.ValidateFileAsync(mockFile.Object);
@@ -80,7 +80,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
             // Arrange
             var fileValidationService = new FileValidationService();
             var fileContent = await File.ReadAllTextAsync(_missingFieldsPath);
-            var mockFile = CreateMockFile("Settings.json", fileContent); // Using correct case
+            var mockFile = CreateMockFile("Settings.json", fileContent); 
 
             // Act
             var result = await fileValidationService.ValidateFileAsync(mockFile.Object);

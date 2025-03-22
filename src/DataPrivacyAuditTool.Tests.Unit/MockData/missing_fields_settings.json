@@ -1,6 +1,6 @@
 {
     "App Settings": [],
-    "App Lists": [], // Add this missing section
+    "App Lists": [],
     "Search Engines": [
         {
             "suggestions_url": "https://duckduckgo.com/ac/?q={searchTerms}&type=list",
@@ -26,5 +26,5 @@
     ],
     "Themes": [],
     "Priority Preferences": [],
-    "Web Apps": [] // Add this missing section
+    "Web Apps": [] 
 }

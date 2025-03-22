@@ -1,0 +1,65 @@
+{
+    "Autofill": [
+        {
+            "name": "email",
+            "value": "missing_timestamp@example.com"
+        },
+        {
+            "usage_timestamp": [ 13383238337000000 ],
+            "value": "missing_name_field"
+        },
+        {
+            "usage_timestamp": [ 13383239554000000 ],
+            "name": "creditCardNumber"
+        },
+        {
+            "usage_timestamp": [ 13376835628000000 ],
+            "name": "phoneNumber",
+            "value": ""
+        },
+        {
+            "name": "address",
+            "usage_timestamp": []
+        }
+    ],
+    "Autofill Profile": [
+        {
+            "guid": "incomplete-profile-12345",
+            "full_name": "Incomplete Profile",
+            "email": "incomplete@example.com"
+        },
+        {
+            "guid": "missing-name-67890",
+            "company_name": "Example Corp",
+            "country_code": "US",
+            "use_count": 5
+        },
+        {
+            "street_address": "123 Partial Street",
+            "city": "Somewhere",
+            "state": "NY",
+            "email": "no.guid@example.com"
+        }
+    ],
+    "Contact Info": [
+        {
+            "guid": "incomplete-contact-67890",
+            "name": "Partial Contact",
+            "phone_numbers": []
+        },
+        {
+            "name": "Missing Email Contact",
+            "company": "No Email Corp",
+            "phone_numbers": [
+                {
+                    "number": "+1 555-123-4567",
+                    "type": "Work"
+                }
+            ]
+        },
+        {
+            "email": "no.name@example.com",
+            "creation_date": 13375536402123441
+        }
+    ]
+}

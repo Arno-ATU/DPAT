@@ -1,0 +1,132 @@
+{
+    "Autofill": [
+        {
+            "usage_timestamp": [ 13376835628000000 ],
+            "name": "email",
+            "value": "test@example.com"
+        },
+        {
+            "usage_timestamp": [ 13383238337000000, 13383239291000000 ],
+            "name": "address",
+            "value": "123 Main Street"
+        },
+        {
+            "usage_timestamp": [ 13383238337000000, 13383239291000000 ],
+            "name": "postalCode",
+            "value": "A12B34C"
+        },
+        {
+            "usage_timestamp": [ 13383236383000000, 13383239291000000 ],
+            "name": "phoneNumber",
+            "value": "(+123) 456 7890"
+        },
+        {
+            "usage_timestamp": [ 13383239554000000 ],
+            "name": "adyen-checkout-encryptedExpiryDate-1738765905310",
+            "value": "01/25"
+        },
+        {
+            "usage_timestamp": [ 13377109775000000, 13383229457000000 ],
+            "name": "email",
+            "value": "another.email@example.com"
+        },
+        {
+            "usage_timestamp": [ 13384366157000000 ],
+            "name": "input-v-0-15-0-0-0-0-0",
+            "value": "Software Engineer"
+        },
+        {
+            "usage_timestamp": [ 13383238337000000, 13383238532000000 ],
+            "name": "drivingLicense",
+            "value": "Full License"
+        },
+        {
+            "usage_timestamp": [ 13383239554000000 ],
+            "name": "holderName",
+            "value": "John Doe"
+        },
+        {
+            "usage_timestamp": [ 13376778576000000 ],
+            "name": "companyWebsite",
+            "value": "https://example.com"
+        }
+    ],
+    "Autofill Profile": [
+        {
+            "guid": "12345678-1234-1234-1234-123456789012",
+            "full_name": "John Doe",
+            "company_name": "Example Corp",
+            "street_address": "123 Main St\nApt 4B",
+            "city": "Anytown",
+            "state": "Leitrim",
+            "zipcode": "12345",
+            "country_code": "US",
+            "phone": "+1 555-123-4567",
+            "email": "john.doe@example.com",
+            "use_count": 17,
+            "use_date": 13384450850506217,
+            "date_modified": 13383240942000000
+        },
+        {
+            "guid": "abcdef12-3456-7890-abcd-ef1234567890",
+            "full_name": "Jane Smith",
+            "company_name": "Tech Company",
+            "street_address": "456 Oak Street",
+            "city": "Letterkeny",
+            "state": "Ulster",
+            "zipcode": "94107",
+            "country_code": "US",
+            "phone": "+1 555-987-6543",
+            "email": "jane.smith@techsolutions.example",
+            "use_count": 8,
+            "use_date": 13384450850506100,
+            "date_modified": 13383240942000000
+        }
+    ],
+    "Contact Info": [
+        {
+            "guid": "87654321-4321-4321-4321-210987654321",
+            "name": "Jane Smith",
+            "email": "jane.smith@example.com",
+            "company": "Another Example Inc",
+            "job_title": "Senior Developer",
+            "phone_numbers": [
+                {
+                    "number": "+1 555-987-6543",
+                    "type": "Mobile"
+                },
+                {
+                    "number": "+1 555-123-4567",
+                    "type": "Work"
+                }
+            ],
+            "street_address": "456 Oak Avenue",
+            "city": "Other City",
+            "region": "Galway",
+            "postal_code": "67890",
+            "country": "Ireland",
+            "creation_date": 13375536402123441,
+            "last_used_date": 13383241381000000
+        },
+        {
+            "guid": "11223344-5566-7788-99aa-bbccddeeff00",
+            "name": "Alex Johnson",
+            "email": "alex.johnson@example.org",
+            "company": "Global Innovations",
+            "job_title": "Product Manager",
+            "phone_numbers": [
+                {
+                    "number": "+1 555-765-4321",
+                    "type": "Mobile"
+                }
+            ],
+            "street_address": "789 Pine Lane",
+            "city": "Techville",
+            "region": "Claire",
+            "postal_code": "98765",
+            "country": "Ireland",
+            "creation_date": 13376536402123442,
+            "last_used_date": 13383241381000001
+        }
+    ]
+}

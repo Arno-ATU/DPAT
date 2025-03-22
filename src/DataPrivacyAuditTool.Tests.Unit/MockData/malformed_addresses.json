@@ -1,0 +1,25 @@
+{
+    "Autofill": "not-an-array",
+    "Autofill Profile": [
+        {
+            "guid": 12345,
+            "full_name": true,
+            "company_name": 42,
+            "street_address": [ "not", "a", "string" ],
+            "city": null,
+            "state": {},
+            "zipcode": 12345,
+            "country_code": 42,
+            "phone": false,
+            "email": [ "not", "a", "string" ],
+            "use_count": "seventeen",
+            "use_date": "not-a-number",
+            "date_modified": "yesterday"
+        }
+    ],
+    "Contact Info": {
+        "This": "Should be an array",
+        "Instead": "It is an object",
+        "Which": "Is incorrect"
+    }
+}
