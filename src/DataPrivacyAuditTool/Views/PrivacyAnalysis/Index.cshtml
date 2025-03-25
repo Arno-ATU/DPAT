@@ -1,0 +1,67 @@
+@{
+    ViewData["Title"] = "Privacy Audit Tool";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Personal Data Privacy Audit Tool</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Upload your Google Takeout files to analyze your privacy settings and personal data exposure.</p>
+                    
+                    <div class="alert alert-info">
+                        <h5>How it works:</h5>
+                        <ol>
+                            <li>Download your data from <a href="https://takeout.google.com/" target="_blank">Google Takeout</a></li>
+                            <li>Select only the Chrome browser data</li>
+                            <li>After downloading, extract the files and look for:
+                                <ul>
+                                    <li><strong>Settings.json</strong> - Contains your browser settings</li>
+                                    <li><strong>Addresses and more.json</strong> - Contains your autofill data</li>
+                                </ul>
+                            </li>
+                            <li>Upload one or both files below for analysis</li>
+                        </ol>
+                    </div>
+                    
+                    <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="mb-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">Settings.json</h5>
+                                    <p class="card-text">Analyzes your browser privacy settings, search engines, cookies, and tracking configurations.</p>
+                                    <div class="custom-file">
+                                        <input type="file" class="form-control" id="settingsFile" name="settingsFile" accept=".json">
+                                        <span class="text-danger field-validation-valid" data-valmsg-for="settingsFile" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">Addresses and more.json</h5>
+                                    <p class="card-text">Analyzes personal data exposure, autofill data, and saved information in your browser.</p>
+                                    <div class="custom-file">
+                                        <input type="file" class="form-control" id="addressesFile" name="addressesFile" accept=".json">
+                                        <span class="text-danger field-validation-valid" data-valmsg-for="addressesFile" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Analyze Privacy</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

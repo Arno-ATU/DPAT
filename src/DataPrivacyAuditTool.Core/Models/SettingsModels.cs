@@ -40,6 +40,9 @@ namespace DataPrivacyAuditTool.Core.Models
         [JsonPropertyName("favicon_url")]
         public string FaviconUrl { get; set; }
 
+        [JsonPropertyName("suggestions_url")]
+        public string SuggestionsUrl { get; set; }
+
         [JsonPropertyName("safe_for_autoreplace")]
         public bool SafeForAutoreplace { get; set; }
 

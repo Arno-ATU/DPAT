@@ -1,47 +1,36 @@
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace DataPrivacyAuditTool.Core.Models
 {
-    // This class represents the complete analysis output
+    /// <summary>
+    /// Represents the complete result of a privacy analysis
+    /// </summary>
     public class PrivacyAnalysisResult
     {
-        public double OverallScore { get; set; }
+        /// <summary>
+        /// List of privacy metric categories analyzed
+        /// </summary>
+        [JsonPropertyName("categories")]
         public List<PrivacyMetricCategory> Categories { get; set; } = new List<PrivacyMetricCategory>();
+
+        /// <summary>
+        /// Date and time when the analysis was performed
+        /// </summary>
+        [JsonPropertyName("analysisDate")]
         public DateTime AnalysisDate { get; set; }
+
+        /// <summary>
+        /// Indicates if the analysis is incomplete due to missing files
+        /// </summary>
+        [JsonPropertyName("isPartialAnalysis")]
         public bool IsPartialAnalysis { get; set; }
+
+        /// <summary>
+        /// Message explaining why the analysis is partial
+        /// </summary>
+        [JsonPropertyName("partialAnalysisMessage")]
         public string PartialAnalysisMessage { get; set; }
-
-
-
-        // GetRecomendations(): extracts all important recommendations
-        // Filters to only include Medium or higher risk items
-        // Sorts recommendations by priority
-
-        // This method will be used on the dashboard to show the most critical actions a user should take, without them having to dig through
-        // all the detailed findings.
-
-        public List<PrivacyMetric> GetRecommendations()
-        {
-            var recommendations = new List<PrivacyMetric>();
-
-            foreach (var category in Categories)
-            {
-                foreach (var metric in category.Metrics)
-                {
-                    // Only include metrics with a risk level of Medium or higher
-                    if (metric.RiskLevel >= RiskLevel.Medium && !string.IsNullOrEmpty(metric.Recommendation))
-                    {
-                        recommendations.Add(metric);
-                    }
-                }
-            }
-
-            // Sort by risk level (highest first)
-            recommendations.Sort((a, b) => b.RiskLevel.CompareTo(a.RiskLevel));
-
-            return recommendations;
-        }
     }
 }

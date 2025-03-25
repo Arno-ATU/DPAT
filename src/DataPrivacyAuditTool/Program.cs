@@ -1,55 +1,66 @@
+using DataPrivacyAuditTool.Core.Interfaces;
+using DataPrivacyAuditTool.Infrastructure.Services.Analyzers;
+using DataPrivacyAuditTool.Infrastructure.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
+// Add core MVC services for web application
 builder.Services.AddControllersWithViews();
 
-// Uncomment services as you implement them
+// File Handling Layer - Services for processing and validating uploaded files
+builder.Services.AddScoped<IFileValidationService, FileValidationService>();
+builder.Services.AddScoped<IJsonParsingService, JsonParsingService>();
 
-// File Handling Layer - Your first focus area
-// builder.Services.AddScoped<IFileUploadService, FileUploadService>();
-// builder.Services.AddScoped<IFileValidationService, FileValidationService>();
-// builder.Services.AddScoped<IJsonParsingService, JsonParsingService>();
+// Analysis Layer - Core engine and services for privacy analysis
+builder.Services.AddScoped<IAnalyzerEngine, AnalyzerEngine>();
 
-// Analysis Layer
-// builder.Services.AddScoped<IAnalyzerEngine, AnalyzerEngine>();
-// builder.Services.AddScoped<IRiskAssessmentService, RiskAssessmentService>();
+// Register specialized metric analyzers
+// These allow for modular and extensible privacy metric analysis
+builder.Services.AddScoped<IMetricAnalyzer, SearchEnginePrivacyAnalyzer>();
+builder.Services.AddScoped<IMetricAnalyzer, PersonalDataExposureAnalyzer>();
 
-// Register specialized analyzers
-// builder.Services.AddScoped<IMetricAnalyzer, SearchEngineAnalyzer>();
+// Optional: Additional analyzers can to be added in the future:
 // builder.Services.AddScoped<IMetricAnalyzer, AutofillAnalyzer>();
 // builder.Services.AddScoped<IMetricAnalyzer, CookieAnalyzer>();
 
-// Presentation Layer
+// Optional: Additional services to be added in the futire:
+// builder.Services.AddScoped<IRiskAssessmentService, RiskAssessmentService>();
 // builder.Services.AddScoped<IPrivacyDashboardService, PrivacyDashboardService>();
 // builder.Services.AddScoped<IReportGenerationService, ReportGenerationService>();
-
-// Data Layer
 // builder.Services.AddScoped<IPrivacyMetricsRepository, PrivacyMetricsRepository>();
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-
+// Build the application
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
+    // Use custom error handling in production
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+
+    // HTTP Strict Transport Security (HSTS)
+    // Enforces secure (HTTPS) connections
     app.UseHsts();
 }
 
+// Redirect HTTP to HTTPS
 app.UseHttpsRedirection();
+
+// Enable routing for controllers
 app.UseRouting();
 
+// Enable authorization middleware
 app.UseAuthorization();
 
+// Map static assets for improved performance
 app.MapStaticAssets();
 
+// Configure default route
+// This means the application will start at the Home controller's Index action
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-
+// Start the application
 app.Run();

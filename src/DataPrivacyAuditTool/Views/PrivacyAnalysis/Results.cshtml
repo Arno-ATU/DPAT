@@ -1,0 +1,109 @@
+@model PrivacyAnalysisResult
+@{
+    ViewData["Title"] = "Privacy Analysis Results";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12 col-lg-10 offset-lg-1">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Privacy Analysis Results</h2>
+                </div>
+                <div class="card-body">
+                    @if (Model.IsPartialAnalysis)
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Partial Analysis:</strong> @Model.PartialAnalysisMessage
+                        </div>
+                    }
+                    
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="text-muted">Overall Privacy Score</h5>
+                                    @{
+                                        string scoreColor = "success";
+                                        if (Model.OverallScore < 50) scoreColor = "danger";
+                                        else if (Model.OverallScore < 70) scoreColor = "warning";
+                                    }
+                                    <div class="display-1 text-@scoreColor">@Model.OverallScore.ToString("F1")</div>
+                                    <p class="text-muted mt-2">Analysis performed on @Model.AnalysisDate.ToString("MMM d, yyyy")</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <h4>Top Recommendations</h4>
+                            <div class="list-group">
+                                @foreach (var recommendation in Model.GetRecommendations().Take(3))
+                                {
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">@recommendation.Name</h5>
+                                            @{
+                                                string badgeColor = "success";
+                                                if (recommendation.RiskLevel == RiskLevel.Critical) badgeColor = "danger";
+                                                else if (recommendation.RiskLevel == RiskLevel.High) badgeColor = "danger";
+                                                else if (recommendation.RiskLevel == RiskLevel.Medium) badgeColor = "warning";
+                                            }
+                                            <span class="badge bg-@badgeColor">@recommendation.RiskLevel</span>
+                                        </div>
+                                        <p class="mb-1">@recommendation.Recommendation</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @foreach (var category in Model.Categories)
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="mb-0">@category.Name</h3>
+                        <p class="text-muted mb-0">@category.Description</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th>Value</th>
+                                        <th>Risk Level</th>
+                                        <th>Description</th>
+                                        <th>Recommendation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var metric in category.Metrics)
+                                    {
+                                        <tr>
+                                            <td><strong>@metric.Name</strong></td>
+                                            <td>@metric.Value</td>
+                                            <td>
+                                                @{
+                                                    string metricBadgeColor = "success";
+                                                    if (metric.RiskLevel == RiskLevel.Critical) metricBadgeColor = "danger";
+                                                    else if (metric.RiskLevel == RiskLevel.High) metricBadgeColor = "danger";
+                                                    else if (metric.RiskLevel == RiskLevel.Medium) metricBadgeColor = "warning";
+                                                }
+                                                <span class="badge bg-@metricBadgeColor">@metric.RiskLevel</span>
+                                            </td>
+                                            <td>@metric.Description</td>
+                                            <td>@metric.Recommendation</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
