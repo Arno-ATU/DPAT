@@ -1,36 +1,31 @@
+// File: DataPrivacyAuditTool.Core/Models/PrivacyAnalysisResult.cs
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using System.Linq;
 
 namespace DataPrivacyAuditTool.Core.Models
 {
-    /// <summary>
-    /// Represents the complete result of a privacy analysis
-    /// </summary>
     public class PrivacyAnalysisResult
     {
-        /// <summary>
-        /// List of privacy metric categories analyzed
-        /// </summary>
-        [JsonPropertyName("categories")]
         public List<PrivacyMetricCategory> Categories { get; set; } = new List<PrivacyMetricCategory>();
 
-        /// <summary>
-        /// Date and time when the analysis was performed
-        /// </summary>
-        [JsonPropertyName("analysisDate")]
-        public DateTime AnalysisDate { get; set; }
+        public DateTime AnalysisDate { get; set; } = DateTime.UtcNow;
 
-        /// <summary>
-        /// Indicates if the analysis is incomplete due to missing files
-        /// </summary>
-        [JsonPropertyName("isPartialAnalysis")]
-        public bool IsPartialAnalysis { get; set; }
+        public bool IsPartialAnalysis { get; set; } = false;
 
-        /// <summary>
-        /// Message explaining why the analysis is partial
-        /// </summary>
-        [JsonPropertyName("partialAnalysisMessage")]
         public string PartialAnalysisMessage { get; set; }
+
+        public double OverallScore { get; set; } = 0.0;
+
+        public IEnumerable<PrivacyMetric> GetRecommendations()
+        {
+            return Categories?
+                .SelectMany(c => c.Metrics ?? Enumerable.Empty<PrivacyMetric>())
+                .Where(m => m != null &&
+                       (m.RiskLevel == RiskLevel.High ||
+                        m.RiskLevel == RiskLevel.Critical))
+                .OrderBy(m => m.RiskLevel)
+                .Take(5) ?? Enumerable.Empty<PrivacyMetric>();
+        }
     }
 }

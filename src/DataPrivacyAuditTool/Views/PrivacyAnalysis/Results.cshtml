@@ -1,108 +1,168 @@
-@model PrivacyAnalysisResult
+@using DataPrivacyAuditTool.Core.Models
+@model DataPrivacyAuditTool.Core.Models.PrivacyAnalysisResult
+
 @{
     ViewData["Title"] = "Privacy Analysis Results";
+    
+    // Safely handle null or empty model scenarios
+    var categories = Model?.Categories ?? new List<PrivacyMetricCategory>();
+    var overallScore = Model?.OverallScore ?? 0.0;
+    var analysisDate = Model?.AnalysisDate ?? DateTime.UtcNow;
+    var isPartialAnalysis = Model?.IsPartialAnalysis ?? true;
+    var partialMessage = Model?.PartialAnalysisMessage ?? "Some data could not be fully analyzed";
+    
+    // Determine score color based on privacy score
+    string GetScoreColor(double score)
+    {
+        return score switch 
+        {
+            double s when s < 30 => "danger",
+            double s when s < 60 => "warning",
+            _ => "success"
+        };
+    }
+
+    // Determine badge color for risk levels
+    string GetRiskBadgeColor(RiskLevel riskLevel)
+    {
+        return riskLevel switch
+        {
+            RiskLevel.Critical => "danger",
+            RiskLevel.High => "danger",
+            RiskLevel.Medium => "warning",
+            _ => "success"
+        };
+    }
 }
 
 <div class="container-fluid mt-4">
     <div class="row">
         <div class="col-12 col-lg-10 offset-lg-1">
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Privacy Analysis Results</h2>
+            @if (Model == null)
+            {
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    No analysis results available. Please upload your files again.
                 </div>
-                <div class="card-body">
-                    @if (Model.IsPartialAnalysis)
-                    {
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Partial Analysis:</strong> @Model.PartialAnalysisMessage
-                        </div>
-                    }
-                    
-                    <div class="row">
-                        <div class="col-md-4 text-center">
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <h5 class="text-muted">Overall Privacy Score</h5>
+            }
+            else 
+            {
+                @* Main Analysis Card *@
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0">Privacy Analysis Results</h2>
+                    </div>
+                    <div class="card-body">
+                        @* Partial Analysis Warning *@
+                        @if (isPartialAnalysis)
+                        {
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Partial Analysis:</strong> @partialMessage
+                            </div>
+                        }
+                        
+                        <div class="row">
+                            @* Overall Privacy Score *@
+                            <div class="col-md-4 text-center">
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h5 class="text-muted">Overall Privacy Score</h5>
+                                        <div class="display-1 text-@GetScoreColor(overallScore)">
+                                            @overallScore.ToString("F1")
+                                        </div>
+                                        <p class="text-muted mt-2">
+                                            Analysis performed on @analysisDate.ToString("MMM d, yyyy")
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            @* Top Recommendations *@
+                            <div class="col-md-8">
+                                <h4>Top Recommendations</h4>
+                                <div class="list-group">
                                     @{
-                                        string scoreColor = "success";
-                                        if (Model.OverallScore < 50) scoreColor = "danger";
-                                        else if (Model.OverallScore < 70) scoreColor = "warning";
+                                        var recommendations = Model.GetRecommendations().Take(3);
                                     }
-                                    <div class="display-1 text-@scoreColor">@Model.OverallScore.ToString("F1")</div>
-                                    <p class="text-muted mt-2">Analysis performed on @Model.AnalysisDate.ToString("MMM d, yyyy")</p>
+                                    @if (!recommendations.Any())
+                                    {
+                                        <div class="list-group-item">
+                                            <p class="mb-0">No specific recommendations at this time.</p>
+                                        </div>
+                                    }
+                                    else 
+                                    {
+                                        @foreach (var recommendation in recommendations)
+                                        {
+                                            <div class="list-group-item">
+                                                <div class="d-flex w-100 justify-content-between">
+                                                    <h5 class="mb-1">@recommendation.Name</h5>
+                                                    <span class="badge bg-@GetRiskBadgeColor(recommendation.RiskLevel)">
+                                                        @recommendation.RiskLevel
+                                                    </span>
+                                                </div>
+                                                <p class="mb-1">@recommendation.Recommendation</p>
+                                            </div>
+                                        }
+                                    }
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="col-md-8">
-                            <h4>Top Recommendations</h4>
-                            <div class="list-group">
-                                @foreach (var recommendation in Model.GetRecommendations().Take(3))
-                                {
-                                    <div class="list-group-item">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h5 class="mb-1">@recommendation.Name</h5>
-                                            @{
-                                                string badgeColor = "success";
-                                                if (recommendation.RiskLevel == RiskLevel.Critical) badgeColor = "danger";
-                                                else if (recommendation.RiskLevel == RiskLevel.High) badgeColor = "danger";
-                                                else if (recommendation.RiskLevel == RiskLevel.Medium) badgeColor = "warning";
+                    </div>
+                </div>
+
+                @* Category Analysis *@
+                @if (!categories.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No privacy metrics were found during the analysis.
+                    </div>
+                }
+                else 
+                {
+                    @foreach (var category in categories)
+                    {
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h3 class="mb-0">@category.Name</h3>
+                                <p class="text-muted mb-0">@category.Description</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Metric</th>
+                                                <th>Value</th>
+                                                <th>Risk Level</th>
+                                                <th>Description</th>
+                                                <th>Recommendation</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var metric in category.Metrics ?? Enumerable.Empty<PrivacyMetric>())
+                                            {
+                                                <tr>
+                                                    <td><strong>@metric.Name</strong></td>
+                                                    <td>@metric.Value</td>
+                                                    <td>
+                                                        <span class="badge bg-@GetRiskBadgeColor(metric.RiskLevel)">
+                                                            @metric.RiskLevel
+                                                        </span>
+                                                    </td>
+                                                    <td>@metric.Description</td>
+                                                    <td>@metric.Recommendation</td>
+                                                </tr>
                                             }
-                                            <span class="badge bg-@badgeColor">@recommendation.RiskLevel</span>
-                                        </div>
-                                        <p class="mb-1">@recommendation.Recommendation</p>
-                                    </div>
-                                }
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            @foreach (var category in Model.Categories)
-            {
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h3 class="mb-0">@category.Name</h3>
-                        <p class="text-muted mb-0">@category.Description</p>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Metric</th>
-                                        <th>Value</th>
-                                        <th>Risk Level</th>
-                                        <th>Description</th>
-                                        <th>Recommendation</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var metric in category.Metrics)
-                                    {
-                                        <tr>
-                                            <td><strong>@metric.Name</strong></td>
-                                            <td>@metric.Value</td>
-                                            <td>
-                                                @{
-                                                    string metricBadgeColor = "success";
-                                                    if (metric.RiskLevel == RiskLevel.Critical) metricBadgeColor = "danger";
-                                                    else if (metric.RiskLevel == RiskLevel.High) metricBadgeColor = "danger";
-                                                    else if (metric.RiskLevel == RiskLevel.Medium) metricBadgeColor = "warning";
-                                                }
-                                                <span class="badge bg-@metricBadgeColor">@metric.RiskLevel</span>
-                                            </td>
-                                            <td>@metric.Description</td>
-                                            <td>@metric.Recommendation</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                    }
+                }
             }
         </div>
     </div>
