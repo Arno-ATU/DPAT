@@ -7,7 +7,7 @@ namespace DataPrivacyAuditTool.Core.Models
         High,
         Critical
     }
-
+    // class represents an individual finding from an analyzer.
     public class PrivacyMetric
     {
         public string Name { get; set; }
