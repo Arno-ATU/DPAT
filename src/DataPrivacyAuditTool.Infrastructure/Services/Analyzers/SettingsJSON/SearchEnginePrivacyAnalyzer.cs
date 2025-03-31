@@ -11,15 +11,34 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
         public override string CategoryName => "Search Engine Privacy";
         public override string Description => "Analyzes your search engine settings for privacy implications";
 
-        private static readonly HashSet<string> PrivacyFocusedEngines = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly Dictionary<string, PrivacyLevel> SearchEnginePrivacyLevels = new Dictionary<string, PrivacyLevel>(StringComparer.OrdinalIgnoreCase)
         {
-            "DuckDuckGo", "Qwant", "Brave", "Firefox", "PrivacyWall", "Ecosia"
+            // High Privacy Engines
+            { "DuckDuckGo", PrivacyLevel.High },
+            { "Brave", PrivacyLevel.High },
+            { "Proton", PrivacyLevel.High },
+            { "PrivacyWall", PrivacyLevel.High },
+            { "Firefox", PrivacyLevel.High },
+
+            // Medium Privacy Engines
+            { "Qwant", PrivacyLevel.Medium },
+            { "Ecosia", PrivacyLevel.Medium },
+            { "Startpage", PrivacyLevel.Medium },
+
+
+            // Low Privacy Engines
+            { "Google", PrivacyLevel.Low },
+            { "Bing", PrivacyLevel.Low },
+            { "Yahoo", PrivacyLevel.Low },
+            { "Edge", PrivacyLevel.Low }
         };
 
-        private static readonly HashSet<string> LowPrivacyEngines = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private enum PrivacyLevel
         {
-            "Google", "Bing", "Yahoo", "Opera", "Edge"
-        };
+            Low,
+            Medium,
+            High
+        }
 
         protected override Task<PrivacyMetricCategory> AnalyzeSettingsAsync(SettingsData settingsData)
         {
@@ -30,17 +49,9 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
                 Metrics = new List<PrivacyMetric>()
             };
 
-            // Find default search engine
-            var defaultSearchEngineMetric = AnalyzeDefaultSearchEngine(settingsData);
-            category.Metrics.Add(defaultSearchEngineMetric);
+            // Add default search engine metric
+            category.Metrics.Add(AnalyzeDefaultSearchEngine(settingsData));
 
-            // Analyze search suggestions
-            var searchSuggestionsMetric = AnalyzeSearchSuggestions(settingsData);
-            category.Metrics.Add(searchSuggestionsMetric);
-
-            // Analyze privacy-focused engines
-            var privacyEnginesMetric = AnalyzePrivacyEngines(settingsData);
-            category.Metrics.Add(privacyEnginesMetric);
 
             return Task.FromResult(category);
         }
@@ -49,24 +60,10 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
         {
             // Find the default search engine GUID
             var defaultSearchGuid = settingsData.Preferences
-                .FirstOrDefault(p => p.Name == "default_search_provider.synced_guid")?.Value;
+                .FirstOrDefault(p => p.Name == "default_search_provider.synced_guid")?.Value
+                ?.Replace("\"", "");
 
-            if (string.IsNullOrEmpty(defaultSearchGuid))
-            {
-                return new PrivacyMetric
-                {
-                    Name = "Default Search Engine",
-                    Value = "Unknown",
-                    RiskLevel = RiskLevel.Medium,
-                    Description = "Unable to determine default search engine",
-                    Recommendation = "Always consider setting a privacy-focused search engine as your default"
-                };
-            }
-
-            // Clean up the GUID (it might have quotes)
-            defaultSearchGuid = defaultSearchGuid.Replace("\"", "");
-
-            // Find the engine with this GUID
+            // Find the default engine
             var defaultEngine = settingsData.SearchEngines
                 .FirstOrDefault(se => se.SyncGuid == defaultSearchGuid);
 
@@ -77,30 +74,24 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
                     Name = "Default Search Engine",
                     Value = "Unknown",
                     RiskLevel = RiskLevel.Medium,
-                    Description = "Unable to find default search engine in settings",
-                    Recommendation = "Always consider setting a privacy-focused search engine as your default"
+                    Description = "Unable to determine default search engine",
+                    Recommendation = "Set a privacy-focused search engine as your default"
                 };
             }
 
-            // Evaluate privacy level of this engine
-            RiskLevel riskLevel;
-            string recommendation;
+            // Determine privacy level
+            var privacyLevel = SearchEnginePrivacyLevels.TryGetValue(defaultEngine.ShortName, out var level)
+                ? level
+                : PrivacyLevel.Medium;
 
-            if (PrivacyFocusedEngines.Contains(defaultEngine.ShortName))
+            // Map privacy levels to risk levels and create appropriate recommendation
+            var (riskLevel, recommendation) = privacyLevel switch
             {
-                riskLevel = RiskLevel.Low;
-                recommendation = "Your default search engine prioritizes privacy. Good choice!";
-            }
-            else if (LowPrivacyEngines.Contains(defaultEngine.ShortName))
-            {
-                riskLevel = RiskLevel.High;
-                recommendation = "Consider switching to a privacy-focused search engine like DuckDuckGo, Brave, or Firefox";
-            }
-            else
-            {
-                riskLevel = RiskLevel.Medium;
-                recommendation = "Consider researching the privacy policy of your search engine or switching to a known privacy-focused alternative";
-            }
+                PrivacyLevel.High => (RiskLevel.Low, $"{defaultEngine.ShortName} is an excellent privacy-focused search engine. Great choice!"),
+                PrivacyLevel.Medium => (RiskLevel.Medium, $"{defaultEngine.ShortName} offers moderate privacy protection. Consider a more privacy-focused alternative."),
+                PrivacyLevel.Low => (RiskLevel.High, $"{defaultEngine.ShortName} has known privacy concerns. Consider switching to a privacy-focused search engine."),
+                _ => (RiskLevel.Medium, "Review your search engine's privacy settings")
+            };
 
             return new PrivacyMetric
             {
@@ -112,86 +103,6 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             };
         }
 
-        private PrivacyMetric AnalyzeSearchSuggestions(SettingsData settingsData)
-        {
-            // Most engines have suggestions_url if suggestions are enabled
-            int enginesWithSuggestions = settingsData.SearchEngines
-                .Count(se => !string.IsNullOrEmpty(se.SuggestionsUrl));
-
-            var activeEngines = settingsData.SearchEngines
-                .Where(se => se.IsActive == "ACTIVE_STATUS_TRUE")
-                .ToList();
-
-            int activeEnginesWithSuggestions = activeEngines
-                .Count(se => !string.IsNullOrEmpty(se.SuggestionsUrl));
-
-            RiskLevel riskLevel;
-            string description;
-            string recommendation;
-
-            if (activeEnginesWithSuggestions == 0)
-            {
-                riskLevel = RiskLevel.Low;
-                description = "Search suggestions appear to be disabled for active search engines";
-                recommendation = "This is good for privacy as search suggestions send your typing to search providers";
-            }
-            else if (activeEnginesWithSuggestions < activeEngines.Count)
-            {
-                riskLevel = RiskLevel.Medium;
-                description = $"Search suggestions are enabled for {activeEnginesWithSuggestions} out of {activeEngines.Count} active search engines";
-                recommendation = "Consider disabling search suggestions for all engines to improve privacy";
-            }
-            else
-            {
-                riskLevel = RiskLevel.High;
-                description = "Search suggestions are enabled for all active search engines";
-                recommendation = "Search suggestions send your typing to search providers in real-time. Consider disabling them for better privacy";
-            }
-
-            return new PrivacyMetric
-            {
-                Name = "Search Suggestions",
-                Value = $"{activeEnginesWithSuggestions}/{activeEngines.Count}",
-                RiskLevel = riskLevel,
-                Description = description,
-                Recommendation = recommendation
-            };
-        }
-
-        private PrivacyMetric AnalyzePrivacyEngines(SettingsData settingsData)
-        {
-            int privacyEngineCount = settingsData.SearchEngines
-                .Count(se => PrivacyFocusedEngines.Contains(se.ShortName));
-
-            int totalEngines = settingsData.SearchEngines.Count;
-
-            RiskLevel riskLevel;
-            string recommendation;
-
-            if (privacyEngineCount == 0)
-            {
-                riskLevel = RiskLevel.High;
-                recommendation = "Consider adding privacy-focused search engines like DuckDuckGo, Brave, or Qwant";
-            }
-            else if (privacyEngineCount >= 2)
-            {
-                riskLevel = RiskLevel.Low;
-                recommendation = "You have multiple privacy-focused search engines configured. Great job!";
-            }
-            else
-            {
-                riskLevel = RiskLevel.Medium;
-                recommendation = "Consider adding more privacy-focused search engines as alternatives";
-            }
-
-            return new PrivacyMetric
-            {
-                Name = "Privacy-Focused Search Engines",
-                Value = $"{privacyEngineCount}/{totalEngines}",
-                RiskLevel = riskLevel,
-                Description = $"You have {privacyEngineCount} privacy-focused search engines configured out of {totalEngines} total engines",
-                Recommendation = recommendation
-            };
-        }
+        
     }
 }

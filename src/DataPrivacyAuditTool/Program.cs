@@ -25,7 +25,7 @@ builder.Services.AddScoped<IMetricAnalyzer, PersonalDataExposureAnalyzer>();
 
 // Optional: Additional services to be added in the futire:
 // builder.Services.AddScoped<IRiskAssessmentService, RiskAssessmentService>();
-// builder.Services.AddScoped<IPrivacyDashboardService, PrivacyDashboardService>();
+builder.Services.AddScoped<IPrivacyDashboardService, PrivacyDashboardService>();
 // builder.Services.AddScoped<IReportGenerationService, ReportGenerationService>();
 // builder.Services.AddScoped<IPrivacyMetricsRepository, PrivacyMetricsRepository>();
 

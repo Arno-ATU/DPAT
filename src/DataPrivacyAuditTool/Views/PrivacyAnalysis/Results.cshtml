@@ -167,127 +167,142 @@
 </div>
 
 @section Scripts {
-    @if (Model?.AnalysisResult != null)
-    {
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Prepare data for charts
-                const categoryLabels = @Json.Serialize(Model.CategoryScores.Select(c => c.Label));
-                const categoryValues = @Json.Serialize(Model.CategoryScores.Select(c => c.Value));
-                const categoryColors = @Json.Serialize(Model.CategoryScores.Select(c => c.Color));
-                
-                const riskLabels = @Json.Serialize(Model.RiskBreakdown.Select(r => r.RiskLevel));
-                const riskCounts = @Json.Serialize(Model.RiskBreakdown.Select(r => r.Count));
-                const riskColors = @Json.Serialize(Model.RiskBreakdown.Select(r => r.Color));
-                
-                const overallScore = @Json.Serialize(Model.OverallScore.Value);
-                const scoreColor = @Json.Serialize(Model.OverallScore.Color);
-                
-                // Radar Chart for Category Scores
-                new Chart(document.getElementById('categoryRadarChart'), {
-                    type: 'radar',
-                    data: {
-                        labels: categoryLabels,
-                        datasets: [{
-                            label: 'Privacy Score',
-                            data: categoryValues,
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            pointBackgroundColor: categoryColors,
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: 'rgba(54, 162, 235, 1)'
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            r: {
-                                angleLines: {
-                                    display: true
-                                },
-                                beginAtZero: true,
-                                min: 0,
-                                max: 100,
-                                ticks: {
-                                    stepSize: 20
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.raw + '/100';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-                
-                // Donut Chart for Risk Breakdown
-                new Chart(document.getElementById('riskDonutChart'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: riskLabels,
-                        datasets: [{
-                            data: riskCounts,
-                            backgroundColor: riskColors,
-                            hoverOffset: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'right',
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = Math.round((value / total) * 100);
-                                        return `${label}: ${value} (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-                
-                // Gauge Chart for Overall Score
-                new Chart(document.getElementById('scoreGaugeChart'), {
-                    type: 'doughnut',
-                    data: {
-                        datasets: [{
-                            data: [overallScore, 100 - overallScore],
-                            backgroundColor: [
-                                scoreColor,
-                                '#e9ecef'
-                            ],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        circumference: 180,
-                        rotation: -90,
-                        cutout: '80%',
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                enabled: false
-                            }
-                        }
-                    }
-                });
-            });
-        </script>
-    }
+	@if (Model?.AnalysisResult != null)
+	{
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				// Prepare data for charts
+				const categoryLabels = @Json.Serialize(Model.CategoryScores.Select(c => c.Label));
+				const categoryValues = @Json.Serialize(Model.CategoryScores.Select(c => c.Value));
+				const categoryColors = @Json.Serialize(Model.CategoryScores.Select(c => c.Color));
+
+				const riskLabels = @Json.Serialize(Model.RiskBreakdown.Select(r => r.RiskLevel));
+				const riskCounts = @Json.Serialize(Model.RiskBreakdown.Select(r => r.Count));
+				const riskColors = @Json.Serialize(Model.RiskBreakdown.Select(r => r.Color));
+
+				const overallScore = @Json.Serialize(Model.OverallScore.Value);
+				const scoreColor = @Json.Serialize(Model.OverallScore.Color);
+
+				// Horizontal Bar Chart for Category Scores
+				new Chart(document.getElementById('categoryRadarChart'), {
+					type: 'bar',
+					data: {
+						labels: categoryLabels,
+						datasets: [{
+							label: 'Privacy Score',
+							data: categoryValues,
+							backgroundColor: categoryColors,
+							borderColor: 'rgba(54, 162, 235, 1)',
+							borderWidth: 1
+						}]
+					},
+					options: {
+						indexAxis: 'y',
+						scales: {
+							x: {
+								beginAtZero: true,
+								max: 100,
+								ticks: {
+									callback: function(value) {
+										return value + '%';
+									}
+				}
+			},
+							y: {
+								grid: {
+									display: false
+								}
+							}
+						},
+						plugins: {
+							tooltip: {
+								callbacks: {
+									label: function(context) {
+										return `${context.dataset.label}: ${context.formattedValue}%`;
+									}
+								}
+							}
+						}
+					}
+				});
+
+				// Pie Chart for Risk Breakdown with Percentages
+				new Chart(document.getElementById('riskDonutChart'), {
+					type: 'pie',
+					data: {
+						labels: riskLabels,
+						datasets: [{
+							data: riskCounts,
+							backgroundColor: [
+								'#28a745', // Green for Low
+								'#ffc107', // Yellow for Medium
+								'#fd7e14', // Orange for High
+								'#dc3545'  // Red for Critical
+							]
+						}]
+					},
+					options: {
+						responsive: true,
+						plugins: {
+							legend: {
+								position: 'right',
+								labels: {
+									usePointStyle: true,
+									generateLabels: function(chart) {
+										const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+										return chart.data.labels.map((label, index) => {
+											const value = chart.data.datasets[0].data[index];
+											const percentage = Math.round((value / total) * 100);
+											return {
+												text: `${label}: ${value} (${percentage}%)`,
+												fillStyle: chart.data.datasets[0].backgroundColor[index]
+											};
+										});
+									}
+								}
+							},
+							tooltip: {
+								callbacks: {
+									label: function(context) {
+										const total = context.dataset.data.reduce((a, b) => a + b, 0);
+										const value = context.raw;
+										const percentage = Math.round((value / total) * 100);
+										return `${context.label}: ${value} (${percentage}%)`;
+									}
+								}
+							}
+						}
+					}
+				});
+
+				// Existing Gauge Chart for Overall Score remains the same
+				new Chart(document.getElementById('scoreGaugeChart'), {
+					type: 'doughnut',
+					data: {
+						datasets: [{
+							data: [overallScore, 100 - overallScore],
+							backgroundColor: [
+								scoreColor,
+								'#e9ecef'
+							],
+							borderWidth: 0
+						}]
+					},
+					options: {
+						circumference: 180,
+						rotation: -90,
+						cutout: '80%',
+						plugins: {
+							legend: {
+								display: false
+							},
+							tooltip: {
+								enabled: false
+							}
+						}
+					}
+				});
+			});
+		</script>
+	}
 }
