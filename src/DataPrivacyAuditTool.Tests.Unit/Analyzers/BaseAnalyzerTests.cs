@@ -1,6 +1,9 @@
 using DataPrivacyAuditTool.Core.Interfaces;
 using DataPrivacyAuditTool.Core.Models;
 using DataPrivacyAuditTool.Infrastructure.Services.Analyzers;
+using System;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
 {
