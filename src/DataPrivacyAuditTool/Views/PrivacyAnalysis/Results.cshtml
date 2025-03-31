@@ -1,27 +1,9 @@
 @using DataPrivacyAuditTool.Core.Models
-@model DataPrivacyAuditTool.Core.Models.PrivacyAnalysisResult
+@model DataPrivacyAuditTool.Core.Models.ViewModels.PrivacyDashboardViewModel
 
 @{
     ViewData["Title"] = "Privacy Analysis Results";
     
-    // Safely handle null or empty model scenarios
-    var categories = Model?.Categories ?? new List<PrivacyMetricCategory>();
-    var overallScore = Model?.OverallScore ?? 0.0;
-    var analysisDate = Model?.AnalysisDate ?? DateTime.UtcNow;
-    var isPartialAnalysis = Model?.IsPartialAnalysis ?? true;
-    var partialMessage = Model?.PartialAnalysisMessage ?? "Some data could not be fully analyzed";
-    
-    // Determine score color based on privacy score
-    string GetScoreColor(double score)
-    {
-        return score switch 
-        {
-            double s when s < 30 => "danger",
-            double s when s < 60 => "warning",
-            _ => "success"
-        };
-    }
-
     // Determine badge color for risk levels
     string GetRiskBadgeColor(RiskLevel riskLevel)
     {
@@ -38,7 +20,7 @@
 <div class="container-fluid mt-4">
     <div class="row">
         <div class="col-12 col-lg-10 offset-lg-1">
-            @if (Model == null)
+            @if (Model?.AnalysisResult == null)
             {
                 <div class="alert alert-warning">
                     <i class="fas fa-exclamation-triangle me-2"></i>
@@ -47,45 +29,39 @@
             }
             else 
             {
-                @* Main Analysis Card *@
                 <div class="card mb-4">
                     <div class="card-header bg-primary text-white">
                         <h2 class="mb-0">Privacy Analysis Results</h2>
                     </div>
                     <div class="card-body">
-                        @* Partial Analysis Warning *@
-                        @if (isPartialAnalysis)
+                        @if (Model.AnalysisResult.IsPartialAnalysis)
                         {
                             <div class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                <strong>Partial Analysis:</strong> @partialMessage
+                                <strong>Partial Analysis:</strong> @Model.AnalysisResult.PartialAnalysisMessage
                             </div>
                         }
                         
                         <div class="row">
-                            @* Overall Privacy Score *@
-                            <div class="col-md-4 text-center">
+                            <div class="col-md-4">
                                 <div class="card mb-3">
-                                    <div class="card-body">
+                                    <div class="card-body text-center">
                                         <h5 class="text-muted">Overall Privacy Score</h5>
-                                        <div class="display-1 text-@GetScoreColor(overallScore)">
-                                            @overallScore.ToString("F1")
+                                        <canvas id="scoreGaugeChart" height="200"></canvas>
+                                        <div class="display-4 mt-3" style="color: @Model.OverallScore.Color">
+                                            @Model.OverallScore.Value
                                         </div>
                                         <p class="text-muted mt-2">
-                                            Analysis performed on @analysisDate.ToString("MMM d, yyyy")
+                                            Analysis performed on @Model.AnalysisResult.AnalysisDate.ToString("MMM d, yyyy")
                                         </p>
                                     </div>
                                 </div>
                             </div>
                             
-                            @* Top Recommendations *@
                             <div class="col-md-8">
                                 <h4>Top Recommendations</h4>
                                 <div class="list-group">
-                                    @{
-                                        var recommendations = Model.GetRecommendations().Take(3);
-                                    }
-                                    @if (!recommendations.Any())
+                                    @if (!Model.TopRecommendations.Any())
                                     {
                                         <div class="list-group-item">
                                             <p class="mb-0">No specific recommendations at this time.</p>
@@ -93,7 +69,7 @@
                                     }
                                     else 
                                     {
-                                        @foreach (var recommendation in recommendations)
+                                        @foreach (var recommendation in Model.TopRecommendations)
                                         {
                                             <div class="list-group-item">
                                                 <div class="d-flex w-100 justify-content-between">
@@ -112,17 +88,32 @@
                     </div>
                 </div>
 
-                @* Category Analysis *@
-                @if (!categories.Any())
-                {
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        No privacy metrics were found during the analysis.
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Category Scores</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="categoryRadarChart" height="300"></canvas>
+                            </div>
+                        </div>
                     </div>
-                }
-                else 
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Risk Breakdown</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="riskDonutChart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.AnalysisResult.Categories?.Any() == true)
                 {
-                    @foreach (var category in categories)
+                    @foreach (var category in Model.AnalysisResult.Categories)
                     {
                         <div class="card mb-4">
                             <div class="card-header">
@@ -163,7 +154,140 @@
                         </div>
                     }
                 }
+                else
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No privacy metrics were found during the analysis.
+                    </div>
+                }
             }
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @if (Model?.AnalysisResult != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Prepare data for charts
+                const categoryLabels = @Json.Serialize(Model.CategoryScores.Select(c => c.Label));
+                const categoryValues = @Json.Serialize(Model.CategoryScores.Select(c => c.Value));
+                const categoryColors = @Json.Serialize(Model.CategoryScores.Select(c => c.Color));
+                
+                const riskLabels = @Json.Serialize(Model.RiskBreakdown.Select(r => r.RiskLevel));
+                const riskCounts = @Json.Serialize(Model.RiskBreakdown.Select(r => r.Count));
+                const riskColors = @Json.Serialize(Model.RiskBreakdown.Select(r => r.Color));
+                
+                const overallScore = @Json.Serialize(Model.OverallScore.Value);
+                const scoreColor = @Json.Serialize(Model.OverallScore.Color);
+                
+                // Radar Chart for Category Scores
+                new Chart(document.getElementById('categoryRadarChart'), {
+                    type: 'radar',
+                    data: {
+                        labels: categoryLabels,
+                        datasets: [{
+                            label: 'Privacy Score',
+                            data: categoryValues,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            pointBackgroundColor: categoryColors,
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(54, 162, 235, 1)'
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    display: true
+                                },
+                                beginAtZero: true,
+                                min: 0,
+                                max: 100,
+                                ticks: {
+                                    stepSize: 20
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.raw + '/100';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Donut Chart for Risk Breakdown
+                new Chart(document.getElementById('riskDonutChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: riskLabels,
+                        datasets: [{
+                            data: riskCounts,
+                            backgroundColor: riskColors,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Gauge Chart for Overall Score
+                new Chart(document.getElementById('scoreGaugeChart'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [overallScore, 100 - overallScore],
+                            backgroundColor: [
+                                scoreColor,
+                                '#e9ecef'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        circumference: 180,
+                        rotation: -90,
+                        cutout: '80%',
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                enabled: false
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
+    }
+}

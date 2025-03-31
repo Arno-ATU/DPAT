@@ -12,15 +12,18 @@ namespace DataPrivacyAuditTool.Controllers
         private readonly IFileValidationService _fileValidationService;
         private readonly IJsonParsingService _jsonParsingService;
         private readonly IAnalyzerEngine _analyzerEngine;
+        private readonly IPrivacyDashboardService _dashboardService;
 
         public PrivacyAnalysisController(
             IFileValidationService fileValidationService,
             IJsonParsingService jsonParsingService,
-            IAnalyzerEngine analyzerEngine)
+            IAnalyzerEngine analyzerEngine,
+            IPrivacyDashboardService dashboardService)
         {
             _fileValidationService = fileValidationService;
             _jsonParsingService = jsonParsingService;
             _analyzerEngine = analyzerEngine;
+            _dashboardService = dashboardService;
         }
 
         public IActionResult Index()
@@ -83,8 +86,12 @@ namespace DataPrivacyAuditTool.Controllers
             // Retrieve the analysis result from TempData
             if (TempData["AnalysisResult"] is string serializedResult)
             {
-                var analysisResult = System.Text.Json.JsonSerializer.Deserialize<PrivacyAnalysisResult>(serializedResult);
-                return View(analysisResult);
+                var analysisResult = JsonSerializer.Deserialize<PrivacyAnalysisResult>(serializedResult);
+
+                // Prepare dashboard data
+                var dashboardData = _dashboardService.PrepareDashboardData(analysisResult);
+
+                return View(dashboardData);
             }
 
             return RedirectToAction("Index");
