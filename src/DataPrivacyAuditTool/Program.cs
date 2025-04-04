@@ -18,6 +18,7 @@ builder.Services.AddScoped<IAnalyzerEngine, AnalyzerEngine>();
 // These allow for modular and extensible privacy metric analysis
 builder.Services.AddScoped<IMetricAnalyzer, SearchEnginePrivacyAnalyzer>();
 builder.Services.AddScoped<IMetricAnalyzer, PersonalDataExposureAnalyzer>();
+builder.Services.AddScoped<IMetricAnalyzer, CookiePrivacyAnalyzer>();
 
 // Optional: Additional analyzers can to be added in the future:
 // builder.Services.AddScoped<IMetricAnalyzer, AutofillAnalyzer>();
