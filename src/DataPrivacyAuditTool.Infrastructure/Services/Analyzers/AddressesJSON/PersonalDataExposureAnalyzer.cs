@@ -100,42 +100,62 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
 
         private PrivacyMetric AnalyzePhoneExposure(AddressData addressesData)
         {
-            // Find phone numbers in autofill entries
+            // Keep track of all unique phone numbers across all collections
+            var allUniquePhoneNumbers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            // Find phone numbers in autofill entries - collect the actual values
             var phonesInAutofill = addressesData.Autofill
                 .Where(a => a.Name?.ToLower().Contains("phone") == true ||
                            a.Name?.ToLower().Contains("mobile") == true ||
                            a.Name?.ToLower().Contains("tel") == true)
-                .Select(a => a.Value)
+                .Select(a => NormalizePhoneNumber(a.Value))
                 .Where(v => !string.IsNullOrEmpty(v))
-                .Distinct()
-                .Count();
+                .ToList();
 
-            // Find phones in profiles
+            // Add to our unique collection
+            foreach (var phone in phonesInAutofill)
+            {
+                allUniquePhoneNumbers.Add(phone);
+            }
+
+            // Find phones in profiles - collect the actual values
             var phonesInProfiles = addressesData.AutofillProfile
                 .Where(p => !string.IsNullOrEmpty(p.Phone))
-                .Select(p => p.Phone)
-                .Distinct()
-                .Count();
+                .Select(p => NormalizePhoneNumber(p.Phone))
+                .ToList();
 
-            // Find phones in contacts
+            // Add to our unique collection
+            foreach (var phone in phonesInProfiles)
+            {
+                allUniquePhoneNumbers.Add(phone);
+            }
+
+            // Find phones in contacts - collect the actual values
             var phonesInContacts = addressesData.ContactInfo
                 .SelectMany(c => c.PhoneNumbers)
-                .Select(p => p.Number)
+                .Select(p => NormalizePhoneNumber(p.Number))
                 .Where(n => !string.IsNullOrEmpty(n))
-                .Distinct()
-                .Count();
+                .ToList();
 
-            int totalPhones = phonesInAutofill + phonesInProfiles + phonesInContacts;
+            // Add to our unique collection
+            foreach (var phone in phonesInContacts)
+            {
+                allUniquePhoneNumbers.Add(phone);
+            }
+
+            // Calculate total occurrences and unique count
+            int totalPhoneOccurrences = phonesInAutofill.Count + phonesInProfiles.Count + phonesInContacts.Count;
+            int uniquePhones = allUniquePhoneNumbers.Count;
 
             RiskLevel riskLevel;
             string recommendation;
 
-            if (totalPhones == 0)
+            if (uniquePhones == 0)
             {
                 riskLevel = RiskLevel.Low;
                 recommendation = "No phone numbers found in autofill data. This is good for privacy.";
             }
-            else if (totalPhones <= 2)
+            else if (uniquePhones == 1)
             {
                 riskLevel = RiskLevel.Medium;
                 recommendation = "Consider clearing saved phone numbers periodically to reduce exposure.";
@@ -149,11 +169,21 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             return new PrivacyMetric
             {
                 Name = "Phone Number Exposure",
-                Value = totalPhones.ToString(),
+                Value = $"{uniquePhones}/{totalPhoneOccurrences}", // Format: "unique/total"
                 RiskLevel = riskLevel,
-                Description = $"Found {totalPhones} phone numbers stored in your browser.",
+                Description = $"Found {uniquePhones} unique phone numbers stored across {totalPhoneOccurrences} form fields in your browser.",
                 Recommendation = recommendation
             };
+        }
+
+        // Helper method to normalize phone numbers for comparison
+        private string NormalizePhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrEmpty(phoneNumber))
+                return string.Empty;
+
+            // Remove all non-digit characters
+            return new string(phoneNumber.Where(char.IsDigit).ToArray());
         }
 
         private PrivacyMetric AnalyzeAddressExposure(AddressData addressesData)
