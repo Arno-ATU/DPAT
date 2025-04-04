@@ -60,130 +60,159 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
                 .Select(c => c.Email.ToLower())
                 .ToList();
 
-            // Combine all emails and count total occurrences
-            int totalEmailOccurrences = emailsInAutofill.Count + emailsInProfiles.Count + emailsInContacts.Count;
+            // Count total occurrences/forms where emails are stored
+            int totalEmailForms = emailsInAutofill.Count + emailsInProfiles.Count + emailsInContacts.Count;
 
-            // Count unique emails across all collections
-            var allEmails = new HashSet<string>(emailsInAutofill);
-            allEmails.UnionWith(emailsInProfiles);
-            allEmails.UnionWith(emailsInContacts);
-            int uniqueEmails = allEmails.Count;
+            // Normalize and find unique emails across all collections
+            var uniqueEmails = new HashSet<string>();
+            foreach (var email in emailsInAutofill.Concat(emailsInProfiles).Concat(emailsInContacts))
+            {
+                uniqueEmails.Add(NormalizeEmail(email));
+            }
 
+            // Remove empty strings that might have been added during normalization
+            uniqueEmails.Remove("");
+            int uniqueEmailCount = uniqueEmails.Count;
+
+            // Determine risk level based on number of forms
             RiskLevel riskLevel;
             string recommendation;
 
-            if (uniqueEmails == 0)
+            if (totalEmailForms <= 4)
             {
                 riskLevel = RiskLevel.Low;
-                recommendation = "No email addresses found in autofill data. This is good for privacy.";
+                recommendation = "You have relatively few forms storing email addresses. This is good for privacy.";
             }
-            else if (uniqueEmails <= 2)
+            else if (totalEmailForms <= 8)
             {
                 riskLevel = RiskLevel.Medium;
-                recommendation = "Consider clearing saved email addresses periodically to reduce exposure.";
+                recommendation = "Consider clearing saved email addresses periodically to reduce exposure risk.";
+            }
+            else if (totalEmailForms <= 10)
+            {
+                riskLevel = RiskLevel.High;
+                recommendation = "Your email addresses are stored in many form fields. Consider clearing this data regularly and disabling email autofill to reduce exposure risk.";
             }
             else
             {
-                riskLevel = RiskLevel.High;
-                recommendation = "You have multiple email addresses saved in your browser. Consider clearing this data regularly and disabling email autofill to reduce exposure risk.";
+                riskLevel = RiskLevel.Critical;
+                recommendation = "Your email addresses are stored in a large number of form fields. This creates significant data exposure risk. Clear this data regularly and be selective about which sites can store your information.";
             }
 
             return new PrivacyMetric
             {
                 Name = "Email Exposure",
-                Value = $"{uniqueEmails}/{totalEmailOccurrences}", // Format: "unique/total"
+                Value = $"{uniqueEmailCount}/{totalEmailForms}", // Format: "unique/total forms"
                 RiskLevel = riskLevel,
-                Description = $"Found {uniqueEmails} unique email addresses stored across {totalEmailOccurrences} form fields in your browser.",
+                Description = $"Found {uniqueEmailCount} unique email addresses stored across {totalEmailForms} form fields in your browser.",
                 Recommendation = recommendation
             };
         }
 
+        // Helper method to normalize email addresses
+        private string NormalizeEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+                return string.Empty;
+
+            // Lowercase and trim
+            string normalized = email.ToLowerInvariant().Trim();
+
+            // Optional: Filter out obvious test data
+            if (normalized.Contains("@email.com") || normalized.Contains("@example.com"))
+                return string.Empty;
+
+            return normalized;
+        }
+
         private PrivacyMetric AnalyzePhoneExposure(AddressData addressesData)
         {
-            // Keep track of all unique phone numbers across all collections
-            var allUniquePhoneNumbers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            // Find phone numbers in autofill entries - collect the actual values
+            // Find phone numbers in autofill entries
             var phonesInAutofill = addressesData.Autofill
                 .Where(a => a.Name?.ToLower().Contains("phone") == true ||
                            a.Name?.ToLower().Contains("mobile") == true ||
                            a.Name?.ToLower().Contains("tel") == true)
-                .Select(a => NormalizePhoneNumber(a.Value))
+                .Select(a => a.Value)
                 .Where(v => !string.IsNullOrEmpty(v))
                 .ToList();
 
-            // Add to our unique collection
-            foreach (var phone in phonesInAutofill)
-            {
-                allUniquePhoneNumbers.Add(phone);
-            }
-
-            // Find phones in profiles - collect the actual values
+            // Find phones in profiles
             var phonesInProfiles = addressesData.AutofillProfile
                 .Where(p => !string.IsNullOrEmpty(p.Phone))
-                .Select(p => NormalizePhoneNumber(p.Phone))
+                .Select(p => p.Phone)
                 .ToList();
 
-            // Add to our unique collection
-            foreach (var phone in phonesInProfiles)
-            {
-                allUniquePhoneNumbers.Add(phone);
-            }
-
-            // Find phones in contacts - collect the actual values
+            // Find phones in contacts
             var phonesInContacts = addressesData.ContactInfo
                 .SelectMany(c => c.PhoneNumbers)
-                .Select(p => NormalizePhoneNumber(p.Number))
+                .Select(p => p.Number)
                 .Where(n => !string.IsNullOrEmpty(n))
                 .ToList();
 
-            // Add to our unique collection
-            foreach (var phone in phonesInContacts)
+            // Count total occurrences/forms where phone numbers are stored
+            int totalPhoneForms = phonesInAutofill.Count + phonesInProfiles.Count + phonesInContacts.Count;
+
+            // Normalize and find unique phone numbers across all collections
+            var uniquePhones = new HashSet<string>();
+            foreach (var phone in phonesInAutofill.Concat(phonesInProfiles).Concat(phonesInContacts))
             {
-                allUniquePhoneNumbers.Add(phone);
+                uniquePhones.Add(NormalizePhoneNumber(phone));
             }
 
-            // Calculate total occurrences and unique count
-            int totalPhoneOccurrences = phonesInAutofill.Count + phonesInProfiles.Count + phonesInContacts.Count;
-            int uniquePhones = allUniquePhoneNumbers.Count;
+            // Remove empty strings that might have been added during normalization
+            uniquePhones.Remove("");
+            int uniquePhoneCount = uniquePhones.Count;
 
+            // Determine risk level based on number of forms
             RiskLevel riskLevel;
             string recommendation;
 
-            if (uniquePhones == 0)
+            if (totalPhoneForms <= 4)
             {
                 riskLevel = RiskLevel.Low;
-                recommendation = "No phone numbers found in autofill data. This is good for privacy.";
+                recommendation = "You have relatively few forms storing phone numbers. This is good for privacy.";
             }
-            else if (uniquePhones == 1)
+            else if (totalPhoneForms <= 8)
             {
                 riskLevel = RiskLevel.Medium;
-                recommendation = "Consider clearing saved phone numbers periodically to reduce exposure.";
+                recommendation = "Consider clearing saved phone numbers periodically to reduce exposure risk.";
+            }
+            else if (totalPhoneForms <= 10)
+            {
+                riskLevel = RiskLevel.High;
+                recommendation = "Your phone numbers are stored in many form fields. Consider clearing this data regularly and disabling phone number autofill to reduce exposure risk.";
             }
             else
             {
-                riskLevel = RiskLevel.High;
-                recommendation = "You have multiple phone numbers saved. Consider clearing this data regularly and disabling phone number autofill to reduce exposure risk.";
+                riskLevel = RiskLevel.Critical;
+                recommendation = "Your phone numbers are stored in a large number of form fields. This creates significant data exposure risk. Clear this data regularly and be selective about which sites can store your information.";
             }
 
             return new PrivacyMetric
             {
                 Name = "Phone Number Exposure",
-                Value = $"{uniquePhones}/{totalPhoneOccurrences}", // Format: "unique/total"
+                Value = $"{uniquePhoneCount}/{totalPhoneForms}", // Format: "unique/total forms"
                 RiskLevel = riskLevel,
-                Description = $"Found {uniquePhones} unique phone numbers stored across {totalPhoneOccurrences} form fields in your browser.",
+                Description = $"Found {uniquePhoneCount} unique phone numbers stored across {totalPhoneForms} form fields in your browser.",
                 Recommendation = recommendation
             };
         }
 
-        // Helper method to normalize phone numbers for comparison
+        // Helper method to normalize phone numbers
         private string NormalizePhoneNumber(string phoneNumber)
         {
             if (string.IsNullOrEmpty(phoneNumber))
                 return string.Empty;
 
             // Remove all non-digit characters
-            return new string(phoneNumber.Where(char.IsDigit).ToArray());
+            string digitsOnly = new string(phoneNumber.Where(char.IsDigit).ToArray());
+
+            // Simple handling for common country code formats
+            // If it starts with 353 (Ireland), normalize to 0
+            if (digitsOnly.StartsWith("353") && digitsOnly.Length > 9)
+                return "0" + digitsOnly.Substring(3);
+
+            return digitsOnly;
         }
 
         private PrivacyMetric AnalyzeAddressExposure(AddressData addressesData)
