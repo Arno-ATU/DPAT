@@ -46,39 +46,38 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
                 .Where(a => a.Name?.ToLower().Contains("email") == true)
                 .Select(a => a.Value?.ToLower())
                 .Where(v => !string.IsNullOrEmpty(v))
-                .Distinct()
                 .ToList();
 
             // Find emails in profiles
             var emailsInProfiles = addressesData.AutofillProfile
                 .Where(p => !string.IsNullOrEmpty(p.Email))
                 .Select(p => p.Email.ToLower())
-                .Distinct()
                 .ToList();
 
             // Find emails in contacts
             var emailsInContacts = addressesData.ContactInfo
                 .Where(c => !string.IsNullOrEmpty(c.Email))
                 .Select(c => c.Email.ToLower())
-                .Distinct()
                 .ToList();
 
-            // Combine all emails and count unique ones
+            // Combine all emails and count total occurrences
+            int totalEmailOccurrences = emailsInAutofill.Count + emailsInProfiles.Count + emailsInContacts.Count;
+
+            // Count unique emails across all collections
             var allEmails = new HashSet<string>(emailsInAutofill);
             allEmails.UnionWith(emailsInProfiles);
             allEmails.UnionWith(emailsInContacts);
-
-            int totalEmails = allEmails.Count;
+            int uniqueEmails = allEmails.Count;
 
             RiskLevel riskLevel;
             string recommendation;
 
-            if (totalEmails == 0)
+            if (uniqueEmails == 0)
             {
                 riskLevel = RiskLevel.Low;
                 recommendation = "No email addresses found in autofill data. This is good for privacy.";
             }
-            else if (totalEmails <= 2)
+            else if (uniqueEmails <= 2)
             {
                 riskLevel = RiskLevel.Medium;
                 recommendation = "Consider clearing saved email addresses periodically to reduce exposure.";
@@ -92,9 +91,9 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             return new PrivacyMetric
             {
                 Name = "Email Exposure",
-                Value = totalEmails.ToString(),
+                Value = $"{uniqueEmails}/{totalEmailOccurrences}", // Format: "unique/total"
                 RiskLevel = riskLevel,
-                Description = $"Found {totalEmails} unique email addresses stored in your browser.",
+                Description = $"Found {uniqueEmails} unique email addresses stored across {totalEmailOccurrences} form fields in your browser.",
                 Recommendation = recommendation
             };
         }
