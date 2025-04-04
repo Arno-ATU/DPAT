@@ -175,17 +175,19 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             else if (totalPhoneForms <= 8)
             {
                 riskLevel = RiskLevel.Medium;
-                recommendation = "Consider clearing saved phone numbers periodically to reduce exposure risk.";
+                recommendation = "Consider reviewing and clearing saved phone numbers from form fields periodically to reduce exposure risk.";
             }
             else if (totalPhoneForms <= 10)
             {
                 riskLevel = RiskLevel.High;
-                recommendation = "Your phone numbers are stored in many form fields. Consider clearing this data regularly and disabling phone number autofill to reduce exposure risk.";
+                recommendation = "Your phone numbers are stored up to 10 different form fields. " +
+                                 "Consider clearing this data regularly and disabling phone number autofill to reduce exposure risk.";
             }
             else
             {
                 riskLevel = RiskLevel.Critical;
-                recommendation = "Your phone numbers are stored in a large number of form fields. This creates significant data exposure risk. Clear this data regularly and be selective about which sites can store your information.";
+                recommendation = "Your phone numbers are stored in more than 10 different form fields. " +
+                                 "This creates significant data exposure risk. Clear this data regularly and be selective about which sites can store your information.";
             }
 
             return new PrivacyMetric
@@ -217,52 +219,132 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
 
         private PrivacyMetric AnalyzeAddressExposure(AddressData addressesData)
         {
+            // Track forms with address data
+            var addressFormsList = new List<string>();
+
             // Count profiles with addresses
-            var profilesWithAddresses = addressesData.AutofillProfile
-                .Count(p => !string.IsNullOrEmpty(p.StreetAddress));
+            foreach (var profile in addressesData.AutofillProfile)
+            {
+                if (!string.IsNullOrEmpty(profile.StreetAddress))
+                {
+                    addressFormsList.Add($"Profile: {profile.Guid}");
+                }
+            }
 
             // Count contacts with addresses
-            var contactsWithAddresses = addressesData.ContactInfo
-                .Count(c => !string.IsNullOrEmpty(c.StreetAddress));
+            foreach (var contact in addressesData.ContactInfo)
+            {
+                if (!string.IsNullOrEmpty(contact.StreetAddress))
+                {
+                    addressFormsList.Add($"Contact: {contact.Guid}");
+                }
+            }
 
             // Count address fields in autofill
-            var addressFieldsInAutofill = addressesData.Autofill
-                .Count(a => a.Name?.ToLower().Contains("address") == true ||
-                           a.Name?.ToLower().Contains("street") == true ||
-                           a.Name?.ToLower().Contains("city") == true ||
-                           a.Name?.ToLower().Contains("zip") == true ||
-                           a.Name?.ToLower().Contains("postal") == true);
+            foreach (var entry in addressesData.Autofill)
+            {
+                if (entry.Name?.ToLower().Contains("address") == true ||
+                    entry.Name?.ToLower().Contains("street") == true ||
+                    entry.Name?.ToLower().Contains("city") == true ||
+                    entry.Name?.ToLower().Contains("zip") == true ||
+                    entry.Name?.ToLower().Contains("postal") == true)
+                {
+                    addressFormsList.Add($"Autofill: {entry.Name}");
+                }
+            }
 
-            int totalAddresses = profilesWithAddresses + contactsWithAddresses +
-                                (addressFieldsInAutofill > 0 ? 1 : 0);
+            // Get unique addresses (normalizing as best as possible for now)
+            var uniqueAddresses = new HashSet<string>();
 
+            // Add profile addresses to unique set
+            foreach (var profile in addressesData.AutofillProfile)
+            {
+                if (!string.IsNullOrEmpty(profile.StreetAddress))
+                {
+                    uniqueAddresses.Add(NormalizeAddress(profile.StreetAddress));
+                }
+            }
+
+            // Add contact addresses to unique set
+            foreach (var contact in addressesData.ContactInfo)
+            {
+                if (!string.IsNullOrEmpty(contact.StreetAddress))
+                {
+                    uniqueAddresses.Add(NormalizeAddress(contact.StreetAddress));
+                }
+            }
+
+            // Add autofill addresses to unique set
+            foreach (var entry in addressesData.Autofill.Where(a =>
+                a.Name?.ToLower().Contains("address") == true &&
+                !string.IsNullOrEmpty(a.Value)))
+            {
+                uniqueAddresses.Add(NormalizeAddress(entry.Value));
+            }
+
+            // Remove empty strings
+            uniqueAddresses.Remove("");
+
+            int totalAddressForms = addressFormsList.Count;
+            int uniqueAddressCount = uniqueAddresses.Count;
+
+            // Determine risk level based on number of forms
             RiskLevel riskLevel;
+            string description;
             string recommendation;
 
-            if (totalAddresses == 0)
+            if (uniqueAddressCount == 0)
             {
                 riskLevel = RiskLevel.Low;
-                recommendation = "No physical addresses found in autofill data. This is good for privacy.";
+                description = "No physical addresses found in your browser data.";
+                recommendation = "This is good for privacy.";
             }
-            else if (totalAddresses == 1)
+            else if (totalAddressForms <= 4)
+            {
+                riskLevel = RiskLevel.Low;
+                description = $"Found {uniqueAddressCount} unique physical address(es) stored across {totalAddressForms} form fields in your browser.";
+                recommendation = "You have relatively few forms storing address information. Consider clearing this data periodically to maintain privacy.";
+            }
+            else if (totalAddressForms <= 8)
             {
                 riskLevel = RiskLevel.Medium;
-                recommendation = "Consider clearing saved address data periodically to reduce exposure.";
+                description = $"Found {uniqueAddressCount} unique physical address(es) stored across {totalAddressForms} form fields in your browser.";
+                recommendation = "Consider clearing saved address data periodically to reduce exposure risk.";
+            }
+            else if (totalAddressForms <= 10)
+            {
+                riskLevel = RiskLevel.High;
+                description = $"Found {uniqueAddressCount} unique physical address(es) stored across {totalAddressForms} form fields in your browser.";
+                recommendation = "Your address information is stored in many form fields. Consider clearing this data regularly and limiting address autofill.";
             }
             else
             {
-                riskLevel = RiskLevel.High;
-                recommendation = "You have multiple addresses saved. Consider clearing this data regularly and disabling address autofill to reduce exposure risk.";
+                riskLevel = RiskLevel.Critical;
+                description = $"Found {uniqueAddressCount} unique physical address(es) stored across {totalAddressForms} form fields in your browser.";
+                recommendation = "Your address information is stored in a large number of form fields. This creates significant privacy risk. Clear this data regularly.";
             }
 
             return new PrivacyMetric
             {
                 Name = "Physical Address Exposure",
-                Value = totalAddresses.ToString(),
+                Value = $"{uniqueAddressCount}/{totalAddressForms}",
                 RiskLevel = riskLevel,
-                Description = $"Found {totalAddresses} physical addresses stored in your browser.",
+                Description = description,
                 Recommendation = recommendation
             };
+        }
+
+        // Helper method to normalize addresses
+        private string NormalizeAddress(string address)
+        {
+            if (string.IsNullOrEmpty(address))
+                return string.Empty;
+
+            // Basic normalization - lowercase and trim
+            string normalized = address.ToLowerInvariant().Trim();
+
+
+            return normalized;
         }
 
         private PrivacyMetric CalculateOverallExposure(AddressData addressesData)
@@ -280,15 +362,17 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
                 riskLevel = RiskLevel.Low;
                 recommendation = "You have minimal personal data stored in your browser. This is good for privacy.";
             }
-            else if (totalEntries < 20)
+            else if (totalEntries < 25)
             {
                 riskLevel = RiskLevel.Medium;
-                recommendation = "Consider reviewing and clearing unnecessary personal data from your browser regularly.";
+                recommendation = "You have under 25 individual items of data stored across various form fields in your browser. " +
+                                 "Consider reviewing and clearing unnecessary personal data from your browser regularly.";
             }
             else
             {
                 riskLevel = RiskLevel.High;
-                recommendation = "You have a significant amount of personal data stored in your browser. Consider clearing this data regularly and being more selective about what information you allow to be saved.";
+                recommendation = "You have a significant amount of personal data stored in your browser. " +
+                                 "Consider clearing this data regularly and being more selective about what information you allow to be saved.";
             }
 
             return new PrivacyMetric
