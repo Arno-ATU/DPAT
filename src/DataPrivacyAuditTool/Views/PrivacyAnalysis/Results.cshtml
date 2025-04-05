@@ -120,8 +120,8 @@
                                 <div>
                                     <h3 class="mb-0">
                                         @category.Name
-                                        <a href="#" class="ms-2 text-primary" data-bs-toggle="modal" data-bs-target="#modal-@category.Name.Replace(" ", "-").ToLower()">
-                                            <i class="fas fa-info-circle"></i> <small>Learn More</small>
+                                        <a href="#" class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#modal-@category.Name.Replace(" ", "-").ToLower()">
+                                            <i class="fas fa-info-circle"></i> Learn More
                                         </a>
                                     </h3>
                                     <p class="text-muted mb-0">@category.Description</p>
@@ -171,11 +171,14 @@
                                     <div class="modal-body">
                                         @try
                                         {
-											@await Html.PartialAsync($"Modals/_InfoModal{category.Name.Replace(" ", "")}")
+                                            @await Html.PartialAsync($"Modals/_InfoModal{category.Name.Replace(" ", "")}")
                                         }
-                                        catch
+                                        catch (Exception ex)
                                         {
-											@await Html.PartialAsync("Modals/_InfoModalDefault")
+                                            <div class="alert alert-info">
+                                                <h5>About @category.Name</h5>
+                                                <p>Detailed information about this privacy category will be available soon.</p>
+                                            </div>
                                         }
                                     </div>
                                     <div class="modal-footer">
