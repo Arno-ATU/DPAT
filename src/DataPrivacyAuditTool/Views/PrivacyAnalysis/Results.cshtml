@@ -116,9 +116,16 @@
                     @foreach (var category in Model.AnalysisResult.Categories)
                     {
                         <div class="card mb-4">
-                            <div class="card-header">
-                                <h3 class="mb-0">@category.Name</h3>
-                                <p class="text-muted mb-0">@category.Description</p>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">
+                                        @category.Name
+                                        <a href="#" class="ms-2 text-primary" data-bs-toggle="modal" data-bs-target="#modal-@category.Name.Replace(" ", "-").ToLower()">
+                                            <i class="fas fa-info-circle"></i> <small>Learn More</small>
+                                        </a>
+                                    </h3>
+                                    <p class="text-muted mb-0">@category.Description</p>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -149,6 +156,31 @@
                                             }
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Modal for this category -->
+                        <div class="modal fade" id="modal-@category.Name.Replace(" ", "-").ToLower()" tabindex="-1" aria-labelledby="modal-@category.Name.Replace(" ", "-").ToLower()-label" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modal-@category.Name.Replace(" ", "-").ToLower()-label">About @category.Name</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        @try
+                                        {
+											@await Html.PartialAsync($"Modals/_InfoModal{category.Name.Replace(" ", "")}")
+                                        }
+                                        catch
+                                        {
+											@await Html.PartialAsync("Modals/_InfoModalDefault")
+                                        }
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -206,8 +238,8 @@
 									callback: function(value) {
 										return value + '%';
 									}
-				}
-			},
+                                }
+                            },
 							y: {
 								grid: {
 									display: false
