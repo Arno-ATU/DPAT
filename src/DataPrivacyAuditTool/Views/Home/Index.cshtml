@@ -1,8 +1,188 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<link rel="stylesheet" href="~/css/landing-page.css" />
+
+<!-- Hero Section with Gradient Background -->
+<div class="hero-section position-relative overflow-hidden py-6 mb-5">
+    <div class="bg-gradient-primary position-absolute top-0 start-0 end-0 bottom-0" style="background: linear-gradient(135deg, #4a6cf7 0%, #24226e 100%);"></div>
+    <div class="container position-relative py-5 text-center">
+        <div class="position-relative text-white z-2 py-5">
+            <h1 class="display-2 fw-bold mb-4 text-shadow">Data Privacy Audit Tool</h1>
+            <p class="lead fs-3 fw-light mb-5">Take control of your digital footprint today</p>
+            <div class="d-inline-block position-relative">
+                <a asp-controller="PrivacyAnalysis" asp-action="Index" class="btn btn-light btn-lg rounded-pill px-5 py-3 fs-5 fw-semibold shadow-lg animate-pulse">
+                    <i class="fas fa-shield-alt me-2"></i>Start Your Privacy Audit
+                </a>
+                <div class="blob-animation position-absolute"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Animated waves at bottom of hero -->
+    <div class="wave-container position-absolute bottom-0 start-0 end-0">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="#ffffff" fill-opacity="1" d="M0,288L48,272C96,256,192,224,288,213.3C384,203,480,213,576,218.7C672,224,768,224,864,213.3C960,203,1056,181,1152,186.7C1248,192,1344,224,1392,240L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+    @* <!-- Features Section --> *@
+    @* <div class="row mb-6 g-4 justify-content-center"> *@
+    @*     <div class="col-md-4"> *@
+    @*         <div class="card h-100 border-0 shadow-sm hover-card"> *@
+    @*             <div class="card-body text-center p-4"> *@
+    @*                 <div class="icon-circle bg-primary-light d-inline-flex align-items-center justify-content-center mb-4"> *@
+    @*                     <i class="fas fa-fingerprint text-primary fa-2x"></i> *@
+    @*                 </div> *@
+    @*                 <h3 class="h4 mb-3">Privacy Analysis</h3> *@
+    @*                 <p class="text-muted mb-0">Understand what personal data your browser stores and how it's used.</p> *@
+    @*             </div> *@
+    @*         </div> *@
+    @*     </div> *@
+        
+    @*     <div class="col-md-4"> *@
+    @*         <div class="card h-100 border-0 shadow-sm hover-card"> *@
+    @*             <div class="card-body text-center p-4"> *@
+    @*                 <div class="icon-circle bg-primary-light d-inline-flex align-items-center justify-content-center mb-4"> *@
+    @*                     <i class="fas fa-shield-alt text-primary fa-2x"></i> *@
+    @*                 </div> *@
+    @*                 <h3 class="h4 mb-3">Security Check</h3> *@
+    @*                 <p class="text-muted mb-0">Discover potential vulnerabilities in your browser's configuration.</p> *@
+    @*             </div> *@
+    @*         </div> *@
+    @*     </div> *@
+        
+    @*     <div class="col-md-4"> *@
+    @*         <div class="card h-100 border-0 shadow-sm hover-card"> *@
+    @*             <div class="card-body text-center p-4"> *@
+    @*                 <div class="icon-circle bg-primary-light d-inline-flex align-items-center justify-content-center mb-4"> *@
+    @*                     <i class="fas fa-chart-line text-primary fa-2x"></i> *@
+    @*                 </div> *@
+    @*                 <h3 class="h4 mb-3">Actionable Insights</h3> *@
+    @*                 <p class="text-muted mb-0">Get personalized recommendations to enhance your online privacy.</p> *@
+    @*             </div> *@
+    @*         </div> *@
+    @*     </div> *@
+    @* </div> *@
+    
+    <!-- Main Pitch Section -->
+    <div class="row mb-6">
+        <div class="col-lg-10 offset-lg-1">
+            <div class="card border-0 bg-light shadow-lg rounded-4 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-6">
+                        <div class="p-5">
+                            <h2 class="display-6 fw-bold mb-4">Your Browser, Your Data, Your Privacy</h2>
+                            
+                            <p class="fs-5 mb-4">
+                                Calling all Google Chrome users! Do you truly understand how your personal data is being handled when you browse the web?
+                            </p>
+                            
+                            <div class="d-flex mb-3">
+                                <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-primary bg-primary-light rounded-3 me-3">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <p class="mb-0">Discover what personal information is stored</p>
+                            </div>
+                            
+                            <div class="d-flex mb-3">
+                                <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-primary bg-primary-light rounded-3 me-3">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <p class="mb-0">Review your privacy and security settings</p>
+                            </div>
+                            
+                            <div class="d-flex mb-3">
+                                <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-primary bg-primary-light rounded-3 me-3">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <p class="mb-0">Get actionable privacy enhancement steps</p>
+                            </div>
+                            
+                            <p class="fst-italic mt-4 text-muted">
+                                <small>Your data never leaves your device - all analysis happens locally.</small>
+                            </p>
+                            
+                            <a asp-controller="PrivacyAnalysis" asp-action="Index" class="btn btn-primary rounded-pill px-4 py-2 mt-3">
+                                Let's Go! <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 bg-primary d-flex align-items-center">
+                        <div class="p-5 text-white">
+                            <h3 class="h2 mb-4">Why should you care?</h3>
+                            
+                            <p class="mb-4">
+                                Whether you're a casual internet user or an online veteran, it's important to stay informed about what data is being stored and how your privacy settings are configured.
+                            </p>
+                            
+                            <p class="mb-0">
+                                The Data Privacy Audit Tool gives you valuable insights into your browser's privacy posture and helps you make informed decisions about your digital footprint.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- How It Works Section -->
+    <div class="row mb-6 justify-content-center">
+        <div class="col-lg-10">
+            <h2 class="text-center mb-5">How It Works</h2>
+            
+            <div class="row g-5">
+                <div class="col-md-4">
+                    <div class="process-step text-center">
+                        <div class="process-number bg-primary text-white d-inline-flex align-items-center justify-content-center rounded-circle mb-4">1</div>
+                        <h4>Upload Your Data</h4>
+                        <p class="text-muted">Select your Chrome settings and autofill data files from Google Takeout</p>
+                        <div class="process-icon mt-3">
+                            <i class="fas fa-upload fa-3x text-primary-light"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="process-step text-center">
+                        <div class="process-number bg-primary text-white d-inline-flex align-items-center justify-content-center rounded-circle mb-4">2</div>
+                        <h4>Analyze Your Privacy</h4>
+                        <p class="text-muted">Our tool examines your data to identify privacy strengths and weaknesses</p>
+                        <div class="process-icon mt-3">
+                            <i class="fas fa-search fa-3x text-primary-light"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="process-step text-center">
+                        <div class="process-number bg-primary text-white d-inline-flex align-items-center justify-content-center rounded-circle mb-4">3</div>
+                        <h4>Take Action</h4>
+                        <p class="text-muted">Follow personalized recommendations to enhance your privacy posture</p>
+                        <div class="process-icon mt-3">
+                            <i class="fas fa-check-circle fa-3x text-primary-light"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CTA Section -->
+    <div class="row mb-6">
+        <div class="col-lg-10 offset-lg-1">
+            <div class="card border-0 rounded-4 bg-gradient-primary text-white shadow-lg">
+                <div class="card-body p-5 text-center">
+                    <h2 class="display-6 fw-bold mb-4">Ready to take control of your privacy?</h2>
+                    <p class="lead mb-4">Discover what your browser knows about you and how to protect your digital identity.</p>
+                    <a asp-controller="PrivacyAnalysis" asp-action="Index" class="btn btn-light btn-lg rounded-pill px-5 py-3 fw-semibold">
+                        Start Your Privacy Audit <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

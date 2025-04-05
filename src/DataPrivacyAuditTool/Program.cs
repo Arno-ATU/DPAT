@@ -20,6 +20,7 @@ builder.Services.AddScoped<IMetricAnalyzer, SearchEnginePrivacyAnalyzer>();
 builder.Services.AddScoped<IMetricAnalyzer, PersonalDataExposureAnalyzer>();
 builder.Services.AddScoped<IMetricAnalyzer, CookiePrivacyAnalyzer>();
 builder.Services.AddScoped<IMetricAnalyzer, NetworkPredictionAnalyzer>();
+builder.Services.AddScoped<IMetricAnalyzer, ExtensionPrivacyAnalyzer>();
 
 // Optional: Additional analyzers can to be added in the future:
 // builder.Services.AddScoped<IMetricAnalyzer, AutofillAnalyzer>();
