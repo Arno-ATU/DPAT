@@ -1,4 +1,4 @@
-name: Code Quality
+name: Code Quality 1
 
 on:
   pull_request:
