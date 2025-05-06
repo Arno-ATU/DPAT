@@ -59,7 +59,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Generated from SonarCloud account
         run: |
           dotnet sonarscanner begin /k:"DPAT" \
-            /o:"your-organization" \
+            /o:"arno-atu" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.cs.dotcover.reportsPaths=coverage.xml \
