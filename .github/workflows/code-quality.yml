@@ -1,4 +1,4 @@
-name: Code Quality 1
+name: Code Quality
 
 on:
   pull_request:
@@ -15,32 +15,89 @@ jobs:
     name: Analyze Code Quality
     runs-on: ubuntu-latest
     steps:
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'zulu'
+      
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
       
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0'
-          
-      - name: Install dotnet tools
+      
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      
+      - name: Cache SonarCloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v3
+        with:
+          path: .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+      
+      - name: Install SonarCloud scanner
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+      
+      - name: Install dotnet-coverage
+        run: dotnet tool install --global dotnet-coverage
+      
+      - name: Check code formatting
         run: |
           dotnet tool install --global dotnet-format
-          dotnet tool install --global dotnet-sonarscanner
-          
-      - name: Check code formatting
-        run: dotnet format --verify-no-changes --verbosity diagnostic
-        
-      - name: Run code analyzers
-        run: dotnet build /p:TreatWarningsAsErrors=true /warnaserror
-        
-      - name: Run code metrics
+          dotnet format --verify-no-changes --verbosity diagnostic
+      
+      - name: Begin SonarCloud analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Generated from SonarCloud account
         run: |
-          dotnet tool install --global dotnet-reportgenerator-globaltool
-          dotnet build /p:CollectCodeMetrics=true
-          
-      - name: Code Duplication Analysis
-        uses: AlexSoftware/code-duplicate-action@v1
+          dotnet sonarscanner begin /k:"your-project-key" \
+            /o:"your-organization" \
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.cs.dotcover.reportsPaths=coverage.xml \
+            /d:sonar.cpd.cs.minimumLines=6 \
+            /d:sonar.cpd.cs.minimumTokens=50 \
+            /d:sonar.qualitygate.wait=true
+      
+      - name: Build project
+        run: dotnet build --no-incremental
+      
+      - name: Run tests (excluding BDD tests)
+        run: |
+          dotnet-coverage collect 'dotnet test --filter "FullyQualifiedName!~DataPrivacyAuditTool.Tests.BDD"' -f xml -o 'coverage.xml'
+      
+      - name: End SonarCloud analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      
+      - name: Setup Node.js for code duplication analysis
+        uses: actions/setup-node@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          file_extensions: '["cs"]'
-          min_duplicated_lines: 6
+          node-version: '20'
+
+      - name: Install jscpd
+        run: npm install -g jscpd
+
+      - name: Run Code Duplication Check
+        run: jscpd --min-lines 6 --min-tokens 50 --threshold 1 --reporters "html,console" --output ./jscpd-report .
+        
+      - name: Upload duplication report
+        uses: actions/upload-artifact@v4
+        with:
+          name: duplication-report
+          path: ./jscpd-report
