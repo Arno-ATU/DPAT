@@ -6,7 +6,7 @@ using DataPrivacyAuditTool.Core.Models;
 
 namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
 {
-    public class SearchEnginePrivacyAnalyzer:SettingsAnalyzer
+    public class SearchEnginePrivacyAnalyzer : SettingsAnalyzer
     {
         public override string CategoryName => "Search Engine Privacy";
         public override string Description => "Analyzes your search engine settings for privacy implications";
@@ -24,7 +24,6 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             { "Qwant", PrivacyLevel.Medium },
             { "Ecosia", PrivacyLevel.Medium },
             { "Startpage", PrivacyLevel.Medium },
-
 
             // Low Privacy Engines
             { "Google", PrivacyLevel.Low },
@@ -52,6 +51,8 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             // Add default search engine metric
             category.Metrics.Add(AnalyzeDefaultSearchEngine(settingsData));
 
+            // Add search suggestions metric
+            category.Metrics.Add(AnalyzeSearchSuggestions(settingsData));
 
             return Task.FromResult(category);
         }
@@ -103,6 +104,37 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             };
         }
 
-        
+        private PrivacyMetric AnalyzeSearchSuggestions(SettingsData settingsData)
+        {
+            bool suggestionsEnabled = false;
+
+            // Check if any active search engine has suggestions enabled
+            foreach (var engine in settingsData.SearchEngines)
+            {
+                if (!string.IsNullOrEmpty(engine.SuggestionsUrl))
+                {
+                    suggestionsEnabled = true;
+                    break;
+                }
+            }
+
+            RiskLevel riskLevel = suggestionsEnabled ? RiskLevel.High : RiskLevel.Low;
+            string description = suggestionsEnabled
+                ? "Search suggestions are enabled, which sends your keystrokes to search providers as you type"
+                : "Search suggestions are disabled, which prevents sending your keystrokes to search providers";
+
+            string recommendation = suggestionsEnabled
+                ? "Consider disabling search suggestions to prevent sending your partial queries to search providers"
+                : "Good practice! Keeping search suggestions disabled improves privacy";
+
+            return new PrivacyMetric
+            {
+                Name = "Search Suggestions",
+                Value = suggestionsEnabled ? "Enabled" : "Disabled",
+                RiskLevel = riskLevel,
+                Description = description,
+                Recommendation = recommendation
+            };
+        }
     }
 }
