@@ -59,7 +59,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             // Find the email exposure metric
             var emailMetric = result.Metrics.Find(m => m.Name == "Email Exposure");
             Assert.NotNull(emailMetric);
-            Assert.Equal("3", emailMetric.Value);
+            Assert.Equal("0/3", emailMetric.Value);
             Assert.Equal(RiskLevel.High, emailMetric.RiskLevel);
         }
 
