@@ -1,0 +1,46 @@
+name: Code Quality
+
+on:
+  pull_request:
+    branches: [development, staging, main]
+  push:
+    branches: [development]
+    paths:
+      - '**/*.cs'
+      - '**/*.cshtml'
+      - '**/*.csproj'
+
+jobs:
+  analyze:
+    name: Analyze Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0'
+          
+      - name: Install dotnet tools
+        run: |
+          dotnet tool install --global dotnet-format
+          dotnet tool install --global dotnet-sonarscanner
+          
+      - name: Check code formatting
+        run: dotnet format --verify-no-changes --verbosity diagnostic
+        
+      - name: Run code analyzers
+        run: dotnet build /p:TreatWarningsAsErrors=true /warnaserror
+        
+      - name: Run code metrics
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          dotnet build /p:CollectCodeMetrics=true
+          
+      - name: Code Duplication Analysis
+        uses: AlexSoftware/code-duplicate-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          file_extensions: '["cs"]'
+          min_duplicated_lines: 6
