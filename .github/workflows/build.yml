@@ -11,14 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0'
+          
       - name: Restore dependencies
         run: dotnet restore
-      - name: Build
+        
+      - name: Build all projects including tests
         run: dotnet build --no-restore -c Release
+        
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
