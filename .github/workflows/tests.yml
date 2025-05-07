@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
   checks: write
+  actions: read
 
 jobs:
   test:
@@ -17,40 +18,23 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          sparse-checkout: |
-            src/DataPrivacyAuditTool.Tests.Unit
-          sparse-checkout-cone-mode: false
+          dotnet-version: '9.0'
       
       - name: Download build artifacts
-        uses: actions/github-script@v7
+        uses: dawidd6/action-download-artifact@v2
         with:
-          script: |
-            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: ${{ github.event.workflow_run.id }}
-            });
-            
-            const matchArtifact = artifacts.data.artifacts.find(artifact => artifact.name === "build-artifacts");
-            if (!matchArtifact) {
-              core.setFailed('No build artifacts found');
-              return;
-            }
-            
-            const download = await github.rest.actions.downloadArtifact({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              artifact_id: matchArtifact.id,
-              archive_format: 'zip'
-            });
-            
-            const fs = require('fs');
-            fs.writeFileSync('build-artifacts.zip', Buffer.from(download.data));
-            
-            const AdmZip = require('adm-zip');
-            const zip = new AdmZip('build-artifacts.zip');
-            zip.extractAllTo('.');
+          workflow: build.yml
+          workflow_conclusion: success
+          run_id: ${{ github.event.workflow_run.id }}
+          name: build-artifacts
+          path: .
+      
+      - name: List downloaded artifacts (debug)
+        run: find . -type f -path "*/bin/Release/*" | head -n 10
       
       - name: Run unit tests with artifacts
         run: dotnet test ./src/DataPrivacyAuditTool.Tests.Unit/DataPrivacyAuditTool.Tests.Unit.csproj --no-build --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
