@@ -59,8 +59,8 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             // Find the email exposure metric
             var emailMetric = result.Metrics.Find(m => m.Name == "Email Exposure");
             Assert.NotNull(emailMetric);
-            Assert.Equal("3", emailMetric.Value);
-            Assert.Equal(RiskLevel.High, emailMetric.RiskLevel);
+            Assert.Equal("0/3", emailMetric.Value);
+            Assert.Equal(RiskLevel.Low, emailMetric.RiskLevel);
         }
 
         [Fact]
@@ -98,7 +98,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             // Find the phone exposure metric
             var phoneMetric = result.Metrics.Find(m => m.Name == "Phone Number Exposure");
             Assert.NotNull(phoneMetric);
-            Assert.Equal(RiskLevel.Medium, phoneMetric.RiskLevel);
+            Assert.Equal(RiskLevel.Low, phoneMetric.RiskLevel);
         }
 
         [Fact]
@@ -128,8 +128,8 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             // Find the address exposure metric
             var addressMetric = result.Metrics.Find(m => m.Name == "Physical Address Exposure");
             Assert.NotNull(addressMetric);
-            Assert.Equal("1", addressMetric.Value);
-            Assert.Equal(RiskLevel.Medium, addressMetric.RiskLevel);
+            Assert.Equal("1/1", addressMetric.Value);
+            Assert.Equal(RiskLevel.Low, addressMetric.RiskLevel);
         }
 
         [Fact]
