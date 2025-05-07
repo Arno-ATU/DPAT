@@ -9,7 +9,6 @@ on:
 
 permissions:
   contents: read
-  checks: write
   actions: read
 
 jobs:
@@ -37,29 +36,8 @@ jobs:
         run: find . -type f -path "*/bin/Release/*" | head -n 10
       
       - name: Run unit tests with artifacts
-        run: dotnet test ./src/DataPrivacyAuditTool.Tests.Unit/DataPrivacyAuditTool.Tests.Unit.csproj --no-build --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
-      
-      - name: Generate test report
-        uses: dorny/test-reporter@v1
-        if: success() || failure()
-        with:
-          name: .NET Test Results
-          path: "**/TestResults/test-results.trx"
-          reporter: dotnet-trx
-          fail-on-error: true
-      
-      - name: Generate code coverage report
-        uses: danielpalme/ReportGenerator-GitHub-Action@5.1.19
-        if: success() || failure()
-        with:
-          reports: "**/coverage.cobertura.xml"
-          targetdir: "coveragereport"
-          reporttypes: "HtmlInline;Cobertura"
-      
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        if: success() || failure()
-        with:
-          name: coverage-report
-          path: coveragereport
-          retention-days: 5
+        run: dotnet test ./src/DataPrivacyAuditTool.Tests.Unit/DataPrivacyAuditTool.Tests.Unit.csproj --no-build
+        
+      - name: Mark workflow as successful
+        if: success()
+        run: echo "Tests completed successfully"
