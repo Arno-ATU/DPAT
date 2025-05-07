@@ -1,0 +1,116 @@
+name: Run Tests
+
+
+on:
+
+  push:
+
+    branches: [ development, staging, main ]
+
+  pull_request:
+
+    branches: [ development, staging, main ]
+
+  workflow_run:
+
+    workflows: ["Build"]
+
+    types:
+
+      - completed
+
+
+jobs:
+
+  test:
+
+    runs-on: ubuntu-latest
+
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+
+      - name: Setup .NET
+
+        uses: actions/setup-dotnet@v4
+
+        with:
+
+          dotnet-version: '9.0'
+
+
+      - name: Restore dependencies
+
+        run: dotnet restore
+
+
+      - name: Add Castle.Core package to BDD project
+
+        run: dotnet add ./src/DataPrivacyAuditTool.Tests.BDD/DataPrivacyAuditTool.Tests.BDD.csproj package Castle.Core
+
+        continue-on-error: true
+
+
+      - name: Build
+
+        run: dotnet build --no-restore
+
+
+      - name: Run unit tests
+
+        run: dotnet test --no-restore --filter "FullyQualifiedName~DataPrivacyAuditTool.Tests.Unit" --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
+
+        continue-on-error: true
+
+
+
+      - name: Generate test report
+
+        uses: dorny/test-reporter@v1
+
+        if: always()
+
+        with:
+
+          name: .NET Test Results
+
+          path: "**/TestResults/*.trx"
+
+          reporter: dotnet-trx
+
+          fail-on-error: false
+
+
+
+      - name: Generate code coverage report
+
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.1.19
+
+        if: always()
+
+        with:
+
+          reports: "**/coverage.cobertura.xml"
+
+          targetdir: "coveragereport"
+
+          reporttypes: "HtmlInline;Cobertura"
+
+
+
+      - name: Upload coverage report
+
+        uses: actions/upload-artifact@v4
+
+        if: always()
+
+        with:
+
+          name: coverage-report
+
+          path: coveragereport
+
+          retention-days: 5
