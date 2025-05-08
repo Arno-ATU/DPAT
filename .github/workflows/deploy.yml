@@ -1,0 +1,83 @@
+name: Deploy
+
+# This workflow tries to demonstrates how to deploy to different environments
+# using GitHub Environments with their protection rules:
+# - Development: No approval needed, fast deployments
+# - Staging: Requires approval
+# - Production: Requires approval, 1min wait time, only from main branch
+
+on:
+  workflow_run:
+    workflows: ["Run Tests"]
+    types:
+      - completed
+    branches: [development, staging, main]
+
+jobs:
+  deploy:
+    # Only run if tests passed
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    
+    # Set environment based on branch
+    # This activates the environment's protection rules:
+    # - Different approval requirements per environment
+    # - Different wait times before deployment
+    # - Access to environment-specific secrets
+    environment: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || github.event.workflow_run.head_branch == 'staging' && 'staging' || 'development' }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0'
+      
+      - name: Show deployment info
+        run: |
+          echo "Deploying from branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Deploying to environment: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || github.event.workflow_run.head_branch == 'staging' && 'staging' || 'development' }}"
+      
+      # Mock publish step
+      - name: Publish application
+        run: dotnet publish -c Release -o ./publish
+      
+      # Mock deployment step
+      # This step demonstrates how to use environment-specific secrets
+      # Each environment (development, staging, production) has its own secret named:
+      # - DEV_CONFIGURATION    (for development environment)
+      # - STAGING_CONFIGURATION (for staging environment)
+      # - PROD_CONFIGURATION    (for production environment)
+      #
+      # The protection rules on each environment ensure these secrets are only
+      # accessible when deploying to that specific environment
+      - name: Deploy application
+        run: |
+          echo "Deploying to ${{ github.event.workflow_run.head_branch == 'main' && 'production' || github.event.workflow_run.head_branch == 'staging' && 'staging' || 'development' }} environment"
+          
+          # Using different secrets depending on which environment we're deploying to
+          # In a real project, these are such things like:
+          # - Connection strings
+          # - API keys
+          # - Serrvice URLs
+          # - Feature flags
+          echo "Using environment config: ${{ secrets[format('{0}_CONFIGURATION', github.event.workflow_run.head_branch == 'main' && 'PROD' || github.event.workflow_run.head_branch == 'staging' && 'STAGING' || 'DEV')] }}"
+          echo "Deployment successful!"
+      
+      # Create simple deployment report
+      - name: Create deployment report
+        run: |
+          mkdir -p deployment-report
+          echo "Deployment Report" > deployment-report/report.txt
+          echo "Branch: ${{ github.event.workflow_run.head_branch }}" >> deployment-report/report.txt
+          echo "Environment: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || github.event.workflow_run.head_branch == 'staging' && 'staging' || 'development' }}" >> deployment-report/report.txt
+          echo "Date: $(date)" >> deployment-report/report.txt
+          echo "Status: Success" >> deployment-report/report.txt
+      
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-report
+          path: deployment-report
+          retention-days: 5
