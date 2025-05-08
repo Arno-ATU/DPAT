@@ -1,11 +1,7 @@
 name: Deploy
 
-# This workflow tries to demonstrates how to deploy to different environments
-# using GitHub Environments with their protection rules:
-# - Development: No approval needed, fast deployments
-# - Staging: Requires approval
-# - Production: Requires approval, 1min wait time, only from main branch
-
+# This workflow demonstrates how to deploy to different environments
+# using GitHub Environments with their protection rules
 on:
   workflow_run:
     workflows: ["Run Tests"]
@@ -19,11 +15,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     
-    # Set environment based on branch
-    # This activates the environment's protection rules:
-    # - Different approval requirements per environment
-    # - Different wait times before deployment
-    # - Access to environment-specific secrets
+    # Set environment based on branch - this activates the environment's protection rules
     environment: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || github.event.workflow_run.head_branch == 'staging' && 'staging' || 'development' }}
     
     steps:
@@ -39,33 +31,22 @@ jobs:
           echo "Deploying from branch: ${{ github.event.workflow_run.head_branch }}"
           echo "Deploying to environment: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || github.event.workflow_run.head_branch == 'staging' && 'staging' || 'development' }}"
       
-      # Mock publish step
+      # Create a publishable version of the application
       - name: Publish application
         run: dotnet publish -c Release -o ./publish
       
-      # Mock deployment step
-      # This step demonstrates how to use environment-specific secrets
-      # Each environment (development, staging, production) has its own secret named:
-      # - DEV_CONFIGURATION    (for development environment)
-      # - STAGING_CONFIGURATION (for staging environment)
-      # - PROD_CONFIGURATION    (for production environment)
-      #
-      # The protection rules on each environment ensure these secrets are only
-      # accessible when deploying to that specific environment
+      # MOCK DEPLOYMENT - In a real scenario, this would deploy to actual infrastructure
+      # This demonstrates environment-specific configuration access
       - name: Deploy application
         run: |
           echo "Deploying to ${{ github.event.workflow_run.head_branch == 'main' && 'production' || github.event.workflow_run.head_branch == 'staging' && 'staging' || 'development' }} environment"
           
-          # Using different secrets depending on which environment we're deploying to
-          # In a real project, these are such things like:
-          # - Connection strings
-          # - API keys
-          # - Serrvice URLs
-          # - Feature flags
+          # Access environment-specific secrets based on the target environment
+          # Each environment has its own protected secrets
           echo "Using environment config: ${{ secrets[format('{0}_CONFIGURATION', github.event.workflow_run.head_branch == 'main' && 'PROD' || github.event.workflow_run.head_branch == 'staging' && 'STAGING' || 'DEV')] }}"
           echo "Deployment successful!"
       
-      # Create simple deployment report
+      # Create a deployment report artifact for tracking purposes
       - name: Create deployment report
         run: |
           mkdir -p deployment-report
