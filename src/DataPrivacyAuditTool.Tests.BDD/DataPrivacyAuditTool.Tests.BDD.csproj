@@ -20,8 +20,8 @@
   </ItemGroup>
 
     <ItemGroup>
-        <SpecFlowFeatureFiles Include="**\*.feature" />
-        <SpecFlowObsoleteCodeBehindFiles Remove="Features\**\*.feature.cs" />
+        <ReqnrollFeatureFiles Include="**\*.feature" />
+        <ReqnrollObsoleteCodeBehindFiles Remove="Features\**\*.feature.cs" />
     </ItemGroup>
 
     <ItemGroup>
