@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -18,5 +18,17 @@
     <ProjectReference Include="..\DataPrivacyAuditTool.Infrastructure\DataPrivacyAuditTool.Infrastructure.csproj" />
     <ProjectReference Include="..\DataPrivacyAuditTool\DataPrivacyAuditTool.csproj" />
   </ItemGroup>
+
+    <ItemGroup>
+        <SpecFlowFeatureFiles Include="**\*.feature" />
+        <SpecFlowObsoleteCodeBehindFiles Remove="Features\**\*.feature.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="Features\FileValidation.feature">
+            <Generator>ReqnrollGenerator</Generator>
+            <LastGenOutput>FileValidation.feature.cs</LastGenOutput>
+        </None>
+    </ItemGroup>
 
 </Project>
