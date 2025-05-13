@@ -20,7 +20,6 @@ public class CookiePrivacyAnalyzer : SettingsAnalyzer
         var cookieExceptionsMetric = AnalyzeCookieExceptions(settingsData);
         category.Metrics.Add(cookieExceptionsMetric);
 
-        // You can add more cookie-related metrics here later
 
         return Task.FromResult(category);
     }
@@ -28,7 +27,7 @@ public class CookiePrivacyAnalyzer : SettingsAnalyzer
     private PrivacyMetric AnalyzeCookieExceptions(SettingsData settingsData)
     {
         // Find the cookie exceptions from preferences
-        string cookieExceptionsValue = settingsData.Preferences
+        string? cookieExceptionsValue = settingsData.Preferences
             .FirstOrDefault(p => p.Name == "profile.content_settings.exceptions.cookies")?.Value;
 
         int exceptionCount = 0;

@@ -31,9 +31,6 @@ namespace DataPrivacyAuditTool.Tests.BDD.Features
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
-#line 1 "FileValidation.feature"
-#line hidden
-        
         public FileValidationFeature(FileValidationFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
@@ -101,9 +98,7 @@ namespace DataPrivacyAuditTool.Tests.BDD.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Valid Settings.json file should pass validation", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 6
-this.ScenarioInitialize(scenarioInfo);
-#line hidden
+            this.ScenarioInitialize(scenarioInfo);
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
             {
                 testRunner.SkipScenario();
@@ -111,15 +106,9 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 await this.ScenarioStartAsync();
-#line 7
-    await testRunner.GivenAsync("I have a valid Settings.json file", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 8
-    await testRunner.WhenAsync("I validate the Settings.json file", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 9
-    await testRunner.ThenAsync("the validation should pass", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
+                await testRunner.GivenAsync("I have a valid Settings.json file", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+                await testRunner.WhenAsync("I validate the Settings.json file", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+                await testRunner.ThenAsync("the validation should pass", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
             }
             await this.ScenarioCleanupAsync();
         }
@@ -132,9 +121,7 @@ this.ScenarioInitialize(scenarioInfo);
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Invalid Settings.json file should fail validation", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 11
-this.ScenarioInitialize(scenarioInfo);
-#line hidden
+            this.ScenarioInitialize(scenarioInfo);
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
             {
                 testRunner.SkipScenario();
@@ -142,15 +129,9 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 await this.ScenarioStartAsync();
-#line 12
-    await testRunner.GivenAsync("I have an invalid Settings.json file", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 13
-    await testRunner.WhenAsync("I validate the Settings.json file", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 14
-    await testRunner.ThenAsync("the validation should fail", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
+                await testRunner.GivenAsync("I have an invalid Settings.json file", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+                await testRunner.WhenAsync("I validate the Settings.json file", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+                await testRunner.ThenAsync("the validation should fail", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
             }
             await this.ScenarioCleanupAsync();
         }
