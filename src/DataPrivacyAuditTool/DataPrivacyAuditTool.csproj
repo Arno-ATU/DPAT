@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNet.Razor" Version="3.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DataPrivacyAuditTool.Core\DataPrivacyAuditTool.Core.csproj" />
     <ProjectReference Include="..\DataPrivacyAuditTool.Infrastructure\DataPrivacyAuditTool.Infrastructure.csproj" />
   </ItemGroup>
