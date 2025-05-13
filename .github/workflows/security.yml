@@ -1,0 +1,56 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [development, staging, main]
+  pull_request:
+    branches: [development, staging, main]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0'
+      
+      # 1. Secret Scanning using Gitleaks (third-party)
+      - name: Run secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      # 2. .NET dependency vulnerability check (built-in command)
+      - name: Check vulnerable packages
+        run: |
+          dotnet restore
+          dotnet list package --vulnerable --include-transitive
+      
+      # 3. CodeQL Analysis (GitHub's official security tool)
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+      
+      - name: Build project
+        run: dotnet build --no-restore
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+      
+      # 4. Show summary
+      - name: Security scan summary
+        run: |
+          echo "✅ Secret scanning completed"
+          echo "✅ Dependency vulnerability check completed"
+          echo "✅ CodeQL analysis completed"
+          echo "ℹ️  Check the 'Security' tab for detailed results"
