@@ -1,7 +1,5 @@
 name: Deploy
 
-# This workflow demonstrates how to deploy to different environments
-# using GitHub Environments with their protection rules
 on:
   workflow_run:
     workflows: ["Run Tests"]
@@ -15,9 +13,6 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     
-    # Set environment based on branch - this activates the environment's protection rules
-    environment: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || github.event.workflow_run.head_branch == 'staging' && 'staging' || 'development' }}
-    
     steps:
       - uses: actions/checkout@v4
       
@@ -26,39 +21,30 @@ jobs:
         with:
           dotnet-version: '9.0'
       
-      - name: Show deployment info
+      # Deployment based on branch
+      - name: Deploy to Development
+        if: github.event.workflow_run.head_branch == 'development'
         run: |
-          echo "Deploying from branch: ${{ github.event.workflow_run.head_branch }}"
-          echo "Deploying to environment: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || github.event.workflow_run.head_branch == 'staging' && 'staging' || 'development' }}"
+          echo "Deploying to Development environment"
+          dotnet publish -c Release -o ./publish
+          # Add your deployment commands here
       
-      # Create a publishable version of the application
-      - name: Publish application
-        run: dotnet publish -c Release -o ./publish
-      
-      # MOCK DEPLOYMENT - In a real scenario, this would deploy to actual infrastructure
-      # This demonstrates environment-specific configuration access
-      - name: Deploy application
+      - name: Deploy to Staging
+        if: github.event.workflow_run.head_branch == 'staging'
         run: |
-          echo "Deploying to ${{ github.event.workflow_run.head_branch == 'main' && 'production' || github.event.workflow_run.head_branch == 'staging' && 'staging' || 'development' }} environment"
-          
-          # Access environment-specific secrets based on the target environment
-          # Each environment has its own protected secrets
-          echo "Using environment config: ${{ secrets[format('{0}_CONFIGURATION', github.event.workflow_run.head_branch == 'main' && 'PROD' || github.event.workflow_run.head_branch == 'staging' && 'STAGING' || 'DEV')] }}"
-          echo "Deployment successful!"
+          echo "Deploying to Staging environment"
+          dotnet publish -c Release -o ./publish
+          # Add your deployment commands here
       
-      # Create a deployment report artifact for tracking purposes
-      - name: Create deployment report
+      - name: Deploy to Production
+        if: github.event.workflow_run.head_branch == 'main'
         run: |
-          mkdir -p deployment-report
-          echo "Deployment Report" > deployment-report/report.txt
-          echo "Branch: ${{ github.event.workflow_run.head_branch }}" >> deployment-report/report.txt
-          echo "Environment: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || github.event.workflow_run.head_branch == 'staging' && 'staging' || 'development' }}" >> deployment-report/report.txt
-          echo "Date: $(date)" >> deployment-report/report.txt
-          echo "Status: Success" >> deployment-report/report.txt
+          echo "Deploying to Production environment"
+          dotnet publish -c Release -o ./publish
+          # Add your deployment commands here
       
-      - name: Upload report
-        uses: actions/upload-artifact@v4
-        with:
-          name: deployment-report
-          path: deployment-report
-          retention-days: 5
+      - name: Deployment Report
+        run: |
+          echo "Deployment completed successfully"
+          echo "Branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Environment: $(if [[ '${{ github.event.workflow_run.head_branch }}' == 'main' ]]; then echo 'Production'; elif [[ '${{ github.event.workflow_run.head_branch }}' == 'staging' ]]; then echo 'Staging'; else echo 'Development'; fi)"
