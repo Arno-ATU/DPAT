@@ -1,0 +1,9 @@
+{
+    "runtime": {
+        "missingOrPendingStepsOutcome": "Error"
+    },
+    "generator": {
+        "allowDebugGeneratedFiles": true,
+        "allowRowTests": true
+    }
+}
