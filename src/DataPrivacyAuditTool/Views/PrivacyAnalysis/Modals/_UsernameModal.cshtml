@@ -1,0 +1,32 @@
+<!-- Username Modal -->
+<div class="modal fade" id="usernameModal" tabindex="-1" aria-labelledby="usernameModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="usernameModalLabel">Store your final score for future reference</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label for="username" class="form-label">Username:</label>
+					<input type="text" class="form-control" id="username" name="username" placeholder="Enter a pseudonym or nickname" maxlength="100">
+				</div>
+				<div class="text-muted small">
+					<p class="mb-2">
+						<i class="fas fa-info-circle text-primary"></i>
+						<strong>Privacy Notice:</strong> In order to protect your privacy, choose a pseudonym or nickname for your own reference instead of your official name.
+					</p>
+					<p class="mb-0">
+						<strong>NOTE:</strong> Only this username, the date of audit and final audit score will be stored. No sensitive meta-data of your Google Takeout configuration files will be stored in a persistent manner.
+					</p>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" id="proceedAnalysis" class="btn btn-primary">
+					<i class="fas fa-chart-line me-2"></i>Analyze Privacy
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
