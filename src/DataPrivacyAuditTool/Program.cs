@@ -4,7 +4,14 @@ using DataPrivacyAuditTool.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add core MVC services for web application
+// Core MVC services for web application
+builder.Services.AddControllersWithViews();
+
+// Database Configuration
+builder.Services.AddDbContext<DpatDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Core MVC services for web application
 builder.Services.AddControllersWithViews();
 
 // File Handling Layer - Services for processing and validating uploaded files
@@ -34,6 +41,12 @@ builder.Services.AddScoped<IPrivacyDashboardService, PrivacyDashboardService>();
 
 // Build the application
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<DpatDbContext>();
+    context.Database.EnsureCreated();
+}
 
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
