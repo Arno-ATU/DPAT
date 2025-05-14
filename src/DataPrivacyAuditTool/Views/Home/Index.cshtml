@@ -1,143 +1,100 @@
 @{
-    ViewData["Title"] = "Home";
+	ViewData["Title"] = "Privacy Audit Tool";
 }
 
-<link rel="stylesheet" href="~/css/landing-page.css" />
+<div class="container mt-5">
+	<div class="row">
+		<div class="col-md-8 offset-md-2">
+			<div class="card">
+				<div class="card-header bg-primary text-white">
+					<h2 class="mb-0">Personal Data Privacy Audit Tool</h2>
+				</div>
+				<div class="card-body">
+					<p class="lead">Upload your Google Takeout files to analyze your privacy settings and personal data exposure.</p>
 
-<!-- Hero Section with Gradient Background -->
-<div class="hero-section position-relative overflow-hidden py-6 mb-5">
-    <div class="bg-gradient-primary position-absolute top-0 start-0 end-0 bottom-0" style="background: linear-gradient(135deg, #4a6cf7 0%, #24226e 100%);"></div>
-    <div class="container position-relative py-5 text-center">
-        <div class="position-relative text-white z-2 py-5">
-            <h1 class="display-2 fw-bold mb-4 text-shadow">Data Privacy Audit Tool</h1>
-            <p class="lead fs-3 fw-light mb-5">Take control of your digital footprint today</p>
-            <div class="d-inline-block position-relative">
-                <a asp-controller="PrivacyAnalysis" asp-action="Index" class="btn btn-light btn-lg rounded-pill px-5 py-3 fs-5 fw-semibold shadow-lg animate-pulse">
-                    <i class="fas fa-shield-alt me-2"></i>Start Your Privacy Audit
-                </a>
-                <div class="blob-animation position-absolute"></div>
-            </div>
-        </div>
-    </div>
+					<div class="alert alert-info">
+						<h5>How it works:</h5>
+						<ol>
+							<li>Download your data from <a href="https://takeout.google.com/" target="_blank">Google Takeout</a></li>
+							<li>Select only the Chrome browser data</li>
+							<li>
+								After downloading, extract the files and look for:
+								<ul>
+									<li><strong>Settings.json</strong> - Contains your browser settings</li>
+									<li><strong>Addresses and more.json</strong> - Contains your autofill data</li>
+								</ul>
+							</li>
+							<li>Upload one or both files below for analysis</li>
+						</ol>
+					</div>
+
+					<form id="uploadForm">
+						<div id="validationErrors" class="text-danger" style="display: none;"></div>
+
+						<div class="mb-4">
+							<div class="card bg-light">
+								<div class="card-body">
+									<h5 class="card-title">Settings.json</h5>
+									<p class="card-text">Analyzes your browser privacy settings, search engines, cookies, and tracking configurations.</p>
+									<div class="custom-file">
+										<input type="file" class="form-control" id="settingsFile" name="settingsFile" accept=".json">
+										<span class="text-danger field-validation-valid" data-valmsg-for="settingsFile" data-valmsg-replace="true"></span>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="mb-4">
+							<div class="card bg-light">
+								<div class="card-body">
+									<h5 class="card-title">Addresses and more.json</h5>
+									<p class="card-text">Analyzes personal data exposure, autofill data, and saved information in your browser.</p>
+									<div class="custom-file">
+										<input type="file" class="form-control" id="addressesFile" name="addressesFile" accept=".json">
+										<span class="text-danger field-validation-valid" data-valmsg-for="addressesFile" data-valmsg-replace="true"></span>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="d-grid">
+							<button type="button" id="analyzeButton" class="btn btn-primary btn-lg">Analyze Privacy</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
-<!-- Main Content -->
-<div class="container">
-    <!-- Main Pitch Section -->
-    <div class="row mb-6">
-        <div class="col-lg-10 offset-lg-1">
-            <div class="card border-0 bg-light shadow-lg rounded-4 overflow-hidden">
-                <div class="row g-0">
-                    <div class="col-md-6">
-                        <div class="p-5">
-                            <h2 class="display-6 fw-bold mb-4">Your Browser, Your Data, Your Privacy</h2>
-                            
-                            <p class="fs-5 mb-4">
-                                Calling all Google Chrome users! Do you truly understand how your personal data is being handled when you browse the web?
-                            </p>
-                            
-                            <div class="d-flex mb-3">
-                                <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-primary bg-primary-light rounded-3 me-3">
-                                    <i class="fas fa-check"></i>
-                                </div>
-                                <p class="mb-0">Discover what personal information is stored</p>
-                            </div>
-                            
-                            <div class="d-flex mb-3">
-                                <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-primary bg-primary-light rounded-3 me-3">
-                                    <i class="fas fa-check"></i>
-                                </div>
-                                <p class="mb-0">Review your privacy and security settings</p>
-                            </div>
-                            
-                            <div class="d-flex mb-3">
-                                <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-primary bg-primary-light rounded-3 me-3">
-                                    <i class="fas fa-check"></i>
-                                </div>
-                                <p class="mb-0">Get actionable privacy enhancement steps</p>
-                            </div>
-                            
-                            <p class="fst-italic mt-4 text-muted">
-                                <small>Your data never leaves your device - all analysis happens locally.</small>
-                            </p>
-                            
-                            <a asp-controller="PrivacyAnalysis" asp-action="Index" class="btn btn-primary rounded-pill px-4 py-2 mt-3">
-                                Let's Go! <i class="fas fa-arrow-right ms-2"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-md-6 bg-primary d-flex align-items-center">
-                        <div class="p-5 text-white">
-                            <h3 class="h2 mb-4">Why should you care?</h3>
-                            
-                            <p class="mb-4">
-                                Whether you're a casual internet user or an online veteran, it's important to stay informed about what data is being stored and how your privacy settings are configured.
-                            </p>
-                            
-                            <p class="mb-0">
-                                The Data Privacy Audit Tool gives you valuable insights into your browser's privacy posture and helps you make informed decisions about your digital footprint.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- How It Works Section -->
-    <div class="row mb-6 justify-content-center">
-        <div class="col-lg-10">
-            <h2 class="text-center mb-5">How It Works</h2>
-            
-            <div class="row g-5">
-                <div class="col-md-4">
-                    <div class="process-step text-center">
-                        <div class="process-number bg-primary text-white d-inline-flex align-items-center justify-content-center rounded-circle mb-4">1</div>
-                        <h4>Upload Your Data</h4>
-                        <p class="text-muted">Select your Chrome settings and autofill data files from Google Takeout</p>
-                        <div class="process-icon mt-3">
-                            <i class="fas fa-upload fa-3x text-primary-light"></i>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-4">
-                    <div class="process-step text-center">
-                        <div class="process-number bg-primary text-white d-inline-flex align-items-center justify-content-center rounded-circle mb-4">2</div>
-                        <h4>Analyze Your Privacy</h4>
-                        <p class="text-muted">Our tool examines your data to identify privacy strengths and weaknesses</p>
-                        <div class="process-icon mt-3">
-                            <i class="fas fa-search fa-3x text-primary-light"></i>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-4">
-                    <div class="process-step text-center">
-                        <div class="process-number bg-primary text-white d-inline-flex align-items-center justify-content-center rounded-circle mb-4">3</div>
-                        <h4>Take Action</h4>
-                        <p class="text-muted">Follow personalized recommendations to enhance your privacy posture</p>
-                        <div class="process-icon mt-3">
-                            <i class="fas fa-check-circle fa-3x text-primary-light"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- CTA Section -->
-    <div class="row mb-6">
-        <div class="col-lg-10 offset-lg-1">
-            <div class="card border-0 rounded-4 bg-gradient-primary text-white shadow-lg">
-                <div class="card-body p-5 text-center">
-                    <h2 class="display-6 fw-bold mb-4">Ready to take control of your privacy?</h2>
-                    <p class="lead mb-4">Discover what your browser knows about you and how to protect your digital identity.</p>
-                    <a asp-controller="PrivacyAnalysis" asp-action="Index" class="btn btn-light btn-lg rounded-pill px-5 py-3 fw-semibold">
-                        Start Your Privacy Audit <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Include the Username Modal -->
+@await Html.PartialAsync("Modals/_UsernameModal")
+
+@section Scripts {
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const analyzeButton = document.getElementById('analyzeButton');
+			const usernameModal = new bootstrap.Modal(document.getElementById('usernameModal'));
+			const validationErrors = document.getElementById('validationErrors');
+
+			// Handle the initial "Analyze Privacy" button click
+			analyzeButton.addEventListener('click', function() {
+				// Validate that at least one file is selected
+				const settingsFile = document.getElementById('settingsFile').files[0];
+				const addressesFile = document.getElementById('addressesFile').files[0];
+
+				if (!settingsFile && !addressesFile) {
+					validationErrors.innerHTML = 'Please upload at least one file to analyze.';
+					validationErrors.style.display = 'block';
+					return;
+				}
+
+				// Clear any previous errors
+				validationErrors.style.display = 'none';
+
+				// Show the modal
+				usernameModal.show();
+			});
+		});
+	</script>
+}
