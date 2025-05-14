@@ -3,6 +3,7 @@ using DataPrivacyAuditTool.Infrastructure.Services.Analyzers;
 using DataPrivacyAuditTool.Infrastructure.Services;
 using DataPrivacyAuditTool.Data;
 using Microsoft.EntityFrameworkCore;
+using DataPrivacyAuditTool.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,7 @@ builder.Services.AddScoped<IMetricAnalyzer, PersonalDataExposureAnalyzer>();
 builder.Services.AddScoped<IMetricAnalyzer, CookiePrivacyAnalyzer>();
 builder.Services.AddScoped<IMetricAnalyzer, NetworkPredictionAnalyzer>();
 builder.Services.AddScoped<IMetricAnalyzer, ExtensionPrivacyAnalyzer>();
+builder.Services.AddScoped<IAuditHistoryService, AuditHistoryService>();
 
 // Presentation Layer
 builder.Services.AddScoped<IPrivacyDashboardService, PrivacyDashboardService>();
