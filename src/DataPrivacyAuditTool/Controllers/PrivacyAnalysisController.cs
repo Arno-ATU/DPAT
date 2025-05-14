@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace DataPrivacyAuditTool.Controllers
 {
-    public class PrivacyAnalysisController:Controller
+    public class PrivacyAnalysisController : Controller
     {
         private readonly IFileValidationService _fileValidationService;
         private readonly IJsonParsingService _jsonParsingService;
@@ -38,6 +38,11 @@ namespace DataPrivacyAuditTool.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile settingsFile, IFormFile addressesFile, string username)
         {
+            // Debug logging
+            Console.WriteLine($"=== Upload Debug ===");
+            Console.WriteLine($"Username received: '{username}'");
+            Console.WriteLine($"Settings file: {settingsFile?.FileName ?? "null"}");
+            Console.WriteLine($"Addresses file: {addressesFile?.FileName ?? "null"}");
 
             // Create a container for our parsed data
             var parsedData = new ParsedGoogleData();
@@ -80,6 +85,13 @@ namespace DataPrivacyAuditTool.Controllers
             // Run the analysis
             var analysisResult = await _analyzerEngine.ExecuteAnalysisAsync(parsedData);
 
+            // CALCULATE THE OVERALL SCORE BEFORE SAVING
+            // The dashboard service calculates the overall score, so this needs to be done first
+            var dashboardData = _dashboardService.PrepareDashboardData(analysisResult);
+
+            // Update the analysis result with the calculated overall score
+            analysisResult.OverallScore = dashboardData.OverallScore.Value;
+
             // Debug: Log analysis result
             Console.WriteLine($"Analysis completed. Score: {analysisResult.OverallScore}");
             Console.WriteLine($"Analysis date: {analysisResult.AnalysisDate}");
@@ -110,7 +122,6 @@ namespace DataPrivacyAuditTool.Controllers
             return RedirectToAction("Results");
         }
 
-
         public IActionResult Results()
         {
             // Retrieve the analysis result from TempData
@@ -127,5 +138,4 @@ namespace DataPrivacyAuditTool.Controllers
             return RedirectToAction("Index");
         }
     }
-
 }
