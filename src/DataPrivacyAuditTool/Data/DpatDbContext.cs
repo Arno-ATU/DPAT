@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using DataPrivacyAuditTool.Models;
+using DataPrivacyAuditTool.Core.Models;
 
 namespace DataPrivacyAuditTool.Data
 {

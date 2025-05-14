@@ -1,9 +1,10 @@
 using System.Threading.Tasks;
 using DataPrivacyAuditTool.Core.Interfaces;
-using DataPrivacyAuditTool.Core.Models; // Ensure this namespace is correct
+using DataPrivacyAuditTool.Core.Models;
+using DataPrivacyAuditTool.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json; // Add this for JsonSerializer
+using System.Text.Json;
 
 namespace DataPrivacyAuditTool.Controllers
 {
@@ -13,17 +14,20 @@ namespace DataPrivacyAuditTool.Controllers
         private readonly IJsonParsingService _jsonParsingService;
         private readonly IAnalyzerEngine _analyzerEngine;
         private readonly IPrivacyDashboardService _dashboardService;
+        private readonly IAuditHistoryService _auditHistoryService;
 
         public PrivacyAnalysisController(
             IFileValidationService fileValidationService,
             IJsonParsingService jsonParsingService,
             IAnalyzerEngine analyzerEngine,
-            IPrivacyDashboardService dashboardService)
+            IPrivacyDashboardService dashboardService,
+            IAuditHistoryService auditHistoryService)
         {
             _fileValidationService = fileValidationService;
             _jsonParsingService = jsonParsingService;
             _analyzerEngine = analyzerEngine;
             _dashboardService = dashboardService;
+            _auditHistoryService = auditHistoryService;
         }
 
         public IActionResult Index()
@@ -32,8 +36,9 @@ namespace DataPrivacyAuditTool.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Upload(IFormFile settingsFile, IFormFile addressesFile)
+        public async Task<IActionResult> Upload(IFormFile settingsFile, IFormFile addressesFile, string username)
         {
+
             // Create a container for our parsed data
             var parsedData = new ParsedGoogleData();
 
@@ -75,11 +80,36 @@ namespace DataPrivacyAuditTool.Controllers
             // Run the analysis
             var analysisResult = await _analyzerEngine.ExecuteAnalysisAsync(parsedData);
 
+            // Debug: Log analysis result
+            Console.WriteLine($"Analysis completed. Score: {analysisResult.OverallScore}");
+            Console.WriteLine($"Analysis date: {analysisResult.AnalysisDate}");
+
+            // Save audit to database if username provided
+            if (!string.IsNullOrWhiteSpace(username))
+            {
+                Console.WriteLine($"Attempting to save audit for username: '{username}'");
+                try
+                {
+                    var savedId = await _auditHistoryService.SaveAuditAsync(username, analysisResult);
+                    Console.WriteLine($"Successfully saved audit with ID: {savedId}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"ERROR saving audit: {ex.Message}");
+                    Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No username provided - skipping database save");
+            }
+
             // Store the result in TempData to persist across redirects
-            TempData["AnalysisResult"] = System.Text.Json.JsonSerializer.Serialize(analysisResult);
+            TempData["AnalysisResult"] = JsonSerializer.Serialize(analysisResult);
 
             return RedirectToAction("Results");
         }
+
 
         public IActionResult Results()
         {
@@ -97,4 +127,5 @@ namespace DataPrivacyAuditTool.Controllers
             return RedirectToAction("Index");
         }
     }
+
 }

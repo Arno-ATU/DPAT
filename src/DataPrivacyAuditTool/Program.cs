@@ -2,15 +2,15 @@ using DataPrivacyAuditTool.Core.Interfaces;
 using DataPrivacyAuditTool.Infrastructure.Services.Analyzers;
 using DataPrivacyAuditTool.Infrastructure.Services;
 using DataPrivacyAuditTool.Data;
+using DataPrivacyAuditTool.Services;  // This one might be grayed out but is needed
 using Microsoft.EntityFrameworkCore;
-using DataPrivacyAuditTool.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllersWithViews();
 
-// Configure Entity Framework with SQLite
+// Database Configuration
 builder.Services.AddDbContext<DpatDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -27,10 +27,12 @@ builder.Services.AddScoped<IMetricAnalyzer, PersonalDataExposureAnalyzer>();
 builder.Services.AddScoped<IMetricAnalyzer, CookiePrivacyAnalyzer>();
 builder.Services.AddScoped<IMetricAnalyzer, NetworkPredictionAnalyzer>();
 builder.Services.AddScoped<IMetricAnalyzer, ExtensionPrivacyAnalyzer>();
-builder.Services.AddScoped<IAuditHistoryService, AuditHistoryService>();
 
 // Presentation Layer
 builder.Services.AddScoped<IPrivacyDashboardService, PrivacyDashboardService>();
+
+// Register the audit history service - THIS IS THE CRITICAL LINE
+builder.Services.AddScoped<IAuditHistoryService, AuditHistoryService>();
 
 var app = builder.Build();
 

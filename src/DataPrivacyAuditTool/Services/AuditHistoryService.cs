@@ -1,17 +1,10 @@
-using DataPrivacyAuditTool.Data;
-using DataPrivacyAuditTool.Models;
+using DataPrivacyAuditTool.Core.Interfaces;
 using DataPrivacyAuditTool.Core.Models;
+using DataPrivacyAuditTool.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataPrivacyAuditTool.Services
 {
-    public interface IAuditHistoryService
-    {
-        Task<int> SaveAuditAsync(string username, PrivacyAnalysisResult result);
-        Task<List<AuditHistory>> GetUserAuditHistoryAsync(string username);
-        Task<AuditHistory?> GetLatestAuditAsync(string username);
-    }
-
     public class AuditHistoryService : IAuditHistoryService
     {
         private readonly DpatDbContext _context;
@@ -23,7 +16,6 @@ namespace DataPrivacyAuditTool.Services
 
         public async Task<int> SaveAuditAsync(string username, PrivacyAnalysisResult result)
         {
-            // Only save if username is provided
             if (string.IsNullOrWhiteSpace(username))
                 return 0;
 
