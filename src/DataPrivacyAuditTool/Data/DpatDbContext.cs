@@ -15,7 +15,6 @@ namespace DataPrivacyAuditTool.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure the AuditHistory entity
             modelBuilder.Entity<AuditHistory>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -25,7 +24,7 @@ namespace DataPrivacyAuditTool.Data
                     .HasMaxLength(100);
 
                 entity.Property(e => e.OverallScore)
-                    .HasColumnType("REAL"); // SQLite data type for double
+                    .HasColumnType("REAL");
 
                 entity.Property(e => e.AuditDate)
                     .IsRequired();
