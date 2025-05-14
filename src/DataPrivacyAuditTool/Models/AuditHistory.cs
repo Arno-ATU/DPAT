@@ -16,8 +16,5 @@ namespace DataPrivacyAuditTool.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Optional: Store which files were analyzed
-        public bool SettingsFileAnalyzed { get; set; }
-        public bool AddressesFileAnalyzed { get; set; }
     }
 }
