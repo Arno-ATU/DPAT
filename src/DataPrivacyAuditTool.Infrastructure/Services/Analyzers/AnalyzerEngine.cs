@@ -29,8 +29,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services
         /// This is an asynchronous method that returns a Promise-like object (Task) containing 
         /// the final analysis result. This async approach allows the engine to run multiple 
         /// analyzers concurrently if needed and prevents blocking the application while analysis 
-        /// is happening. The Task-based design is essential for responsive web applications, 
-        /// ensuring the UI remains usable during potentially time-consuming analysis operations.
+        /// is happening.
         /// </remarks>
         /// <param name="data">The parsed Google data to analyze</param>
         /// <returns>A task containing the complete privacy analysis result</returns>

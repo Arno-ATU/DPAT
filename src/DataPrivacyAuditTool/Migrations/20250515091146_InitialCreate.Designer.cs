@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataPrivacyAuditTool.Migrations
 {
     [DbContext(typeof(DpatDbContext))]
-    [Migration("20250514133455_InitialCreate")]
+    [Migration("20250515091146_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace DataPrivacyAuditTool.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
 
-            modelBuilder.Entity("DataPrivacyAuditTool.Models.AuditHistory", b =>
+            modelBuilder.Entity("DataPrivacyAuditTool.Core.Models.AuditHistory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
