@@ -25,3 +25,6 @@ packages/
 *.db
 *.db-shm
 *.db-wal
+dpat_development.db
+dpat_staging.db
+dpat_production.db
