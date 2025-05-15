@@ -2,7 +2,7 @@ using DataPrivacyAuditTool.Core.Interfaces;
 using DataPrivacyAuditTool.Infrastructure.Services.Analyzers;
 using DataPrivacyAuditTool.Infrastructure.Services;
 using DataPrivacyAuditTool.Data;
-using DataPrivacyAuditTool.Services;  // This one might be grayed out but is needed
+using DataPrivacyAuditTool.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
