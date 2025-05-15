@@ -17,7 +17,7 @@ namespace DataPrivacyAuditTool.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
 
-            modelBuilder.Entity("DataPrivacyAuditTool.Models.AuditHistory", b =>
+            modelBuilder.Entity("DataPrivacyAuditTool.Core.Models.AuditHistory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

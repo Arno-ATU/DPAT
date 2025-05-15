@@ -20,3 +20,12 @@ packages/
 # Visual Studio cache files
 *.vsidx
 *.vscode/
+
+# Database files
+*.db
+dpat_*.db
+*.db-shm
+*.db-wal
+dpat_development.db
+dpat_staging.db
+dpat_production.db
