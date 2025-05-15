@@ -23,6 +23,7 @@ packages/
 
 # Database files
 *.db
+dpat_*.db
 *.db-shm
 *.db-wal
 dpat_development.db
