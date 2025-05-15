@@ -20,3 +20,8 @@ packages/
 # Visual Studio cache files
 *.vsidx
 *.vscode/
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
