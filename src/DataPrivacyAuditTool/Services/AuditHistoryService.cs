@@ -70,5 +70,12 @@ namespace DataPrivacyAuditTool.Services
                 .OrderByDescending(ah => ah.AuditDate)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<List<AuditHistory>> GetAllAuditsAsync()
+        {
+            return await _context.AuditHistories
+                .OrderByDescending(ah => ah.AuditDate)
+                .ToListAsync();
+        }
     }
 }
