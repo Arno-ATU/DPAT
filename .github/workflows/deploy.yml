@@ -27,21 +27,21 @@ jobs:
         run: |
           echo "Deploying to Development environment"
           dotnet publish -c Release -o ./publish
-          # Add your deployment commands here
+          
       
       - name: Deploy to Staging
         if: github.event.workflow_run.head_branch == 'staging'
         run: |
           echo "Deploying to Staging environment"
           dotnet publish -c Release -o ./publish
-          # Add your deployment commands here
+          
       
       - name: Deploy to Production
         if: github.event.workflow_run.head_branch == 'main'
         run: |
           echo "Deploying to Production environment"
           dotnet publish -c Release -o ./publish
-          # Add your deployment commands here
+          
       
       - name: Deployment Report
         run: |
