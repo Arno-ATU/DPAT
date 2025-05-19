@@ -1,0 +1,121 @@
+name: Database Validation
+
+on:
+  push:
+    branches: [development, staging, main]
+    paths:
+      - 'src/DataPrivacyAuditTool/Data/**'
+      - 'src/DataPrivacyAuditTool/Models/**'
+      - 'src/DataPrivacyAuditTool/Services/AuditHistoryService.cs'
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
+    branches: [development, staging, main]
+
+jobs:
+  database-validation:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0'
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Build project
+        run: dotnet build --no-restore
+      
+      # Find the actual test project location first
+      - name: Find test project path
+        id: find-project
+        run: |
+          # Look for the test project file recursively
+          TEST_PROJECT=$(find . -name "DataPrivacyAuditTool.Tests.Unit.csproj" | head -n 1)
+          if [ -z "$TEST_PROJECT" ]; then
+            echo "Test project not found, trying to find any test project"
+            TEST_PROJECT=$(find . -name "*.Tests.*.csproj" | head -n 1)
+          fi
+          if [ -z "$TEST_PROJECT" ]; then
+            echo "No test project found!"
+            exit 1
+          fi
+          echo "TEST_PROJECT=$TEST_PROJECT" >> $GITHUB_OUTPUT
+          echo "Found test project at: $TEST_PROJECT"
+      
+      # Basic database validation that runs on all environments
+      - name: Run basic database validation tests
+        run: |
+          echo "Running basic database validation tests..."
+          TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
+          echo "Using test project: $TEST_PROJECT"
+          dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~DatabaseValidationTests"
+        
+      # Development branch database validation  
+      - name: Run database validation tests (Development)
+        if: github.ref == 'refs/heads/development'
+        env:
+          DPAT_TEST_ENVIRONMENT: Development
+        run: |
+          echo "Running development database tests..."
+          TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
+          dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~Development_Database_BasicOperationsWork"
+      
+      # Staging-specific steps
+      - name: Run database validation tests (Staging)
+        if: github.ref == 'refs/heads/staging'
+        env:
+          DPAT_TEST_ENVIRONMENT: Staging
+        run: |
+          echo "Running staging database tests..."
+          TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
+          dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~Staging_Database_BasicOperationsWork"
+      
+      # Production-specific steps - improved backup logic
+      - name: Backup production database (Production only)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Creating backup of production database..."
+          timestamp=$(date +"%Y%m%d_%H%M%S")
+          mkdir -p ./backups
+          
+          # Check if the file exists before attempting to copy it
+          if [ -f "src/DataPrivacyAuditTool/dpat_production.db" ]; then
+            cp src/DataPrivacyAuditTool/dpat_production.db ./backups/dpat_production_${timestamp}.db
+            echo "Backup created: dpat_production_${timestamp}.db"
+          else
+            echo "No production database found, skipping backup (expected in non-production environments)"
+          fi
+      
+      - name: Upload database backup (Production only)
+        if: github.ref == 'refs/heads/main' && success()
+        run: |
+          # Only try to upload if we have backups
+          if [ -d "./backups" ] && [ "$(ls -A ./backups)" ]; then
+            echo "Preparing to upload database backup..."
+          else
+            echo "No backups to upload, skipping this step"
+            exit 0
+          fi
+        
+      - name: Upload database backup artifact
+        if: github.ref == 'refs/heads/main' && success() && hashFiles('./backups/dpat_production_*.db') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-db-backup
+          path: ./backups/dpat_production_*.db
+          retention-days: 1
+          
+      - name: Run database validation tests (Production)
+        if: github.ref == 'refs/heads/main'
+        env:
+          DPAT_TEST_ENVIRONMENT: Production
+        run: |
+          echo "Running production database tests..."
+          TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
+          dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~Production_Database_BasicOperationsWork"
