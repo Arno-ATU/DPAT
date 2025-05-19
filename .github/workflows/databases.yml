@@ -31,9 +31,10 @@ jobs:
       - name: Build project
         run: dotnet build --no-restore
       
-      # Basic database validation that runs on all environments
       - name: Run basic database validation tests
-        run: dotnet test src/DataPrivacyAuditTool.Tests.Unit/Services/DatabaseValidationTests.cs
+        run: |
+          echo "Running basic database validation tests..."
+          dotnet test src/DataPrivacyAuditTool.Tests.Unit/DataPrivacyAuditTool.Tests.Unit.csproj --filter "FullyQualifiedName~Services.DatabaseValidationTests"
         
       # Development branch database validation  
       - name: Run database validation tests (Development)
