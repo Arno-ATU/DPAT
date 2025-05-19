@@ -1,0 +1,71 @@
+name: Database Validation
+
+on:
+  push:
+    branches: [development, staging, main]
+    paths:
+      - 'src/DataPrivacyAuditTool/Data/**'
+      - 'src/DataPrivacyAuditTool/Models/**'
+      - 'src/DataPrivacyAuditTool/Services/AuditHistoryService.cs'
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
+    branches: [development, staging, main]
+
+jobs:
+  database-validation:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0'
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Build project
+        run: dotnet build --no-restore
+      
+      # Development branch database validation  
+      - name: Run database validation tests (Development)
+        if: github.ref == 'refs/heads/development'
+        env:
+          DPAT_TEST_ENVIRONMENT: Development
+        run: dotnet test src/DataPrivacyAuditTool.Tests.Unit/Services/DatabaseSmokeTests.cs --filter "FullyQualifiedName~Development_Database_BasicOperationsWork"
+      
+      # Staging-specific steps
+      - name: Run database validation tests (Staging)
+        if: github.ref == 'refs/heads/staging'
+        env:
+          DPAT_TEST_ENVIRONMENT: Staging
+        run: dotnet test src/DataPrivacyAuditTool.Tests.Unit/Services/DatabaseSmokeTests.cs --filter "FullyQualifiedName~Staging_Database_BasicOperationsWork"
+      
+      # Production-specific steps
+      - name: Backup production database (Production only)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Creating backup of production database..."
+          timestamp=$(date +"%Y%m%d_%H%M%S")
+          mkdir -p ./backups
+          # Simple file copy backup
+          cp src/DataPrivacyAuditTool/dpat_production.db ./backups/dpat_production_${timestamp}.db
+          echo "Backup created: dpat_production_${timestamp}.db"
+      
+      - name: Upload database backup (Production only)
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-db-backup
+          path: ./backups/dpat_production_*.db
+          retention-days: 1
+          
+      - name: Run database validation tests (Production)
+        if: github.ref == 'refs/heads/main'
+        env:
+          DPAT_TEST_ENVIRONMENT: Production
+        run: dotnet test src/DataPrivacyAuditTool.Tests.Unit/Services/DatabaseSmokeTests.cs --filter "FullyQualifiedName~Production_Database_BasicOperationsWork"
