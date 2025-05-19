@@ -1,12 +1,15 @@
 using System;
 using Microsoft.Data.Sqlite;
 
+
 namespace DataPrivacyAuditTool.Tests.Unit.SmokeTester
 {
-    public class Program
+
+    public class DatabaseSmokeTest
     {
-        // Traditional entry point method with explicit parameter for environment
-        static int Main(string[] args)
+        // Use the explicit [STAThread] attribute to clarify this is the entry point
+        [STAThread]
+        public static int Main(string[] args)
         {
             // Default to Development if no environment is specified
             string envName = "Development";
@@ -34,7 +37,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.SmokeTester
 
             try
             {
-                // Attempt to connect to the database
+                // Connect to the database
                 using var connection = new SqliteConnection($"Data Source=src/DataPrivacyAuditTool/{dbPath}");
                 connection.Open();
 
