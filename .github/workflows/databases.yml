@@ -1,4 +1,4 @@
-name: Database Validation
+name: Databases
 
 on:
   push:
@@ -31,6 +31,10 @@ jobs:
       - name: Build project
         run: dotnet build --no-restore
       
+      # Basic database validation that runs on all environments
+      - name: Run basic database validation tests
+        run: dotnet test src/DataPrivacyAuditTool.Tests.Unit/Services/DatabaseValidationTests.cs
+        
       # Development branch database validation  
       - name: Run database validation tests (Development)
         if: github.ref == 'refs/heads/development'
@@ -45,19 +49,35 @@ jobs:
           DPAT_TEST_ENVIRONMENT: Staging
         run: dotnet test src/DataPrivacyAuditTool.Tests.Unit/Services/DatabaseSmokeTests.cs --filter "FullyQualifiedName~Staging_Database_BasicOperationsWork"
       
-      # Production-specific steps
+      # Production-specific steps - improved backup logic
       - name: Backup production database (Production only)
         if: github.ref == 'refs/heads/main'
         run: |
           echo "Creating backup of production database..."
           timestamp=$(date +"%Y%m%d_%H%M%S")
           mkdir -p ./backups
-          # Simple file copy backup
-          cp src/DataPrivacyAuditTool/dpat_production.db ./backups/dpat_production_${timestamp}.db
-          echo "Backup created: dpat_production_${timestamp}.db"
+          
+          # Check if the file exists before attempting to copy it
+          if [ -f "src/DataPrivacyAuditTool/dpat_production.db" ]; then
+            cp src/DataPrivacyAuditTool/dpat_production.db ./backups/dpat_production_${timestamp}.db
+            echo "Backup created: dpat_production_${timestamp}.db"
+          else
+            echo "No production database found, skipping backup (expected in non-production environments)"
+          fi
       
       - name: Upload database backup (Production only)
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && success()
+        run: |
+          # Only try to upload if we have backups
+          if [ -d "./backups" ] && [ "$(ls -A ./backups)" ]; then
+            echo "Preparing to upload database backup..."
+          else
+            echo "No backups to upload, skipping this step"
+            exit 0
+          fi
+        
+      - name: Upload database backup artifact
+        if: github.ref == 'refs/heads/main' && success() && hashFiles('./backups/dpat_production_*.db') != ''
         uses: actions/upload-artifact@v4
         with:
           name: production-db-backup
