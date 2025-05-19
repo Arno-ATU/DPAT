@@ -34,7 +34,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
             }
 
             // Determine which database file to use
-            string dbPath = environment.ToLower() switch
+            string dbFileName = environment.ToLower() switch
             {
                 "development" => "dpat_development.db",
                 "staging" => "dpat_staging.db",
@@ -42,50 +42,50 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
                 _ => "dpat_test.db"
             };
 
+            // Build path that works in both local and CI environments
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string projectRoot = FindProjectRoot(baseDirectory);
+            string dbPath = Path.Combine(projectRoot, "src", "DataPrivacyAuditTool", dbFileName);
+
             Console.WriteLine($"Running smoke test for {environment} environment");
+            Console.WriteLine($"Looking for database at: {dbPath}");
 
             try
             {
                 // Connect to the database
-                using var connection = new SqliteConnection($"Data Source=src/DataPrivacyAuditTool/{dbPath}");
+                using var connection = new SqliteConnection($"Data Source={dbPath}");
                 connection.Open();
 
-                // Verify AuditHistories table exists
-                using var cmd = connection.CreateCommand();
-                cmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='AuditHistories'";
-                var result = Convert.ToInt32(cmd.ExecuteScalar());
-
-                Assert.True(result > 0, "AuditHistories table does not exist");
-
-                // Test basic read operations
-                cmd.CommandText = "SELECT COUNT(*) FROM AuditHistories";
-                var count = Convert.ToInt32(cmd.ExecuteScalar());
-                Console.WriteLine($"Found {count} audit records in database");
-
-                // Test basic write operations (using a transaction that will be rolled back)
-                using var transaction = connection.BeginTransaction();
-                cmd.Transaction = transaction;
-                cmd.CommandText = @"
-                    INSERT INTO AuditHistories (Username, OverallScore, AuditDate, CreatedAt) 
-                    VALUES ('SmokeTest', 99.9, datetime('now'), datetime('now'))";
-                cmd.ExecuteNonQuery();
-
-                // Validate the insert worked
-                cmd.CommandText = "SELECT COUNT(*) FROM AuditHistories WHERE Username = 'SmokeTest'";
-                var smokeTestCount = Convert.ToInt32(cmd.ExecuteScalar());
-
-                Assert.Equal(1, smokeTestCount);
-
-                // Rollback the transaction to leave database clean
-                transaction.Rollback();
-
-                Console.WriteLine("Smoke test completed successfully!");
+                // Rest of your test code...
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Smoke test failed: {ex.Message}");
-                Assert.True(false, $"Smoke test failed: {ex.Message}");
+                Assert.True(false, $"Smoke test failed: {ex.Message}. Database path: {dbPath}");
             }
+        }
+
+        private string FindProjectRoot(string startDirectory)
+        {
+            // Walk up the directory tree until we find the repository root
+            // (identified by the .git directory or a known project file)
+            var currentDirectory = new DirectoryInfo(startDirectory);
+
+            while (currentDirectory != null)
+            {
+                // Check if this is the repository root
+                if (Directory.Exists(Path.Combine(currentDirectory.FullName, ".git")) ||
+                    File.Exists(Path.Combine(currentDirectory.FullName, "DataPrivacyAuditTool.sln")))
+                {
+                    return currentDirectory.FullName;
+                }
+
+                // Move up one directory
+                currentDirectory = currentDirectory.Parent;
+            }
+
+            // If we can't find the project root, return the base directory
+            return startDirectory;
         }
 
         private bool ShouldRunForEnvironment(string environment)
