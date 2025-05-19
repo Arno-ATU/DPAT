@@ -1,4 +1,4 @@
-name: Databases
+name: Database Validation
 
 on:
   push:
@@ -31,24 +31,50 @@ jobs:
       - name: Build project
         run: dotnet build --no-restore
       
+      # Find the actual test project location first
+      - name: Find test project path
+        id: find-project
+        run: |
+          # Look for the test project file recursively
+          TEST_PROJECT=$(find . -name "DataPrivacyAuditTool.Tests.Unit.csproj" | head -n 1)
+          if [ -z "$TEST_PROJECT" ]; then
+            echo "Test project not found, trying to find any test project"
+            TEST_PROJECT=$(find . -name "*.Tests.*.csproj" | head -n 1)
+          fi
+          if [ -z "$TEST_PROJECT" ]; then
+            echo "No test project found!"
+            exit 1
+          fi
+          echo "TEST_PROJECT=$TEST_PROJECT" >> $GITHUB_OUTPUT
+          echo "Found test project at: $TEST_PROJECT"
+      
+      # Basic database validation that runs on all environments
       - name: Run basic database validation tests
         run: |
           echo "Running basic database validation tests..."
-          dotnet test src/DataPrivacyAuditTool.Tests.Unit/DataPrivacyAuditTool.Tests.Unit.csproj --filter "FullyQualifiedName~Services.DatabaseValidationTests"
+          TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
+          echo "Using test project: $TEST_PROJECT"
+          dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~DatabaseValidationTests"
         
       # Development branch database validation  
       - name: Run database validation tests (Development)
         if: github.ref == 'refs/heads/development'
         env:
           DPAT_TEST_ENVIRONMENT: Development
-        run: dotnet test src/DataPrivacyAuditTool.Tests.Unit/Services/DatabaseSmokeTests.cs --filter "FullyQualifiedName~Development_Database_BasicOperationsWork"
+        run: |
+          echo "Running development database tests..."
+          TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
+          dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~Development_Database_BasicOperationsWork"
       
       # Staging-specific steps
       - name: Run database validation tests (Staging)
         if: github.ref == 'refs/heads/staging'
         env:
           DPAT_TEST_ENVIRONMENT: Staging
-        run: dotnet test src/DataPrivacyAuditTool.Tests.Unit/Services/DatabaseSmokeTests.cs --filter "FullyQualifiedName~Staging_Database_BasicOperationsWork"
+        run: |
+          echo "Running staging database tests..."
+          TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
+          dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~Staging_Database_BasicOperationsWork"
       
       # Production-specific steps - improved backup logic
       - name: Backup production database (Production only)
@@ -89,4 +115,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         env:
           DPAT_TEST_ENVIRONMENT: Production
-        run: dotnet test src/DataPrivacyAuditTool.Tests.Unit/Services/DatabaseSmokeTests.cs --filter "FullyQualifiedName~Production_Database_BasicOperationsWork"
+        run: |
+          echo "Running production database tests..."
+          TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
+          dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~Production_Database_BasicOperationsWork"
