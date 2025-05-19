@@ -84,7 +84,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
                 currentDirectory = currentDirectory.Parent;
             }
 
-            // If we can't find the project root, return the base directory
+            // Return the base directory if cant find the root
             return startDirectory;
         }
 
