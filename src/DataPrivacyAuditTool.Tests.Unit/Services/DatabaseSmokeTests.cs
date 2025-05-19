@@ -1,39 +1,48 @@
 using System;
+using DataPrivacyAuditTool.Data;
 using Microsoft.Data.Sqlite;
+using Xunit;
 
-
-namespace DataPrivacyAuditTool.Tests.Unit.SmokeTester
+namespace DataPrivacyAuditTool.Tests.Unit.Services
 {
-
-    public class DatabaseSmokeTest
+    public class DatabaseSmokeTests
     {
-        // Use the explicit [STAThread] attribute to clarify this is the entry point
-        [STAThread]
-        public static int Main(string[] args)
+        [Fact]
+        public void Development_Database_BasicOperationsWork()
         {
-            // Default to Development if no environment is specified
-            string envName = "Development";
+            RunSmokeTest("Development");
+        }
 
-            // Parse command line args
-            for (int i = 0; i < args.Length; i++)
+        [Fact]
+        public void Staging_Database_BasicOperationsWork()
+        {
+            RunSmokeTest("Staging");
+        }
+
+        [Fact]
+        public void Production_Database_BasicOperationsWork()
+        {
+            RunSmokeTest("Production");
+        }
+
+        private void RunSmokeTest(string environment)
+        {
+            // Skip test if we're not specifically targeting this environment
+            if (!ShouldRunForEnvironment(environment))
             {
-                // Look for the --environment flag and take the value that follows it
-                if (args[i] == "--environment" && i + 1 < args.Length)
-                {
-                    envName = args[i + 1];
-                }
+                return;
             }
 
-            Console.WriteLine($"Running smoke test for {envName} environment");
-
-            // Determine which database file to use based on the environment
-            string dbPath = envName.ToLower() switch
+            // Determine which database file to use
+            string dbPath = environment.ToLower() switch
             {
                 "development" => "dpat_development.db",
                 "staging" => "dpat_staging.db",
                 "production" => "dpat_production.db",
                 _ => "dpat_test.db"
             };
+
+            Console.WriteLine($"Running smoke test for {environment} environment");
 
             try
             {
@@ -46,11 +55,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.SmokeTester
                 cmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='AuditHistories'";
                 var result = Convert.ToInt32(cmd.ExecuteScalar());
 
-                if (result == 0)
-                {
-                    Console.WriteLine("ERROR: AuditHistories table does not exist");
-                    return 1;
-                }
+                Assert.True(result > 0, "AuditHistories table does not exist");
 
                 // Test basic read operations
                 cmd.CommandText = "SELECT COUNT(*) FROM AuditHistories";
@@ -69,23 +74,34 @@ namespace DataPrivacyAuditTool.Tests.Unit.SmokeTester
                 cmd.CommandText = "SELECT COUNT(*) FROM AuditHistories WHERE Username = 'SmokeTest'";
                 var smokeTestCount = Convert.ToInt32(cmd.ExecuteScalar());
 
-                if (smokeTestCount != 1)
-                {
-                    Console.WriteLine("ERROR: Failed to insert test data");
-                    return 1;
-                }
+                Assert.Equal(1, smokeTestCount);
 
                 // Rollback the transaction to leave database clean
                 transaction.Rollback();
 
                 Console.WriteLine("Smoke test completed successfully!");
-                return 0;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Smoke test failed: {ex.Message}");
-                return 1;
+                Assert.True(false, $"Smoke test failed: {ex.Message}");
             }
+        }
+
+        private bool ShouldRunForEnvironment(string environment)
+        {
+            // This method will determine whether to run based on environment variables
+            // For local development, we can use environment variables
+            var targetEnv = Environment.GetEnvironmentVariable("DPAT_TEST_ENVIRONMENT");
+
+            // If no specific environment is targeted, run for all environments
+            if (string.IsNullOrEmpty(targetEnv))
+            {
+                return true;
+            }
+
+            // Run only if the targeted environment matches the test
+            return string.Equals(targetEnv, environment, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
