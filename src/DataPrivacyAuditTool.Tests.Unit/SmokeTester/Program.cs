@@ -3,25 +3,28 @@ using Microsoft.Data.Sqlite;
 
 namespace DataPrivacyAuditTool.Tests.Unit.SmokeTester
 {
-    class Program
+    public class Program
     {
+        // Traditional entry point method with explicit parameter for environment
         static int Main(string[] args)
         {
-            string environment = "Development";
+            // Default to Development if no environment is specified
+            string envName = "Development";
 
             // Parse command line args
             for (int i = 0; i < args.Length; i++)
             {
+                // Look for the --environment flag and take the value that follows it
                 if (args[i] == "--environment" && i + 1 < args.Length)
                 {
-                    environment = args[i + 1];
+                    envName = args[i + 1];
                 }
             }
 
-            Console.WriteLine($"Running smoke test for {environment} environment");
+            Console.WriteLine($"Running smoke test for {envName} environment");
 
-            // Determine which database file to use
-            string dbPath = environment.ToLower() switch
+            // Determine which database file to use based on the environment
+            string dbPath = envName.ToLower() switch
             {
                 "development" => "dpat_development.db",
                 "staging" => "dpat_staging.db",
@@ -31,7 +34,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.SmokeTester
 
             try
             {
-                // Test database connectivity
+                // Attempt to connect to the database
                 using var connection = new SqliteConnection($"Data Source=src/DataPrivacyAuditTool/{dbPath}");
                 connection.Open();
 
@@ -51,7 +54,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.SmokeTester
                 var count = Convert.ToInt32(cmd.ExecuteScalar());
                 Console.WriteLine($"Found {count} audit records in database");
 
-                // Test basic write operations (test transaction, don't commit)
+                // Test basic write operations (using a transaction that will be rolled back)
                 using var transaction = connection.BeginTransaction();
                 cmd.Transaction = transaction;
                 cmd.CommandText = @"
