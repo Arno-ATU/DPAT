@@ -68,7 +68,6 @@ namespace DataPrivacyAuditTool.Tests.Unit.Services
         private string FindProjectRoot(string startDirectory)
         {
             // Walk up the directory tree until we find the repository root
-            // (identified by the .git directory or a known project file)
             var currentDirectory = new DirectoryInfo(startDirectory);
 
             while (currentDirectory != null)
