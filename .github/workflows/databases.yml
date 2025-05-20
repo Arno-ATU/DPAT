@@ -7,7 +7,7 @@ on:
       - 'src/DataPrivacyAuditTool/Data/**'
       - 'src/DataPrivacyAuditTool/Models/**'
       - 'src/DataPrivacyAuditTool/Services/AuditHistoryService.cs'
-      - 'DataPrivacyAuditTool/dpat_*'  # Added to trigger when databases are updated
+      - 'src/DataPrivacyAuditTool/dpat_*'  # Updated path to match correct structure
   workflow_run:
     workflows: ["Build"]
     types:
@@ -34,10 +34,19 @@ jobs:
             BRANCH="${{ github.ref_name }}"
           fi
           echo "Effective branch for workflow: $BRANCH"
-          echo "Current directory contents:"
+          
+      - name: Debug repository structure and database files
+        run: |
+          echo "Repository structure:"
+          echo "Current directory: $(pwd)"
+          echo "Looking for database files:"
+          find . -name "dpat_*.db" -type f || echo "No matching database files found"
+          echo "Directory contents:"
           ls -la
+          echo "src directory contents:"
+          ls -la src/ || echo "src directory not found"
           echo "DataPrivacyAuditTool directory contents:"
-          ls -la DataPrivacyAuditTool/ || echo "Directory not found"
+          ls -la src/DataPrivacyAuditTool/ || echo "DataPrivacyAuditTool directory not found"
       
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -103,8 +112,8 @@ jobs:
         id: staging-size-check
         run: |
           echo "Checking staging database size..."
-          # Direct path to staging database
-          DB_PATH="DataPrivacyAuditTool/dpat_staging"
+          # Updated path to match repository structure
+          DB_PATH="src/DataPrivacyAuditTool/dpat_staging.db"
           if [ -f "$DB_PATH" ]; then
             DB_SIZE=$(stat -c%s "$DB_PATH")
             MAX_SIZE=$((500 * 1024)) # 500KB in bytes
@@ -126,7 +135,7 @@ jobs:
           else
             echo "Database file not found at expected path: $DB_PATH"
             echo "Looking for similar files:"
-            ls -la DataPrivacyAuditTool/dpat_* 2>/dev/null || echo "No matching files found"
+            find . -name "dpat_*" -type f || echo "No matching files found"
             echo "db_too_large=false" >> $GITHUB_OUTPUT
             echo "db_size=0" >> $GITHUB_OUTPUT
           fi
@@ -138,14 +147,23 @@ jobs:
           timestamp=$(date +"%Y%m%d_%H%M%S")
           mkdir -p ./backups
           
-          # Direct path to staging database
-          DB_PATH="DataPrivacyAuditTool/dpat_staging"
+          # Updated path to match repository structure
+          DB_PATH="src/DataPrivacyAuditTool/dpat_staging.db"
           if [ -f "$DB_PATH" ]; then
             cp "$DB_PATH" "./backups/dpat_staging_${timestamp}.db"
             echo "Backup created: dpat_staging_${timestamp}.db"
             echo "Database size: ${{ steps.staging-size-check.outputs.db_size }} bytes"
           else
             echo "No staging database found at expected path: $DB_PATH"
+            # Try to find the database anywhere in the repository
+            FOUND_DB=$(find . -name "dpat_staging.db" -type f | head -n 1)
+            if [ -n "$FOUND_DB" ]; then
+              echo "Found database at alternative location: $FOUND_DB"
+              cp "$FOUND_DB" "./backups/dpat_staging_${timestamp}.db"
+              echo "Backup created from alternative location: dpat_staging_${timestamp}.db"
+            else
+              echo "Could not find staging database file anywhere in the repository"
+            fi
           fi
           
           # List the backups directory to confirm results
@@ -161,7 +179,7 @@ jobs:
           cat > "./backups/large_database_report_${timestamp}.md" << EOF
           # Large Database Detected - Backup Skipped
           
-          **Database:** dpat_staging
+          **Database:** dpat_staging.db
           **Size:** ${{ steps.staging-size-check.outputs.db_size }} bytes
           **Maximum Allowed Size:** ${{ steps.staging-size-check.outputs.max_size }} bytes
           **Date:** $(date -u "+%Y-%m-%d %H:%M:%S UTC")
@@ -206,8 +224,8 @@ jobs:
         id: production-size-check
         run: |
           echo "Checking production database size..."
-          # Direct path to production database
-          DB_PATH="DataPrivacyAuditTool/dpat_production"
+          # Updated path to match repository structure
+          DB_PATH="src/DataPrivacyAuditTool/dpat_production.db"
           if [ -f "$DB_PATH" ]; then
             DB_SIZE=$(stat -c%s "$DB_PATH")
             MAX_SIZE=$((500 * 1024)) # 500KB in bytes
@@ -229,7 +247,7 @@ jobs:
           else
             echo "Database file not found at expected path: $DB_PATH"
             echo "Looking for similar files:"
-            ls -la DataPrivacyAuditTool/dpat_* 2>/dev/null || echo "No matching files found"
+            find . -name "dpat_*" -type f || echo "No matching files found"
             echo "db_too_large=false" >> $GITHUB_OUTPUT
             echo "db_size=0" >> $GITHUB_OUTPUT
           fi
@@ -241,14 +259,23 @@ jobs:
           timestamp=$(date +"%Y%m%d_%H%M%S")
           mkdir -p ./backups
           
-          # Direct path to production database
-          DB_PATH="DataPrivacyAuditTool/dpat_production"
+          # Updated path to match repository structure
+          DB_PATH="src/DataPrivacyAuditTool/dpat_production.db"
           if [ -f "$DB_PATH" ]; then
             cp "$DB_PATH" "./backups/dpat_production_${timestamp}.db"
             echo "Backup created: dpat_production_${timestamp}.db"
             echo "Database size: ${{ steps.production-size-check.outputs.db_size }} bytes"
           else
             echo "No production database found at expected path: $DB_PATH"
+            # Try to find the database anywhere in the repository
+            FOUND_DB=$(find . -name "dpat_production.db" -type f | head -n 1)
+            if [ -n "$FOUND_DB" ]; then
+              echo "Found database at alternative location: $FOUND_DB"
+              cp "$FOUND_DB" "./backups/dpat_production_${timestamp}.db"
+              echo "Backup created from alternative location: dpat_production_${timestamp}.db"
+            else
+              echo "Could not find production database file anywhere in the repository"
+            fi
           fi
           
           # List the backups directory to confirm results
@@ -264,7 +291,7 @@ jobs:
           cat > "./backups/large_database_report_${timestamp}.md" << EOF
           # Large Database Detected - Backup Skipped
           
-          **Database:** dpat_production
+          **Database:** dpat_production.db
           **Size:** ${{ steps.production-size-check.outputs.db_size }} bytes
           **Maximum Allowed Size:** ${{ steps.production-size-check.outputs.max_size }} bytes
           **Date:** $(date -u "+%Y-%m-%d %H:%M:%S UTC")
