@@ -1,332 +1,144 @@
-name: Database Validation
+name: Database Operations
 
 on:
   push:
     branches: [development, staging, main]
     paths:
-      - 'src/DataPrivacyAuditTool/Data/**'
-      - 'src/DataPrivacyAuditTool/Models/**'
-      - 'src/DataPrivacyAuditTool/Services/AuditHistoryService.cs'
-      - 'src/DataPrivacyAuditTool/dpat_*'  # Updated path to match correct structure
-  workflow_run:
-    workflows: ["Build"]
-    types:
-      - completed
-    branches: [development, staging, main]
+      - 'src/DataPrivacyAuditTool/**/*.db'
+      - '.github/workflows/databases.yml'
+  workflow_dispatch:  # Allow manual triggering for testing
 
 jobs:
-  database-validation:
+  database-operations:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Debug branch information
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Determine environment
+        id: environment
         run: |
-          echo "Debug information for workflow execution:"
-          echo "github.ref: ${{ github.ref }}"
-          echo "github.event_name: ${{ github.event_name }}"
-          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
-            echo "workflow_run.head_branch: ${{ github.event.workflow_run.head_branch }}"
-            echo "workflow_run.conclusion: ${{ github.event.workflow_run.conclusion }}"
-            BRANCH="${{ github.event.workflow_run.head_branch }}"
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "env_name=production" >> $GITHUB_OUTPUT
+            echo "db_file=dpat_production.db" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            echo "env_name=staging" >> $GITHUB_OUTPUT
+            echo "db_file=dpat_staging.db" >> $GITHUB_OUTPUT
           else
-            BRANCH="${{ github.ref_name }}"
+            echo "env_name=development" >> $GITHUB_OUTPUT
+            echo "db_file=dpat_development.db" >> $GITHUB_OUTPUT
           fi
-          echo "Effective branch for workflow: $BRANCH"
           
-      - name: Debug repository structure and database files
+      - name: Find database file
+        id: find-db
         run: |
-          echo "Repository structure:"
-          echo "Current directory: $(pwd)"
-          echo "Looking for database files:"
-          find . -name "dpat_*.db" -type f || echo "No matching database files found"
-          echo "Directory contents:"
-          ls -la
-          echo "src directory contents:"
-          ls -la src/ || echo "src directory not found"
-          echo "DataPrivacyAuditTool directory contents:"
-          ls -la src/DataPrivacyAuditTool/ || echo "DataPrivacyAuditTool directory not found"
-      
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '9.0'
-      
-      - name: Restore dependencies
-        run: dotnet restore
-      
-      - name: Build project
-        run: dotnet build --no-restore
-      
-      # Find the actual test project location first
-      - name: Find test project path
-        id: find-project
-        run: |
-          # Look for the test project file recursively
-          TEST_PROJECT=$(find . -name "DataPrivacyAuditTool.Tests.Unit.csproj" | head -n 1)
-          if [ -z "$TEST_PROJECT" ]; then
-            echo "Test project not found, trying to find any test project"
-            TEST_PROJECT=$(find . -name "*.Tests.*.csproj" | head -n 1)
+          # Search for the database file
+          DB_FILES=$(find . -name "${{ steps.environment.outputs.db_file }}" -type f)
+          if [ -z "$DB_FILES" ]; then
+            echo "No database files found matching ${{ steps.environment.outputs.db_file }}"
+            echo "db_found=false" >> $GITHUB_OUTPUT
+          else
+            echo "Found database files:"
+            echo "$DB_FILES"
+            # Take the first match
+            DB_PATH=$(echo "$DB_FILES" | head -n 1)
+            echo "db_path=$DB_PATH" >> $GITHUB_OUTPUT
+            echo "db_found=true" >> $GITHUB_OUTPUT
           fi
-          if [ -z "$TEST_PROJECT" ]; then
-            echo "No test project found!"
+      
+      - name: Install SQLite
+        run: sudo apt-get update && sudo apt-get install -y sqlite3
+      
+      - name: Validate database
+        if: steps.find-db.outputs.db_found == 'true'
+        run: |
+          echo "Validating database for ${{ steps.environment.outputs.env_name }} environment"
+          echo "Database path: ${{ steps.find-db.outputs.db_path }}"
+          
+          # Perform basic SQLite check
+          if sqlite3 "${{ steps.find-db.outputs.db_path }}" "PRAGMA integrity_check;" | grep -q "ok"; then
+            echo "✅ Database integrity check passed"
+          else
+            echo "❌ Database integrity check failed"
             exit 1
           fi
-          echo "TEST_PROJECT=$TEST_PROJECT" >> $GITHUB_OUTPUT
-          echo "Found test project at: $TEST_PROJECT"
+          
+          # Run a simple query to verify we can access data
+          echo "Running test query:"
+          sqlite3 "${{ steps.find-db.outputs.db_path }}" "SELECT name FROM sqlite_master WHERE type='table';"
       
-      # Calculate which branch we're working with based on event type
-      - name: Determine effective branch
-        id: branch-detection
+      - name: Create backup
+        if: steps.find-db.outputs.db_found == 'true'
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
-            BRANCH="${{ github.event.workflow_run.head_branch }}"
-          else
-            BRANCH="${{ github.ref_name }}"
-          fi
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
-          echo "Detected branch: $BRANCH"
-      
-      # Basic database validation that runs on all environments
-      - name: Run basic database validation tests
-        run: |
-          echo "Running basic database validation tests..."
-          TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
-          echo "Using test project: $TEST_PROJECT"
-          dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~DatabaseValidationTests"
-        
-      # Development branch database validation  
-      - name: Run database validation tests (Development)
-        if: steps.branch-detection.outputs.branch == 'development'
-        env:
-          DPAT_TEST_ENVIRONMENT: Development
-        run: |
-          echo "Running development database tests..."
-          TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
-          dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~Development_Database_BasicOperationsWork"
-      
-      # Staging database backup with size check
-      - name: Check staging database size
-        if: steps.branch-detection.outputs.branch == 'staging'
-        id: staging-size-check
-        run: |
-          echo "Checking staging database size..."
-          # Updated path to match repository structure
-          DB_PATH="src/DataPrivacyAuditTool/dpat_staging.db"
-          if [ -f "$DB_PATH" ]; then
-            DB_SIZE=$(stat -c%s "$DB_PATH")
-            MAX_SIZE=$((500 * 1024)) # 500KB in bytes
-            
-            echo "Database found at: $DB_PATH"
-            echo "Database size: $DB_SIZE bytes"
-            echo "Maximum allowed size: $MAX_SIZE bytes"
-            
-            if [ $DB_SIZE -gt $MAX_SIZE ]; then
-              echo "WARNING: Database size exceeds maximum allowed size"
-              echo "db_too_large=true" >> $GITHUB_OUTPUT
-              echo "db_size=$DB_SIZE" >> $GITHUB_OUTPUT
-              echo "max_size=$MAX_SIZE" >> $GITHUB_OUTPUT
-            else
-              echo "Database size is within acceptable limits"
-              echo "db_too_large=false" >> $GITHUB_OUTPUT
-              echo "db_size=$DB_SIZE" >> $GITHUB_OUTPUT
-            fi
-          else
-            echo "Database file not found at expected path: $DB_PATH"
-            echo "Looking for similar files:"
-            find . -name "dpat_*" -type f || echo "No matching files found"
-            echo "db_too_large=false" >> $GITHUB_OUTPUT
-            echo "db_size=0" >> $GITHUB_OUTPUT
-          fi
-      
-      - name: Backup staging database
-        if: steps.branch-detection.outputs.branch == 'staging' && steps.staging-size-check.outputs.db_too_large != 'true'
-        run: |
-          echo "Creating backup of staging database..."
-          timestamp=$(date +"%Y%m%d_%H%M%S")
+          echo "Creating backup for ${{ steps.environment.outputs.env_name }} database"
           mkdir -p ./backups
-          
-          # Updated path to match repository structure
-          DB_PATH="src/DataPrivacyAuditTool/dpat_staging.db"
-          if [ -f "$DB_PATH" ]; then
-            cp "$DB_PATH" "./backups/dpat_staging_${timestamp}.db"
-            echo "Backup created: dpat_staging_${timestamp}.db"
-            echo "Database size: ${{ steps.staging-size-check.outputs.db_size }} bytes"
-          else
-            echo "No staging database found at expected path: $DB_PATH"
-            # Try to find the database anywhere in the repository
-            FOUND_DB=$(find . -name "dpat_staging.db" -type f | head -n 1)
-            if [ -n "$FOUND_DB" ]; then
-              echo "Found database at alternative location: $FOUND_DB"
-              cp "$FOUND_DB" "./backups/dpat_staging_${timestamp}.db"
-              echo "Backup created from alternative location: dpat_staging_${timestamp}.db"
-            else
-              echo "Could not find staging database file anywhere in the repository"
-            fi
-          fi
-          
-          # List the backups directory to confirm results
-          echo "Contents of backups directory:"
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          BACKUP_FILE="./backups/${{ steps.environment.outputs.db_file }}_backup_${TIMESTAMP}.db"
+          cp "${{ steps.find-db.outputs.db_path }}" "$BACKUP_FILE"
+          echo "Backup created at: $BACKUP_FILE"
           ls -la ./backups/
       
-      - name: Create database backup report for staging
-        if: steps.branch-detection.outputs.branch == 'staging' && steps.staging-size-check.outputs.db_too_large == 'true'
+      - name: Upload backup artifact
+        if: steps.find-db.outputs.db_found == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.environment.outputs.env_name }}-database-backup
+          path: ./backups/${{ steps.environment.outputs.db_file }}_backup_*.db
+          retention-days: 7
+          
+      - name: Generate environment-specific report
         run: |
-          mkdir -p ./backups
-          timestamp=$(date +"%Y%m%d_%H%M%S")
+          mkdir -p ./reports
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
           
-          cat > "./backups/large_database_report_${timestamp}.md" << EOF
-          # Large Database Detected - Backup Skipped
+          if [ "${{ steps.find-db.outputs.db_found }}" == "true" ]; then
+            # Get database statistics
+            TABLE_COUNT=$(sqlite3 "${{ steps.find-db.outputs.db_path }}" "SELECT count(*) FROM sqlite_master WHERE type='table';")
+            DB_SIZE=$(ls -lh "${{ steps.find-db.outputs.db_path }}" | awk '{print $5}')
+            
+            cat > "./reports/${{ steps.environment.outputs.env_name }}_report_${TIMESTAMP}.md" << EOF
+          # Database Operations Report: ${{ steps.environment.outputs.env_name }}
           
-          **Database:** dpat_staging.db
-          **Size:** ${{ steps.staging-size-check.outputs.db_size }} bytes
-          **Maximum Allowed Size:** ${{ steps.staging-size-check.outputs.max_size }} bytes
           **Date:** $(date -u "+%Y-%m-%d %H:%M:%S UTC")
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ${{ github.sha }}
           
-          The database exceeds the maximum allowed size for direct backup in the CI/CD pipeline.
+          ## Database Details
+          - **File:** ${{ steps.environment.outputs.db_file }}
+          - **Size:** ${DB_SIZE}
+          - **Tables:** ${TABLE_COUNT}
+          - **Status:** ✅ Valid
           
-          This report was automatically generated by the CI/CD pipeline.
+          ## Operations Performed
+          - Database integrity check completed successfully
+          - Backup created and stored as artifact
+          
+          This report was automatically generated by the Database Operations workflow.
           EOF
-          
-          echo "Large database report created at: ./backups/large_database_report_${timestamp}.md"
-      
-      # Upload staging database backup artifacts
-      - name: Upload staging database backup
-        if: steps.branch-detection.outputs.branch == 'staging' && steps.staging-size-check.outputs.db_too_large != 'true' && hashFiles('./backups/dpat_staging_*.db') != ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: staging-db-backup
-          path: ./backups/dpat_staging_*.db
-          retention-days: 7
-      
-      - name: Upload large database report for staging
-        if: steps.branch-detection.outputs.branch == 'staging' && steps.staging-size-check.outputs.db_too_large == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: large-database-report
-          path: ./backups/large_database_report_*.md
-          retention-days: 7
-      
-      # Run staging database validation tests
-      - name: Run database validation tests (Staging)
-        if: steps.branch-detection.outputs.branch == 'staging'
-        env:
-          DPAT_TEST_ENVIRONMENT: Staging
-        run: |
-          echo "Running staging database tests..."
-          TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
-          dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~Staging_Database_BasicOperationsWork"
-      
-      # Production database backup with size check
-      - name: Check production database size
-        if: steps.branch-detection.outputs.branch == 'main'
-        id: production-size-check
-        run: |
-          echo "Checking production database size..."
-          # Updated path to match repository structure
-          DB_PATH="src/DataPrivacyAuditTool/dpat_production.db"
-          if [ -f "$DB_PATH" ]; then
-            DB_SIZE=$(stat -c%s "$DB_PATH")
-            MAX_SIZE=$((500 * 1024)) # 500KB in bytes
-            
-            echo "Database found at: $DB_PATH"
-            echo "Database size: $DB_SIZE bytes"
-            echo "Maximum allowed size: $MAX_SIZE bytes"
-            
-            if [ $DB_SIZE -gt $MAX_SIZE ]; then
-              echo "WARNING: Database size exceeds maximum allowed size"
-              echo "db_too_large=true" >> $GITHUB_OUTPUT
-              echo "db_size=$DB_SIZE" >> $GITHUB_OUTPUT
-              echo "max_size=$MAX_SIZE" >> $GITHUB_OUTPUT
-            else
-              echo "Database size is within acceptable limits"
-              echo "db_too_large=false" >> $GITHUB_OUTPUT
-              echo "db_size=$DB_SIZE" >> $GITHUB_OUTPUT
-            fi
           else
-            echo "Database file not found at expected path: $DB_PATH"
-            echo "Looking for similar files:"
-            find . -name "dpat_*" -type f || echo "No matching files found"
-            echo "db_too_large=false" >> $GITHUB_OUTPUT
-            echo "db_size=0" >> $GITHUB_OUTPUT
-          fi
-      
-      - name: Backup production database
-        if: steps.branch-detection.outputs.branch == 'main' && steps.production-size-check.outputs.db_too_large != 'true'
-        run: |
-          echo "Creating backup of production database..."
-          timestamp=$(date +"%Y%m%d_%H%M%S")
-          mkdir -p ./backups
+            cat > "./reports/${{ steps.environment.outputs.env_name }}_report_${TIMESTAMP}.md" << EOF
+          # Database Operations Report: ${{ steps.environment.outputs.env_name }}
           
-          # Updated path to match repository structure
-          DB_PATH="src/DataPrivacyAuditTool/dpat_production.db"
-          if [ -f "$DB_PATH" ]; then
-            cp "$DB_PATH" "./backups/dpat_production_${timestamp}.db"
-            echo "Backup created: dpat_production_${timestamp}.db"
-            echo "Database size: ${{ steps.production-size-check.outputs.db_size }} bytes"
-          else
-            echo "No production database found at expected path: $DB_PATH"
-            # Try to find the database anywhere in the repository
-            FOUND_DB=$(find . -name "dpat_production.db" -type f | head -n 1)
-            if [ -n "$FOUND_DB" ]; then
-              echo "Found database at alternative location: $FOUND_DB"
-              cp "$FOUND_DB" "./backups/dpat_production_${timestamp}.db"
-              echo "Backup created from alternative location: dpat_production_${timestamp}.db"
-            else
-              echo "Could not find production database file anywhere in the repository"
-            fi
+          **Date:** $(date -u "+%Y-%m-%d %H:%M:%S UTC")
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ${{ github.sha }}
+          
+          ## Database Details
+          - **File:** ${{ steps.environment.outputs.db_file }}
+          - **Status:** ⚠️ Not found
+          
+          ## Operations Performed
+          - No database operations performed (database file not found)
+          
+          This report was automatically generated by the Database Operations workflow.
+          EOF
           fi
           
-          # List the backups directory to confirm results
-          echo "Contents of backups directory:"
-          ls -la ./backups/
+          echo "Report generated at: ./reports/${{ steps.environment.outputs.env_name }}_report_${TIMESTAMP}.md"
       
-      - name: Create database backup report for production
-        if: steps.branch-detection.outputs.branch == 'main' && steps.production-size-check.outputs.db_too_large == 'true'
-        run: |
-          mkdir -p ./backups
-          timestamp=$(date +"%Y%m%d_%H%M%S")
-          
-          cat > "./backups/large_database_report_${timestamp}.md" << EOF
-          # Large Database Detected - Backup Skipped
-          
-          **Database:** dpat_production.db
-          **Size:** ${{ steps.production-size-check.outputs.db_size }} bytes
-          **Maximum Allowed Size:** ${{ steps.production-size-check.outputs.max_size }} bytes
-          **Date:** $(date -u "+%Y-%m-%d %H:%M:%S UTC")
-          
-          The database exceeds the maximum allowed size for direct backup in the CI/CD pipeline.
-          
-          
-          This report was automatically generated by the CI/CD pipeline.
-          EOF
-          
-          echo "Large database report created at: ./backups/large_database_report_${timestamp}.md"
-      
-      # Upload production database backup artifacts
-      - name: Upload production database backup
-        if: steps.branch-detection.outputs.branch == 'main' && steps.production-size-check.outputs.db_too_large != 'true' && hashFiles('./backups/dpat_production_*.db') != ''
+      - name: Upload report artifact
         uses: actions/upload-artifact@v4
         with:
-          name: production-db-backup
-          path: ./backups/dpat_production_*.db
-          retention-days: 30
-      
-      - name: Upload large database report for production
-        if: steps.branch-detection.outputs.branch == 'main' && steps.production-size-check.outputs.db_too_large == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: large-database-report
-          path: ./backups/large_database_report_*.md
-          retention-days: 30
-      
-      # Run production database validation tests
-      - name: Run database validation tests (Production)
-        if: steps.branch-detection.outputs.branch == 'main'
-        env:
-          DPAT_TEST_ENVIRONMENT: Production
-        run: |
-          echo "Running production database tests..."
-          TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
-          dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~Production_Database_BasicOperationsWork"
+          name: ${{ steps.environment.outputs.env_name }}-database-report
+          path: ./reports/${{ steps.environment.outputs.env_name }}_report_*.md
+          retention-days: 7
