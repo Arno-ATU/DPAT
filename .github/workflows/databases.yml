@@ -76,7 +76,7 @@ jobs:
           TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
           dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~Staging_Database_BasicOperationsWork"
       
-      # Production-specific steps - improved backup logic
+      # Enhanced backup with debugging for production database
       - name: Backup production database (Production only)
         if: github.ref == 'refs/heads/main'
         run: |
@@ -84,25 +84,60 @@ jobs:
           timestamp=$(date +"%Y%m%d_%H%M%S")
           mkdir -p ./backups
           
-          # Check if the file exists before attempting to copy it
-          if [ -f "src/DataPrivacyAuditTool/dpat_production.db" ]; then
-            cp src/DataPrivacyAuditTool/dpat_production.db ./backups/dpat_production_${timestamp}.db
+          # Debug: Print environment information
+          echo "Current directory: $(pwd)"
+          echo "GitHub workspace: $GITHUB_WORKSPACE"
+          echo "Repository structure:"
+          find . -type d -maxdepth 3 -not -path "*/\.*" | sort
+          
+          # Debug: Look for database files
+          echo "Searching for all SQLite database files in the repository:"
+          find . -name "*.db" -type f
+          
+          # Debug: Look in common output directories
+          echo "Checking bin directories:"
+          find . -path "*/bin/*" -name "*.db" -type f
+          
+          # Debug: Check application output directory specifically
+          echo "Checking application output directory:"
+          ls -la src/DataPrivacyAuditTool/bin/Debug/net9.0/ 2>/dev/null || echo "Directory not found"
+          
+          # Try to find the database in expected locations
+          EXPECTED_PATH="src/DataPrivacyAuditTool/dpat_production.db"
+          ALT_PATH_1="src/DataPrivacyAuditTool/bin/Debug/net9.0/dpat_production.db"
+          ALT_PATH_2="dpat_production.db"
+          
+          # Check expected path first
+          if [ -f "$EXPECTED_PATH" ]; then
+            echo "Found database at expected path: $EXPECTED_PATH"
+            cp "$EXPECTED_PATH" "./backups/dpat_production_${timestamp}.db"
             echo "Backup created: dpat_production_${timestamp}.db"
+          # Check alternate path 1
+          elif [ -f "$ALT_PATH_1" ]; then
+            echo "Found database at alternate path 1: $ALT_PATH_1"
+            cp "$ALT_PATH_1" "./backups/dpat_production_${timestamp}.db"
+            echo "Backup created: dpat_production_${timestamp}.db"
+          # Check alternate path 2
+          elif [ -f "$ALT_PATH_2" ]; then
+            echo "Found database at alternate path 2: $ALT_PATH_2"
+            cp "$ALT_PATH_2" "./backups/dpat_production_${timestamp}.db"
+            echo "Backup created: dpat_production_${timestamp}.db"
+          # Try to find it anywhere in the repository
           else
-            echo "No production database found, skipping backup (expected in non-production environments)"
+            DB_FILE=$(find . -name "dpat_production.db" -type f | head -n 1)
+            if [ -n "$DB_FILE" ]; then
+              echo "Found database at: $DB_FILE"
+              cp "$DB_FILE" "./backups/dpat_production_${timestamp}.db"
+              echo "Backup created: dpat_production_${timestamp}.db"
+            else
+              echo "No production database found after searching common locations."
+            fi
           fi
+          
+          # List the backups directory to confirm results
+          echo "Contents of backups directory:"
+          ls -la ./backups/
       
-      - name: Upload database backup (Production only)
-        if: github.ref == 'refs/heads/main' && success()
-        run: |
-          # Only try to upload if we have backups
-          if [ -d "./backups" ] && [ "$(ls -A ./backups)" ]; then
-            echo "Preparing to upload database backup..."
-          else
-            echo "No backups to upload, skipping this step"
-            exit 0
-          fi
-        
       - name: Upload database backup artifact
         if: github.ref == 'refs/heads/main' && success() && hashFiles('./backups/dpat_production_*.db') != ''
         uses: actions/upload-artifact@v4
