@@ -1,9 +1,9 @@
 # Personal Data Privacy Audit Tool (DPAT)
 
-![Build Status](https://github.com/yourusername/DPAT/workflows/Build/badge.svg)
-![Test Status](https://github.com/yourusername/DPAT/workflows/Run%20Tests/badge.svg)
-![Security Status](https://github.com/yourusername/DPAT/workflows/Security%20Scan/badge.svg)
-![Database Status](https://github.com/yourusername/DPAT/workflows/Database%20Validation/badge.svg)
+![Build Status](https://github.com/Arno-ATU/DPAT/actions/workflows/build.yml/badge.svg)
+![Test Status](https://github.com/Arno-ATU/DPAT/actions/workflows/tests.yml/badge.svg)
+![Security Status](https://github.com/Arno-ATU/DPAT/actions/workflows/security.yml/badge.svg)
+![Database Status](https://github.com/Arno-ATU/DPAT/actions/workflows/databases.yml/badge.svg)
 
 ## Project Overview
 
@@ -32,9 +32,9 @@ This project follows a GitFlow-inspired branching strategy:
 
 ### Branch Workflow
 
-1. Create feature branches from `develop`
-2. Submit PRs to merge completed features into `develop`
-3. Periodically promote `develop` to `staging` for testing
+1. Create feature branches from `development`
+2. Submit PRs to merge completed features into `development`
+3. Periodically promote `development` to `staging` for testing
 4. Once verified in staging, promote to `main` for production
 
 
