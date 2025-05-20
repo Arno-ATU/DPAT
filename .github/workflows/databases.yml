@@ -66,7 +66,81 @@ jobs:
           TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
           dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~Development_Database_BasicOperationsWork"
       
-      # Staging-specific steps
+      # Staging database backup step
+      - name: Backup staging database (Staging only)
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          echo "Creating backup of staging database..."
+          timestamp=$(date +"%Y%m%d_%H%M%S")
+          mkdir -p ./backups
+          
+          # Debug: Print environment information
+          echo "Current directory: $(pwd)"
+          echo "GitHub workspace: $GITHUB_WORKSPACE"
+          echo "Repository structure:"
+          find . -type d -maxdepth 3 -not -path "*/\.*" | sort
+          
+          # Debug: Look for database files
+          echo "Searching for all SQLite database files in the repository:"
+          find . -name "*.db" -type f
+          
+          # Debug: Look in common output directories
+          echo "Checking bin directories:"
+          find . -path "*/bin/*" -name "*.db" -type f
+          
+          # Debug: Check application output directory specifically
+          echo "Checking application output directory:"
+          ls -la src/DataPrivacyAuditTool/bin/Debug/net9.0/ 2>/dev/null || echo "Directory not found"
+          
+          # Try to find the staging database in expected locations
+          EXPECTED_PATH="src/DataPrivacyAuditTool/dpat_staging.db"
+          ALT_PATH_1="src/DataPrivacyAuditTool/bin/Debug/net9.0/dpat_staging.db"
+          ALT_PATH_2="dpat_staging.db"
+          
+          # Check expected path first
+          if [ -f "$EXPECTED_PATH" ]; then
+            echo "Found database at expected path: $EXPECTED_PATH"
+            cp "$EXPECTED_PATH" "./backups/dpat_staging_${timestamp}.db"
+            echo "Backup created: dpat_staging_${timestamp}.db"
+          # Check alternate path 1
+          elif [ -f "$ALT_PATH_1" ]; then
+            echo "Found database at alternate path 1: $ALT_PATH_1"
+            cp "$ALT_PATH_1" "./backups/dpat_staging_${timestamp}.db"
+            echo "Backup created: dpat_staging_${timestamp}.db"
+          # Check alternate path 2
+          elif [ -f "$ALT_PATH_2" ]; then
+            echo "Found database at alternate path 2: $ALT_PATH_2"
+            cp "$ALT_PATH_2" "./backups/dpat_staging_${timestamp}.db"
+            echo "Backup created: dpat_staging_${timestamp}.db"
+          # Try to find it anywhere in the repository
+          else
+            DB_FILE=$(find . -name "dpat_staging.db" -type f | head -n 1)
+            if [ -n "$DB_FILE" ]; then
+              echo "Found database at: $DB_FILE"
+              cp "$DB_FILE" "./backups/dpat_staging_${timestamp}.db"
+              echo "Backup created: dpat_staging_${timestamp}.db"
+            else
+              echo "No staging database found after searching common locations."
+              echo "This may be normal in early pipeline runs before the database is created."
+              echo "To fix this issue, ensure your application creates the database file"
+              echo "in a predictable location that this workflow can access."
+            fi
+          fi
+          
+          # List the backups directory to confirm results
+          echo "Contents of backups directory:"
+          ls -la ./backups/
+      
+      # Upload staging database backup artifact
+      - name: Upload staging database backup artifact
+        if: github.ref == 'refs/heads/staging' && success() && hashFiles('./backups/dpat_staging_*.db') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-db-backup
+          path: ./backups/dpat_staging_*.db
+          retention-days: 1
+      
+      # Staging validation tests
       - name: Run database validation tests (Staging)
         if: github.ref == 'refs/heads/staging'
         env:
@@ -76,7 +150,7 @@ jobs:
           TEST_PROJECT="${{ steps.find-project.outputs.TEST_PROJECT }}"
           dotnet test "$TEST_PROJECT" --filter "FullyQualifiedName~Staging_Database_BasicOperationsWork"
       
-      # Enhanced backup with debugging for production database
+      # Production database backup step
       - name: Backup production database (Production only)
         if: github.ref == 'refs/heads/main'
         run: |
@@ -131,6 +205,9 @@ jobs:
               echo "Backup created: dpat_production_${timestamp}.db"
             else
               echo "No production database found after searching common locations."
+              echo "This may be normal in early pipeline runs before the database is created."
+              echo "To fix this issue, ensure your application creates the database file"
+              echo "in a predictable location that this workflow can access."
             fi
           fi
           
@@ -138,6 +215,7 @@ jobs:
           echo "Contents of backups directory:"
           ls -la ./backups/
       
+      # Upload production database backup artifact
       - name: Upload database backup artifact
         if: github.ref == 'refs/heads/main' && success() && hashFiles('./backups/dpat_production_*.db') != ''
         uses: actions/upload-artifact@v4
@@ -146,6 +224,7 @@ jobs:
           path: ./backups/dpat_production_*.db
           retention-days: 1
           
+      # Production validation tests
       - name: Run database validation tests (Production)
         if: github.ref == 'refs/heads/main'
         env:
