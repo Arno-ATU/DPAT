@@ -32,5 +32,6 @@ packages/
 *.db-wal
 
 # Exceptions for staging and production databases (To test that backups are being made)
-!src/DataPrivacyAuditTool/dpat_staging.db
-!src/DataPrivacyAuditTool/dpat_production.db
+# Exceptions for staging and production databases
+!DataPrivacyAuditTool/dpat_staging
+!DataPrivacyAuditTool/dpat_production
