@@ -42,7 +42,15 @@ jobs:
           echo "📋 Log level: ${{ steps.config.outputs.log_level }}"
           echo "🔍 Repository structure:"
           ls -la
-          ls -la DataPrivacyAuditTool/ || echo "DataPrivacyAuditTool directory not found at root"
+          # Show DPAT directory structure if it exists
+          echo "DPAT structure:"
+          ls -la DPAT/ 2>/dev/null || echo "DPAT directory not found"
+          # Show src directory structure if it exists
+          echo "src structure:"
+          ls -la src/ 2>/dev/null || echo "src directory not found"
+          # Show DataPrivacyAuditTool directory structure if it exists
+          echo "DataPrivacyAuditTool structure in src:"
+          ls -la src/DataPrivacyAuditTool/ 2>/dev/null || echo "DataPrivacyAuditTool directory not found in src"
       
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -56,7 +64,16 @@ jobs:
         id: validate-db
         continue-on-error: true
         run: |
-          DB_PATH="DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}"
+          # Check the repository structure first to help debugging
+          echo "Repository structure:"
+          ls -la
+          
+          # Look for all .db files to understand what's available
+          echo "Finding all database files:"
+          find . -name "*.db" -type f
+          
+          # Now try the correct path based on repository structure
+          DB_PATH="src/DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}"
           
           if [ -f "$DB_PATH" ]; then
             echo "Database found at: $DB_PATH"
@@ -66,6 +83,7 @@ jobs:
             if sqlite3 "$DB_PATH" "PRAGMA integrity_check;" | grep -q "ok"; then
               echo "✅ Database integrity check passed"
               echo "db_valid=true" >> $GITHUB_OUTPUT
+              echo "db_path=$DB_PATH" >> $GITHUB_OUTPUT
               
               # List tables
               echo "📊 Database tables:"
@@ -81,70 +99,67 @@ jobs:
           else
             echo "⚠️ Database file not found at expected path: $DB_PATH"
             echo "Looking for similar database files:"
-            find . -name "*.db" -type f | grep -i dpat || echo "No database files found"
+            find . -name "${{ steps.config.outputs.db_file }}" -type f
             echo "db_valid=false" >> $GITHUB_OUTPUT
           fi
       
       - name: Perform environment-specific database operations
+        if: steps.validate-db.outputs.db_valid == 'true'
         run: |
-          DB_PATH="DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}"
+          DB_PATH="${{ steps.validate-db.outputs.db_path }}"
           
           echo "🔧 Performing ${{ steps.config.outputs.env_name }}-specific operations"
           
-          if [ -f "$DB_PATH" ] && [ "${{ steps.validate-db.outputs.db_valid }}" == "true" ]; then
-            # Create backup directory with environment-specific subdirectory
-            mkdir -p "./backups/${{ steps.config.outputs.env_name }}"
+          # Create backup directory with environment-specific subdirectory
+          mkdir -p "./backups/${{ steps.config.outputs.env_name }}"
+          
+          # Create timestamped backup
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          BACKUP_PATH="./backups/${{ steps.config.outputs.env_name }}/${{ steps.config.outputs.db_file }}_${TIMESTAMP}.bak"
+          cp "$DB_PATH" "$BACKUP_PATH"
+          echo "💾 Database backup created at: $BACKUP_PATH"
+          
+          # Different operations per environment
+          if [[ "${{ steps.config.outputs.env_name }}" == "production" ]]; then
+            # Production: Add database statistics to a statistics table
+            echo "📊 Creating database usage statistics for production"
+            sqlite3 "$DB_PATH" "CREATE TABLE IF NOT EXISTS DbStatistics (id INTEGER PRIMARY KEY, 
+                                                                        check_date TEXT, 
+                                                                        total_audits INTEGER, 
+                                                                        avg_score REAL);"
+                                                                        
+            # Insert statistics record with current date and aggregate data
+            sqlite3 "$DB_PATH" "INSERT INTO DbStatistics (check_date, total_audits, avg_score) 
+                              SELECT datetime('now'), 
+                                    COUNT(*), 
+                                    AVG(OverallScore) 
+                              FROM AuditHistories;"
+                              
+          elif [[ "${{ steps.config.outputs.env_name }}" == "staging" ]]; then
+            # Staging: Archive old records to maintain performance
+            echo "🧹 Archiving old records in staging environment"
+            # Create archive table if it doesn't exist
+            sqlite3 "$DB_PATH" "CREATE TABLE IF NOT EXISTS ArchivedAuditHistories AS SELECT * FROM AuditHistories WHERE 1=0;"
             
-            # Create timestamped backup
-            TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-            BACKUP_PATH="./backups/${{ steps.config.outputs.env_name }}/${{ steps.config.outputs.db_file }}_${TIMESTAMP}.bak"
-            cp "$DB_PATH" "$BACKUP_PATH"
-            echo "💾 Database backup created at: $BACKUP_PATH"
-            
-            # Different operations per environment
-            if [[ "${{ steps.config.outputs.env_name }}" == "production" ]]; then
-              # Production: Add database statistics to a statistics table
-              echo "📊 Creating database usage statistics for production"
-              sqlite3 "$DB_PATH" "CREATE TABLE IF NOT EXISTS DbStatistics (id INTEGER PRIMARY KEY, 
-                                                                          check_date TEXT, 
-                                                                          total_audits INTEGER, 
-                                                                          avg_score REAL);"
-                                                                          
-              # Insert statistics record with current date and aggregate data
-              sqlite3 "$DB_PATH" "INSERT INTO DbStatistics (check_date, total_audits, avg_score) 
-                                SELECT datetime('now'), 
-                                       COUNT(*), 
-                                       AVG(OverallScore) 
-                                FROM AuditHistories;"
-                                
-            elif [[ "${{ steps.config.outputs.env_name }}" == "staging" ]]; then
-              # Staging: Archive old records to maintain performance
-              echo "🧹 Archiving old records in staging environment"
-              # Create archive table if it doesn't exist
-              sqlite3 "$DB_PATH" "CREATE TABLE IF NOT EXISTS ArchivedAuditHistories AS SELECT * FROM AuditHistories WHERE 1=0;"
-              
-              # Move records older than 30 days to archive
-              sqlite3 "$DB_PATH" "INSERT INTO ArchivedAuditHistories 
-                                SELECT * FROM AuditHistories 
-                                WHERE julianday('now') - julianday(AuditDate) > 30;"
-                                
-              sqlite3 "$DB_PATH" "DELETE FROM AuditHistories 
-                                WHERE julianday('now') - julianday(AuditDate) > 30;"
-                                
-            else
-              # Development: Add test data for development purposes
-              echo "🧪 Adding sample test data in development environment"
-              sqlite3 "$DB_PATH" "INSERT INTO AuditHistories (Username, OverallScore, AuditDate, CreatedAt) 
-                                VALUES ('test_user', 92.5, datetime('now'), datetime('now'));"
-            fi
-            
-            # Verify the changes
-            echo "✅ Database operations completed successfully"
-            echo "📊 Updated table structure:"
-            sqlite3 "$DB_PATH" ".tables"
+            # Move records older than 30 days to archive
+            sqlite3 "$DB_PATH" "INSERT INTO ArchivedAuditHistories 
+                              SELECT * FROM AuditHistories 
+                              WHERE julianday('now') - julianday(AuditDate) > 30;"
+                              
+            sqlite3 "$DB_PATH" "DELETE FROM AuditHistories 
+                              WHERE julianday('now') - julianday(AuditDate) > 30;"
+                              
           else
-            echo "⚠️ Skipping database operations as database is invalid or not found"
+            # Development: Add test data for development purposes
+            echo "🧪 Adding sample test data in development environment"
+            sqlite3 "$DB_PATH" "INSERT INTO AuditHistories (Username, OverallScore, AuditDate, CreatedAt) 
+                              VALUES ('test_user', 92.5, datetime('now'), datetime('now'));"
           fi
+          
+          # Verify the changes
+          echo "✅ Database operations completed successfully"
+          echo "📊 Updated table structure:"
+          sqlite3 "$DB_PATH" ".tables"
       
       - name: Generate database report
         run: |
@@ -173,36 +188,35 @@ jobs:
           EOF
           
           # Add database status to the report
-          if [ -f "DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}" ]; then
-            DB_SIZE=$(stat -c%s "DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}")
+          if [ "${{ steps.validate-db.outputs.db_valid }}" == "true" ]; then
+            DB_SIZE=$(stat -c%s "${{ steps.validate-db.outputs.db_path }}")
             
             cat >> "$REPORT_FILE" << EOF
           ## Database Status
           - **File Found:** ✅ Yes
+          - **Path:** ${{ steps.validate-db.outputs.db_path }}
           - **Size:** ${DB_SIZE} bytes
-          - **Integrity Check:** ${{ steps.validate-db.outputs.db_valid == 'true' && '✅ Passed' || '❌ Failed' }}
+          - **Integrity Check:** ✅ Passed
           
           EOF
             
-            # If database is valid, add more detailed information
-            if [ "${{ steps.validate-db.outputs.db_valid }}" == "true" ]; then
-              # Get table list
-              TABLES=$(sqlite3 "DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}" ".tables")
-              
-              # Get record counts for key tables
-              AUDIT_COUNT=$(sqlite3 "DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}" "SELECT COUNT(*) FROM AuditHistories;" 2>/dev/null || echo "Table not found")
-              
-              cat >> "$REPORT_FILE" << EOF
+            # Get table list
+            TABLES=$(sqlite3 "${{ steps.validate-db.outputs.db_path }}" ".tables")
+            
+            # Get record counts for key tables
+            AUDIT_COUNT=$(sqlite3 "${{ steps.validate-db.outputs.db_path }}" "SELECT COUNT(*) FROM AuditHistories;" 2>/dev/null || echo "Table not found")
+            
+            cat >> "$REPORT_FILE" << EOF
           ## Database Details
           - **Tables:** ${TABLES}
           - **AuditHistories Count:** ${AUDIT_COUNT}
           
           ## Operations Performed
           EOF
-              
-              # Add environment-specific operation details
-              if [[ "${{ steps.config.outputs.env_name }}" == "production" ]]; then
-                cat >> "$REPORT_FILE" << EOF
+            
+            # Add environment-specific operation details
+            if [[ "${{ steps.config.outputs.env_name }}" == "production" ]]; then
+              cat >> "$REPORT_FILE" << EOF
           - ✅ Created backup
           - ✅ Generated database statistics
           - ✅ Recorded usage metrics
@@ -212,8 +226,8 @@ jobs:
           - Monitor database size growth over time
           - Implement database performance monitoring
           EOF
-              elif [[ "${{ steps.config.outputs.env_name }}" == "staging" ]]; then
-                cat >> "$REPORT_FILE" << EOF
+            elif [[ "${{ steps.config.outputs.env_name }}" == "staging" ]]; then
+              cat >> "$REPORT_FILE" << EOF
           - ✅ Created backup
           - ✅ Archived old records
           - ✅ Optimized database for testing
@@ -223,8 +237,8 @@ jobs:
           - Validate staging data against production schemas
           - Implement database performance testing
           EOF
-              else
-                cat >> "$REPORT_FILE" << EOF
+            else
+              cat >> "$REPORT_FILE" << EOF
           - ✅ Created backup
           - ✅ Added test data
           - ✅ Prepared for development use
@@ -234,30 +248,26 @@ jobs:
           - Implement database schema version control
           - Add database migration tests
           EOF
-              fi
-            else
-              cat >> "$REPORT_FILE" << EOF
-          ## Operations Performed
-          - ❌ Database operations skipped due to validation failure
-          
-          ## Recommendations
-          - Investigate database integrity issues
-          - Restore from most recent backup
-          - Verify schema matches expected structure
-          EOF
             fi
           else
             cat >> "$REPORT_FILE" << EOF
           ## Database Status
           - **File Found:** ❌ No
+          - **Searched Path:** src/DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}
+          
+          ## Search Results
+          The following database files were found in the repository:
+          \`\`\`
+          $(find . -name "*.db" -type f)
+          \`\`\`
           
           ## Operations Performed
-          - ❌ Database operations skipped as file was not found
+          - ❌ Database operations skipped due to validation failure
           
           ## Recommendations
-          - Create initial database schema
-          - Verify database file is not excluded from version control
-          - Check deployment process for database initialization
+          - Verify database file location in repository
+          - Check .gitignore settings to ensure database files are included
+          - Ensure database initialization scripts are working correctly
           EOF
           fi
           
