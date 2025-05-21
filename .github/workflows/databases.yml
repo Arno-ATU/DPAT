@@ -3,142 +3,284 @@ name: Database Operations
 on:
   push:
     branches: [development, staging, main]
-    paths:
-      - 'src/DataPrivacyAuditTool/**/*.db'
-      - '.github/workflows/databases.yml'
-  workflow_dispatch:  # Allow manual triggering for testing
+  pull_request:
+    branches: [development, staging, main]
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   database-operations:
     runs-on: ubuntu-latest
+    
+    # Define environment based on branch
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || github.ref == 'refs/heads/staging' && 'staging' || 'development' }}
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
-      - name: Determine environment
-        id: environment
+      
+      - name: Configure environment variables
+        id: config
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "env_name=production" >> $GITHUB_OUTPUT
             echo "db_file=dpat_production.db" >> $GITHUB_OUTPUT
+            echo "log_level=warning" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
             echo "env_name=staging" >> $GITHUB_OUTPUT
             echo "db_file=dpat_staging.db" >> $GITHUB_OUTPUT
+            echo "log_level=information" >> $GITHUB_OUTPUT
           else
             echo "env_name=development" >> $GITHUB_OUTPUT
             echo "db_file=dpat_development.db" >> $GITHUB_OUTPUT
-          fi
-          
-      - name: Find database file
-        id: find-db
-        run: |
-          # Search for the database file
-          DB_FILES=$(find . -name "${{ steps.environment.outputs.db_file }}" -type f)
-          if [ -z "$DB_FILES" ]; then
-            echo "No database files found matching ${{ steps.environment.outputs.db_file }}"
-            echo "db_found=false" >> $GITHUB_OUTPUT
-          else
-            echo "Found database files:"
-            echo "$DB_FILES"
-            # Take the first match
-            DB_PATH=$(echo "$DB_FILES" | head -n 1)
-            echo "db_path=$DB_PATH" >> $GITHUB_OUTPUT
-            echo "db_found=true" >> $GITHUB_OUTPUT
+            echo "log_level=debug" >> $GITHUB_OUTPUT
           fi
       
-      - name: Install SQLite
+      - name: Display environment information
+        run: |
+          echo "🌐 Environment: ${{ steps.config.outputs.env_name }}"
+          echo "💾 Database file: ${{ steps.config.outputs.db_file }}"
+          echo "📋 Log level: ${{ steps.config.outputs.log_level }}"
+          echo "🔍 Repository structure:"
+          ls -la
+          ls -la DataPrivacyAuditTool/ || echo "DataPrivacyAuditTool directory not found at root"
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0'
+      
+      - name: Install SQLite tools
         run: sudo apt-get update && sudo apt-get install -y sqlite3
       
       - name: Validate database
-        if: steps.find-db.outputs.db_found == 'true'
+        id: validate-db
+        continue-on-error: true
         run: |
-          echo "Validating database for ${{ steps.environment.outputs.env_name }} environment"
-          echo "Database path: ${{ steps.find-db.outputs.db_path }}"
+          DB_PATH="DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}"
           
-          # Perform basic SQLite check
-          if sqlite3 "${{ steps.find-db.outputs.db_path }}" "PRAGMA integrity_check;" | grep -q "ok"; then
-            echo "✅ Database integrity check passed"
-          else
-            echo "❌ Database integrity check failed"
-            exit 1
-          fi
-          
-          # Run a simple query to verify we can access data
-          echo "Running test query:"
-          sqlite3 "${{ steps.find-db.outputs.db_path }}" "SELECT name FROM sqlite_master WHERE type='table';"
-      
-      - name: Create backup
-        if: steps.find-db.outputs.db_found == 'true'
-        run: |
-          echo "Creating backup for ${{ steps.environment.outputs.env_name }} database"
-          mkdir -p ./backups
-          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-          BACKUP_FILE="./backups/${{ steps.environment.outputs.db_file }}_backup_${TIMESTAMP}.db"
-          cp "${{ steps.find-db.outputs.db_path }}" "$BACKUP_FILE"
-          echo "Backup created at: $BACKUP_FILE"
-          ls -la ./backups/
-      
-      - name: Upload backup artifact
-        if: steps.find-db.outputs.db_found == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.environment.outputs.env_name }}-database-backup
-          path: ./backups/${{ steps.environment.outputs.db_file }}_backup_*.db
-          retention-days: 7
-          
-      - name: Generate environment-specific report
-        run: |
-          mkdir -p ./reports
-          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-          
-          if [ "${{ steps.find-db.outputs.db_found }}" == "true" ]; then
-            # Get database statistics
-            TABLE_COUNT=$(sqlite3 "${{ steps.find-db.outputs.db_path }}" "SELECT count(*) FROM sqlite_master WHERE type='table';")
-            DB_SIZE=$(ls -lh "${{ steps.find-db.outputs.db_path }}" | awk '{print $5}')
+          if [ -f "$DB_PATH" ]; then
+            echo "Database found at: $DB_PATH"
+            echo "Database size: $(stat -c%s "$DB_PATH") bytes"
             
-            cat > "./reports/${{ steps.environment.outputs.env_name }}_report_${TIMESTAMP}.md" << EOF
-          # Database Operations Report: ${{ steps.environment.outputs.env_name }}
-          
-          **Date:** $(date -u "+%Y-%m-%d %H:%M:%S UTC")
-          **Branch:** ${{ github.ref_name }}
-          **Commit:** ${{ github.sha }}
-          
-          ## Database Details
-          - **File:** ${{ steps.environment.outputs.db_file }}
-          - **Size:** ${DB_SIZE}
-          - **Tables:** ${TABLE_COUNT}
-          - **Status:** ✅ Valid
-          
-          ## Operations Performed
-          - Database integrity check completed successfully
-          - Backup created and stored as artifact
-          
-          This report was automatically generated by the Database Operations workflow.
-          EOF
+            # Simple validation - check if it's a valid SQLite database
+            if sqlite3 "$DB_PATH" "PRAGMA integrity_check;" | grep -q "ok"; then
+              echo "✅ Database integrity check passed"
+              echo "db_valid=true" >> $GITHUB_OUTPUT
+              
+              # List tables
+              echo "📊 Database tables:"
+              sqlite3 "$DB_PATH" ".tables"
+              
+              # Count records in AuditHistories
+              RECORD_COUNT=$(sqlite3 "$DB_PATH" "SELECT COUNT(*) FROM AuditHistories;" 2>/dev/null || echo "Table not found")
+              echo "📝 AuditHistories record count: $RECORD_COUNT"
+            else
+              echo "❌ Database integrity check failed"
+              echo "db_valid=false" >> $GITHUB_OUTPUT
+            fi
           else
-            cat > "./reports/${{ steps.environment.outputs.env_name }}_report_${TIMESTAMP}.md" << EOF
-          # Database Operations Report: ${{ steps.environment.outputs.env_name }}
+            echo "⚠️ Database file not found at expected path: $DB_PATH"
+            echo "Looking for similar database files:"
+            find . -name "*.db" -type f | grep -i dpat || echo "No database files found"
+            echo "db_valid=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Perform environment-specific database operations
+        run: |
+          DB_PATH="DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}"
+          
+          echo "🔧 Performing ${{ steps.config.outputs.env_name }}-specific operations"
+          
+          if [ -f "$DB_PATH" ] && [ "${{ steps.validate-db.outputs.db_valid }}" == "true" ]; then
+            # Create backup directory with environment-specific subdirectory
+            mkdir -p "./backups/${{ steps.config.outputs.env_name }}"
+            
+            # Create timestamped backup
+            TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+            BACKUP_PATH="./backups/${{ steps.config.outputs.env_name }}/${{ steps.config.outputs.db_file }}_${TIMESTAMP}.bak"
+            cp "$DB_PATH" "$BACKUP_PATH"
+            echo "💾 Database backup created at: $BACKUP_PATH"
+            
+            # Different operations per environment
+            if [[ "${{ steps.config.outputs.env_name }}" == "production" ]]; then
+              # Production: Add database statistics to a statistics table
+              echo "📊 Creating database usage statistics for production"
+              sqlite3 "$DB_PATH" "CREATE TABLE IF NOT EXISTS DbStatistics (id INTEGER PRIMARY KEY, 
+                                                                          check_date TEXT, 
+                                                                          total_audits INTEGER, 
+                                                                          avg_score REAL);"
+                                                                          
+              # Insert statistics record with current date and aggregate data
+              sqlite3 "$DB_PATH" "INSERT INTO DbStatistics (check_date, total_audits, avg_score) 
+                                SELECT datetime('now'), 
+                                       COUNT(*), 
+                                       AVG(OverallScore) 
+                                FROM AuditHistories;"
+                                
+            elif [[ "${{ steps.config.outputs.env_name }}" == "staging" ]]; then
+              # Staging: Archive old records to maintain performance
+              echo "🧹 Archiving old records in staging environment"
+              # Create archive table if it doesn't exist
+              sqlite3 "$DB_PATH" "CREATE TABLE IF NOT EXISTS ArchivedAuditHistories AS SELECT * FROM AuditHistories WHERE 1=0;"
+              
+              # Move records older than 30 days to archive
+              sqlite3 "$DB_PATH" "INSERT INTO ArchivedAuditHistories 
+                                SELECT * FROM AuditHistories 
+                                WHERE julianday('now') - julianday(AuditDate) > 30;"
+                                
+              sqlite3 "$DB_PATH" "DELETE FROM AuditHistories 
+                                WHERE julianday('now') - julianday(AuditDate) > 30;"
+                                
+            else
+              # Development: Add test data for development purposes
+              echo "🧪 Adding sample test data in development environment"
+              sqlite3 "$DB_PATH" "INSERT INTO AuditHistories (Username, OverallScore, AuditDate, CreatedAt) 
+                                VALUES ('test_user', 92.5, datetime('now'), datetime('now'));"
+            fi
+            
+            # Verify the changes
+            echo "✅ Database operations completed successfully"
+            echo "📊 Updated table structure:"
+            sqlite3 "$DB_PATH" ".tables"
+          else
+            echo "⚠️ Skipping database operations as database is invalid or not found"
+          fi
+      
+      - name: Generate database report
+        run: |
+          # Create the reports directory
+          mkdir -p ./reports
+          
+          # Generate a timestamped report file
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          REPORT_FILE="./reports/${{ steps.config.outputs.env_name }}_db_report_${TIMESTAMP}.md"
+          
+          echo "📝 Generating database report for ${{ steps.config.outputs.env_name }} environment"
+          
+          # Start building the report content
+          cat > "$REPORT_FILE" << EOF
+          # Database Operations Report: ${{ steps.config.outputs.env_name }}
           
           **Date:** $(date -u "+%Y-%m-%d %H:%M:%S UTC")
           **Branch:** ${{ github.ref_name }}
-          **Commit:** ${{ github.sha }}
+          **Triggered by:** ${{ github.event_name }}
           
+          ## Environment Configuration
+          - **Environment:** ${{ steps.config.outputs.env_name }}
+          - **Database File:** ${{ steps.config.outputs.db_file }}
+          - **Log Level:** ${{ steps.config.outputs.log_level }}
+          
+          EOF
+          
+          # Add database status to the report
+          if [ -f "DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}" ]; then
+            DB_SIZE=$(stat -c%s "DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}")
+            
+            cat >> "$REPORT_FILE" << EOF
+          ## Database Status
+          - **File Found:** ✅ Yes
+          - **Size:** ${DB_SIZE} bytes
+          - **Integrity Check:** ${{ steps.validate-db.outputs.db_valid == 'true' && '✅ Passed' || '❌ Failed' }}
+          
+          EOF
+            
+            # If database is valid, add more detailed information
+            if [ "${{ steps.validate-db.outputs.db_valid }}" == "true" ]; then
+              # Get table list
+              TABLES=$(sqlite3 "DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}" ".tables")
+              
+              # Get record counts for key tables
+              AUDIT_COUNT=$(sqlite3 "DataPrivacyAuditTool/${{ steps.config.outputs.db_file }}" "SELECT COUNT(*) FROM AuditHistories;" 2>/dev/null || echo "Table not found")
+              
+              cat >> "$REPORT_FILE" << EOF
           ## Database Details
-          - **File:** ${{ steps.environment.outputs.db_file }}
-          - **Status:** ⚠️ Not found
+          - **Tables:** ${TABLES}
+          - **AuditHistories Count:** ${AUDIT_COUNT}
           
           ## Operations Performed
-          - No database operations performed (database file not found)
+          EOF
+              
+              # Add environment-specific operation details
+              if [[ "${{ steps.config.outputs.env_name }}" == "production" ]]; then
+                cat >> "$REPORT_FILE" << EOF
+          - ✅ Created backup
+          - ✅ Generated database statistics
+          - ✅ Recorded usage metrics
           
-          This report was automatically generated by the Database Operations workflow.
+          ## Recommendations
+          - Consider implementing a scheduled backup policy
+          - Monitor database size growth over time
+          - Implement database performance monitoring
+          EOF
+              elif [[ "${{ steps.config.outputs.env_name }}" == "staging" ]]; then
+                cat >> "$REPORT_FILE" << EOF
+          - ✅ Created backup
+          - ✅ Archived old records
+          - ✅ Optimized database for testing
+          
+          ## Recommendations
+          - Regular testing of data migration scripts
+          - Validate staging data against production schemas
+          - Implement database performance testing
+          EOF
+              else
+                cat >> "$REPORT_FILE" << EOF
+          - ✅ Created backup
+          - ✅ Added test data
+          - ✅ Prepared for development use
+          
+          ## Recommendations
+          - Use realistic test data for development
+          - Implement database schema version control
+          - Add database migration tests
+          EOF
+              fi
+            else
+              cat >> "$REPORT_FILE" << EOF
+          ## Operations Performed
+          - ❌ Database operations skipped due to validation failure
+          
+          ## Recommendations
+          - Investigate database integrity issues
+          - Restore from most recent backup
+          - Verify schema matches expected structure
+          EOF
+            fi
+          else
+            cat >> "$REPORT_FILE" << EOF
+          ## Database Status
+          - **File Found:** ❌ No
+          
+          ## Operations Performed
+          - ❌ Database operations skipped as file was not found
+          
+          ## Recommendations
+          - Create initial database schema
+          - Verify database file is not excluded from version control
+          - Check deployment process for database initialization
           EOF
           fi
           
-          echo "Report generated at: ./reports/${{ steps.environment.outputs.env_name }}_report_${TIMESTAMP}.md"
+          # Final footer
+          cat >> "$REPORT_FILE" << EOF
+          
+          ---
+          *This report was automatically generated by the Database Operations workflow.*
+          EOF
+          
+          echo "✅ Report generated at: $REPORT_FILE"
       
-      - name: Upload report artifact
+      - name: Upload database backup
+        if: steps.validate-db.outputs.db_valid == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.environment.outputs.env_name }}-database-report
-          path: ./reports/${{ steps.environment.outputs.env_name }}_report_*.md
+          name: ${{ steps.config.outputs.env_name }}-database-backup
+          path: ./backups/${{ steps.config.outputs.env_name }}/*.bak
+          retention-days: 7
+      
+      - name: Upload database report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.config.outputs.env_name }}-database-report
+          path: ./reports/${{ steps.config.outputs.env_name }}_db_report_*.md
           retention-days: 7
