@@ -22,10 +22,16 @@ packages/
 *.vscode/
 
 # Database files
+# Note: Normally we should exclude database files from version control,
+# but for this educational project, I'm 'making an exception for
+# staging and production databases since they're small and contain
+# no sensitive information and would be public-facing inside the application itself anyway.
+
 *.db
-dpat_*.db
 *.db-shm
 *.db-wal
-dpat_development.db
-dpat_staging.db
-dpat_production.db
+
+# Exceptions for staging and production databases (To test that backups are being made)
+# Exceptions for staging and production databases
+!DataPrivacyAuditTool/dpat_staging.db
+!DataPrivacyAuditTool/dpat_production.db
