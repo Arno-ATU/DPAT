@@ -2,65 +2,194 @@
 	ViewData["Title"] = "Privacy Audit Tool";
 }
 
-<div class="container mt-5">
-	<div class="row">
-		<div class="col-md-8 offset-md-2">
-			<div class="card">
-				<div class="card-header bg-primary text-white">
-					<h2 class="mb-0">Personal Data Privacy Audit Tool</h2>
-				</div>
-				<div class="card-body">
-					<p class="lead">Upload your Google Takeout files to analyze your privacy settings and personal data exposure.</p>
+<!-- Disclaimer Modal - Must appear first, before any interaction -->
+<div class="modal fade" id="disclaimerModal" tabindex="-1" aria-labelledby="disclaimerModalLabel"
+	 data-bs-backdrop="static" data-bs-keyboard="false">
+	<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+		<div class="modal-content shadow-lg">
+			<!-- Modal Header -->
+			<div class="modal-header bg-primary text-white">
+				<h4 class="modal-title d-flex align-items-center" id="disclaimerModalLabel">
+					<i class="fas fa-shield-alt me-3"></i>
+					<span>Data Privacy Audit Tool - Terms of Use</span>
+				</h4>
+			</div>
 
-					<div class="alert alert-info">
-						<h5>How it works:</h5>
-						<ol>
-							<li>Download your data from <a href="https://takeout.google.com/" target="_blank">Google Takeout</a></li>
-							<li>Select only the Chrome browser data</li>
-							<li>
-								After downloading, extract the files and look for:
-								<ul>
-									<li><strong>Settings.json</strong> - Contains your browser settings</li>
-									<li><strong>Addresses and more.json</strong> - Contains your autofill data</li>
-								</ul>
-							</li>
-							<li>Upload one or both files below for analysis</li>
-						</ol>
+			<!-- Modal Body with disclaimer content -->
+			<div class="modal-body p-4">
+				<!-- Privacy Protection Section -->
+				<section class="mb-4">
+					<h5 class="text-success mb-3">
+						<i class="fas fa-user-shield me-2"></i>
+						Your Privacy is Our Priority
+					</h5>
+					<div class="alert alert-success border-start border-success border-4">
+						<div class="d-flex align-items-start">
+							<i class="fas fa-check-circle text-success me-3 mt-1"></i>
+							<div>
+								<strong>Zero Persistent Storage of Sensitive Data</strong>
+								<p class="mb-0 mt-2">All personal information from your Google Takeout files is processed entirely in-memory and permanently deleted immediately after analysis completion.</p>
+							</div>
+						</div>
 					</div>
 
-					<form asp-action="Upload" method="post" enctype="multipart/form-data">
-						<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-						<div class="mb-4">
-							<div class="card bg-light">
-								<div class="card-body">
-									<h5 class="card-title">Settings.json</h5>
-									<p class="card-text">Analyzes your browser privacy settings, search engines, cookies, and tracking configurations.</p>
-									<div class="custom-file">
-										<input type="file" class="form-control" id="settingsFile" name="settingsFile" accept=".json">
-										<span class="text-danger field-validation-valid" data-valmsg-for="settingsFile" data-valmsg-replace="true"></span>
-									</div>
+					<h6 class="text-muted mb-3">Optional Information We May Store:</h6>
+					<div class="row g-3 mb-3">
+						<div class="col-md-4">
+							<div class="card h-100 border-primary">
+								<div class="card-body text-center p-3">
+									<i class="fas fa-user text-primary fs-5 mb-2"></i>
+									<h6 class="card-title">Username</h6>
+									<p class="card-text small">Your chosen nickname</p>
 								</div>
 							</div>
 						</div>
-
-						<div class="mb-4">
-							<div class="card bg-light">
-								<div class="card-body">
-									<h5 class="card-title">Addresses and more.json</h5>
-									<p class="card-text">Analyzes personal data exposure, autofill data, and saved information in your browser.</p>
-									<div class="custom-file">
-										<input type="file" class="form-control" id="addressesFile" name="addressesFile" accept=".json">
-										<span class="text-danger field-validation-valid" data-valmsg-for="addressesFile" data-valmsg-replace="true"></span>
-									</div>
+						<div class="col-md-4">
+							<div class="card h-100 border-primary">
+								<div class="card-body text-center p-3">
+									<i class="fas fa-calendar text-primary fs-5 mb-2"></i>
+									<h6 class="card-title">Audit Date</h6>
+									<p class="card-text small">When you ran the analysis</p>
 								</div>
 							</div>
 						</div>
-
-						<div class="d-grid">
-							<button type="button" id="analyzeButton" class="btn btn-primary btn-lg">Analyze Privacy</button>
+						<div class="col-md-4">
+							<div class="card h-100 border-primary">
+								<div class="card-body text-center p-3">
+									<i class="fas fa-star text-primary fs-5 mb-2"></i>
+									<h6 class="card-title">Privacy Score</h6>
+									<p class="card-text small">Your final result</p>
+								</div>
+							</div>
 						</div>
-					</form>
+					</div>
+				</section>
+
+				<!-- Analysis Limitations Section -->
+				<section class="mb-4">
+					<h5 class="text-warning mb-3">
+						<i class="fas fa-exclamation-triangle me-2"></i>
+						Understanding Analysis Limitations
+					</h5>
+					<div class="alert alert-warning border-start border-warning border-4">
+						<div class="d-flex align-items-start">
+							<i class="fas fa-info-circle text-warning me-3 mt-1"></i>
+							<div>
+								<strong>Results Are Indicative, Not Definitive</strong>
+								<p class="mb-2 mt-2">While DPAT strives for accuracy, privacy configurations are complex and nuanced. Some metrics may not always be entirely precise.</p>
+								<p class="mb-0">
+									<strong>Your Responsibility:</strong> These insights serve as educational tools. Final decisions about your account configurations remain entirely your responsibility.
+								</p>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<!-- File Integrity Requirements -->
+				<section class="mb-4">
+					<h5 class="text-danger mb-3">
+						<i class="fas fa-file-code me-2"></i>
+						Critical File Requirements
+					</h5>
+					<div class="alert alert-danger border-start border-danger border-4">
+						<div class="d-flex align-items-start">
+							<i class="fas fa-exclamation-circle text-danger me-3 mt-1"></i>
+							<div>
+								<strong>Do Not Modify Google Takeout Files</strong>
+								<p class="mb-2 mt-2">Please upload your Google Takeout files exactly as downloaded from Google, without any manual editing or modifications.</p>
+								<p class="mb-0">
+									<strong>Why This Matters:</strong> Any changes to the JSON file structure will prevent accurate analysis.
+								</p>
+							</div>
+						</div>
+					</div>
+				</section>
+			</div>
+
+			<!-- Modal Footer with Agreement -->
+			<div class="modal-footer bg-light">
+				<div class="w-100">
+					<!-- Agreement Checkbox -->
+					<div class="form-check mb-3 p-3 bg-white rounded border">
+						<input class="form-check-input" type="checkbox" id="disclaimerAgreementCheckbox" style="transform: scale(1.2);">
+						<label class="form-check-label fw-semibold ms-2" for="disclaimerAgreementCheckbox">
+							<i class="fas fa-handshake me-2 text-primary"></i>
+							I understand and agree to all the information stated above. I acknowledge that I am using this application voluntarily and with full understanding of its limitations.
+						</label>
+					</div>
+
+					<!-- Action Buttons -->
+					<div class="d-flex gap-3 justify-content-end">
+						<a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">
+							<i class="fas fa-times me-2"></i>Cancel & Return Home
+						</a>
+						<button type="button" id="disclaimerProceedButton" class="btn btn-success" disabled>
+							<i class="fas fa-check-circle me-2"></i>I Agree - Continue to Privacy Audit
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Main Page Content - Initially blurred/disabled until disclaimer accepted -->
+<div id="mainContent" class="content-disabled">
+	<div class="container mt-5">
+		<div class="row">
+			<div class="col-md-8 offset-md-2">
+				<div class="card">
+					<div class="card-header bg-primary text-white">
+						<h2 class="mb-0">Personal Data Privacy Audit Tool</h2>
+					</div>
+					<div class="card-body">
+						<p class="lead">Upload your Google Takeout files to analyze your privacy settings and personal data exposure.</p>
+						<div class="alert alert-info">
+							<h5>How it works:</h5>
+							<ol>
+								<li>Download your data from <a href="https://takeout.google.com/" target="_blank">Google Takeout</a></li>
+								<li>Select only the Chrome browser data</li>
+								<li>
+									After downloading, extract the files and look for:
+									<ul>
+										<li><strong>Settings.json</strong> - Contains your browser settings</li>
+										<li><strong>Addresses and more.json</strong> - Contains your autofill data</li>
+									</ul>
+								</li>
+								<li>Upload one or both files below for analysis</li>
+							</ol>
+						</div>
+						<form asp-action="Upload" method="post" enctype="multipart/form-data">
+							<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+							<div class="mb-4">
+								<div class="card bg-light">
+									<div class="card-body">
+										<h5 class="card-title">Settings.json</h5>
+										<p class="card-text">Analyzes your browser privacy settings, search engines, cookies, and tracking configurations.</p>
+										<div class="custom-file">
+											<input type="file" class="form-control" id="settingsFile" name="settingsFile" accept=".json">
+											<span class="text-danger field-validation-valid" data-valmsg-for="settingsFile" data-valmsg-replace="true"></span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="mb-4">
+								<div class="card bg-light">
+									<div class="card-body">
+										<h5 class="card-title">Addresses and more.json</h5>
+										<p class="card-text">Analyzes personal data exposure, autofill data, and saved information in your browser.</p>
+										<div class="custom-file">
+											<input type="file" class="form-control" id="addressesFile" name="addressesFile" accept=".json">
+											<span class="text-danger field-validation-valid" data-valmsg-for="addressesFile" data-valmsg-replace="true"></span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="d-grid">
+								<button type="button" id="analyzeButton" class="btn btn-primary btn-lg">Analyze Privacy</button>
+							</div>
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -73,24 +202,68 @@
 @section Scripts {
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
-			const analyzeButton = document.getElementById('analyzeButton');
-			const proceedButton = document.getElementById('proceedAnalysis');
+			// Initialize all modals
+			const disclaimerModal = new bootstrap.Modal(document.getElementById('disclaimerModal'));
 			const usernameModal = new bootstrap.Modal(document.getElementById('usernameModal'));
 
-			// Show modal when first button is clicked
+			// Get elements
+			const disclaimerCheckbox = document.getElementById('disclaimerAgreementCheckbox');
+			const disclaimerProceedButton = document.getElementById('disclaimerProceedButton');
+			const mainContent = document.getElementById('mainContent');
+			const analyzeButton = document.getElementById('analyzeButton');
+			const proceedButton = document.getElementById('proceedAnalysis');
+
+			// Check if disclaimer was already accepted in this session
+			const disclaimerAccepted = sessionStorage.getItem('disclaimerAccepted');
+
+			if (!disclaimerAccepted) {
+				// Show disclaimer modal immediately if not previously accepted
+				disclaimerModal.show();
+			} else {
+				// Enable content immediately if disclaimer was already accepted
+				enableMainContent();
+			}
+
+			// Handle disclaimer checkbox state
+			disclaimerCheckbox.addEventListener('change', function() {
+				disclaimerProceedButton.disabled = !this.checked;
+
+				// Visual feedback for the proceed button
+				if (this.checked) {
+					disclaimerProceedButton.classList.remove('btn-outline-success');
+					disclaimerProceedButton.classList.add('btn-success');
+				} else {
+					disclaimerProceedButton.classList.remove('btn-success');
+					disclaimerProceedButton.classList.add('btn-outline-success');
+				}
+			});
+
+			// Handle disclaimer proceed button
+			disclaimerProceedButton.addEventListener('click', function() {
+				if (disclaimerCheckbox.checked) {
+					// Store acceptance in session storage
+					sessionStorage.setItem('disclaimerAccepted', 'true');
+
+					// Hide disclaimer modal
+					disclaimerModal.hide();
+
+					// Enable main content
+					enableMainContent();
+
+					// Show success notification
+					showNotification('Terms accepted! You can now use the Privacy Audit Tool.', 'success');
+				}
+			});
+
+			// Your existing username modal functionality
 			analyzeButton.addEventListener('click', function() {
 				usernameModal.show();
 			});
 
-			// Handle the modal's "Analyze Privacy" button
 			proceedButton.addEventListener('click', function() {
-				// Get the form and add username field
 				const form = document.querySelector('form');
-
-				// Get username from modal
 				const username = document.getElementById('username').value.trim();
 
-				// Add username as hidden field
 				if (username) {
 					const usernameInput = document.createElement('input');
 					usernameInput.type = 'hidden';
@@ -99,9 +272,83 @@
 					form.appendChild(usernameInput);
 				}
 
-				// Submit the form normally
 				form.submit();
 			});
+
+			// Function to enable main content interaction
+			function enableMainContent() {
+				mainContent.classList.remove('content-disabled');
+				mainContent.classList.add('content-enabled');
+			}
+
+			// Function to show notifications
+			function showNotification(message, type = 'info') {
+				const notification = document.createElement('div');
+				notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+				notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 350px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+				notification.innerHTML = `
+					<div class="d-flex align-items-center">
+						<i class="fas fa-check-circle me-2"></i>
+						${message}
+						<button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+					</div>
+				`;
+
+				document.body.appendChild(notification);
+
+				// Auto-remove after 4 seconds
+				setTimeout(() => {
+					if (notification.parentNode) {
+						notification.remove();
+					}
+				}, 4000);
+			}
 		});
 	</script>
 }
+
+<!-- Styling for content states -->
+<style>
+	/* Initially disable main content until disclaimer is accepted */
+	.content-disabled {
+		pointer-events: none;
+		opacity: 0.3;
+		filter: blur(1px);
+		transition: all 0.3s ease;
+	}
+
+	/* Enable main content after disclaimer acceptance */
+	.content-enabled {
+		pointer-events: auto;
+		opacity: 1;
+		filter: none;
+		transition: all 0.3s ease;
+	}
+
+	/* Ensure modal appears above everything */
+	#disclaimerModal {
+		z-index: 1060;
+	}
+
+	/* Enhanced checkbox styling */
+	.form-check-input:checked {
+		background-color: #198754;
+		border-color: #198754;
+	}
+
+	.form-check-input:focus {
+		box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+	}
+
+	/* Card hover effects */
+	.card:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+		transition: all 0.2s ease;
+	}
+
+	/* Alert styling */
+	.alert {
+		border-radius: 0.75rem;
+	}
+</style>
