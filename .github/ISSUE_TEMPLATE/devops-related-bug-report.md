@@ -2,8 +2,8 @@
 name: DevOps related Bug Report
 about: Report an issue with a workflow or automation
 title: "[BUG]"
-labels: bug
-assignees: ''
+labels: bug, enhancement
+assignees: Arno-ATU
 
 ---
 
