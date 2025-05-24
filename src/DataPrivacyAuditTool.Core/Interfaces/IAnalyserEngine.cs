@@ -3,7 +3,7 @@ using DataPrivacyAuditTool.Core.Models;
 
 namespace DataPrivacyAuditTool.Core.Interfaces
 {
-    public interface IAnalyzerEngine
+    public interface IAnalyserEngine
     {
         Task<PrivacyAnalysisResult> ExecuteAnalysisAsync(ParsedGoogleData data);
     }

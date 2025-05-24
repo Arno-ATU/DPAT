@@ -7,16 +7,16 @@ using Xunit;
 namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
 {
     /// <summary>
-    /// Tests for the SearchEnginePrivacyAnalyzer to verify it correctly analyzes 
+    /// Tests for the SearchEnginePrivacyAnalyser to verify it correctly analyzes 
     /// search engine settings for privacy implications
     /// </summary>
-    public class SearchEnginePrivacyAnalyzerTests
+    public class SearchEnginePrivacyAnalyserTests
     {
-        private readonly SearchEnginePrivacyAnalyzer _analyzer;
+        private readonly SearchEnginePrivacyAnalyser _analyzer;
 
-        public SearchEnginePrivacyAnalyzerTests()
+        public SearchEnginePrivacyAnalyserTests()
         {
-            _analyzer = new SearchEnginePrivacyAnalyzer();
+            _analyzer = new SearchEnginePrivacyAnalyser();
         }
 
         [Fact]

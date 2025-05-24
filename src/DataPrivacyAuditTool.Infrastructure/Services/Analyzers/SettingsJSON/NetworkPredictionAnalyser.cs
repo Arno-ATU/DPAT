@@ -6,7 +6,7 @@ using DataPrivacyAuditTool.Core.Models;
 
 namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
 {
-    public class NetworkPredictionAnalyzer : SettingsAnalyzer
+    public class NetworkPredictionAnalyser : SettingsAnalyzer
     {
         public override string CategoryName => "Browser Network Privacy";
         public override string Description => "Analyzes how your browser's network settings may affect privacy";

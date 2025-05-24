@@ -2,7 +2,7 @@ using DataPrivacyAuditTool.Core.Models;
 using DataPrivacyAuditTool.Infrastructure.Services.Analyzers;
 using System.Text.Json;
 
-public class CookiePrivacyAnalyzer : SettingsAnalyzer
+public class CookiePrivacyAnalyser : SettingsAnalyzer
 {
     public override string CategoryName => "Cookie Privacy";
     public override string Description => "Analyzes your cookie settings and exceptions for privacy implications";

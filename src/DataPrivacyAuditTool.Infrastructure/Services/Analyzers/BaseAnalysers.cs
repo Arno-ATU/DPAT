@@ -10,7 +10,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
     /// Provides common functionality and enforces the contract that these
     /// analyzers only require the Settings file.
     /// </summary>
-    public abstract class SettingsAnalyzer:IMetricAnalyzer
+    public abstract class SettingsAnalyzer:IMetricAnalyser
     {
         public AnalyzerFileType RequiredFileType => AnalyzerFileType.Settings;
         public abstract string CategoryName { get; }
@@ -31,7 +31,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
     /// Base class for analyzers that evaluate Addresses and more.json file data.
     /// These analyzers will be implemented after the Settings analyzers are complete.
     /// </summary>
-    public abstract class AddressesAnalyzer:IMetricAnalyzer
+    public abstract class AddressesAnalyzer:IMetricAnalyser
     {
         public AnalyzerFileType RequiredFileType => AnalyzerFileType.Addresses;
         public abstract string CategoryName { get; }

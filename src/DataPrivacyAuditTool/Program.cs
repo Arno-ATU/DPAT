@@ -19,14 +19,14 @@ builder.Services.AddScoped<IFileValidationService, FileValidationService>();
 builder.Services.AddScoped<IJsonParsingService, JsonParsingService>();
 
 // Analysis Layer
-builder.Services.AddScoped<IAnalyzerEngine, AnalyzerEngine>();
+builder.Services.AddScoped<IAnalyserEngine, AnalyserEngine>();
 
 // Register specialized analyzers
-builder.Services.AddScoped<IMetricAnalyzer, SearchEnginePrivacyAnalyzer>();
-builder.Services.AddScoped<IMetricAnalyzer, PersonalDataExposureAnalyzer>();
-builder.Services.AddScoped<IMetricAnalyzer, CookiePrivacyAnalyzer>();
-builder.Services.AddScoped<IMetricAnalyzer, NetworkPredictionAnalyzer>();
-builder.Services.AddScoped<IMetricAnalyzer, ExtensionPrivacyAnalyzer>();
+builder.Services.AddScoped<IMetricAnalyser, SearchEnginePrivacyAnalyser>();
+builder.Services.AddScoped<IMetricAnalyser, PersonalDataExposureAnalyser>();
+builder.Services.AddScoped<IMetricAnalyser, CookiePrivacyAnalyser>();
+builder.Services.AddScoped<IMetricAnalyser, NetworkPredictionAnalyser>();
+builder.Services.AddScoped<IMetricAnalyser, ExtensionPrivacyAnalyzer>();
 
 // Presentation Layer
 builder.Services.AddScoped<IPrivacyDashboardService, PrivacyDashboardService>();
