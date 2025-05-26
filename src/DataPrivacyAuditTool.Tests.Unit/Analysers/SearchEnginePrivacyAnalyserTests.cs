@@ -1,26 +1,26 @@
 using DataPrivacyAuditTool.Core.Models;
-using DataPrivacyAuditTool.Infrastructure.Services.Analyzers;
+using DataPrivacyAuditTool.Infrastructure.Services.Analysers;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
+namespace DataPrivacyAuditTool.Tests.Unit.Analysers
 {
     /// <summary>
-    /// Tests for the SearchEnginePrivacyAnalyzer to verify it correctly analyzes 
+    /// Tests for the SearchEnginePrivacyAnalyser to verify it correctly analyzes 
     /// search engine settings for privacy implications
     /// </summary>
-    public class SearchEnginePrivacyAnalyzerTests
+    public class SearchEnginePrivacyAnalyserTests
     {
-        private readonly SearchEnginePrivacyAnalyzer _analyzer;
+        private readonly SearchEnginePrivacyAnalyser _analyser;
 
-        public SearchEnginePrivacyAnalyzerTests()
+        public SearchEnginePrivacyAnalyserTests()
         {
-            _analyzer = new SearchEnginePrivacyAnalyzer();
+            _analyser = new SearchEnginePrivacyAnalyser();
         }
 
         [Fact]
-        public async Task AnalyzeAsync_DefaultSearchEngine_IdentifiesPrivacyFocusedEngine()
+        public async Task AnalyseAsync_DefaultSearchEngine_IdentifiesPrivacyFocusedEngine()
         {
             // Arrange
             var parsedData = new ParsedGoogleData
@@ -48,7 +48,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             };
 
             // Act
-            var result = await _analyzer.AnalyzeAsync(parsedData);
+            var result = await _analyser.AnalyseAsync(parsedData);
 
             // Assert
             Assert.NotNull(result);
@@ -61,7 +61,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
         }
 
         [Fact]
-        public async Task AnalyzeAsync_DefaultSearchEngine_IdentifiesLowPrivacyEngine()
+        public async Task AnalyseAsync_DefaultSearchEngine_IdentifiesLowPrivacyEngine()
         {
             // Arrange
             var parsedData = new ParsedGoogleData
@@ -89,7 +89,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             };
 
             // Act
-            var result = await _analyzer.AnalyzeAsync(parsedData);
+            var result = await _analyser.AnalyseAsync(parsedData);
 
             // Assert
             Assert.NotNull(result);
@@ -102,7 +102,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
         }
 
         [Fact]
-        public async Task AnalyzeAsync_SearchSuggestions_DetectsEnabledSuggestions()
+        public async Task AnalyseAsync_SearchSuggestions_DetectsEnabledSuggestions()
         {
             // Arrange
             var parsedData = new ParsedGoogleData
@@ -122,7 +122,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             };
 
             // Act
-            var result = await _analyzer.AnalyzeAsync(parsedData);
+            var result = await _analyser.AnalyseAsync(parsedData);
 
             // Assert
             Assert.NotNull(result);

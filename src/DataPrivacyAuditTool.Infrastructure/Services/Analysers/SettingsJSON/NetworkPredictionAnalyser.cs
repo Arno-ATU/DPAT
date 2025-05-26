@@ -1,17 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using DataPrivacyAuditTool.Core.Models;
 
-namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
+namespace DataPrivacyAuditTool.Infrastructure.Services.Analysers
 {
-    public class NetworkPredictionAnalyzer : SettingsAnalyzer
+    public class NetworkPredictionAnalyser : SettingsAnalyser
     {
         public override string CategoryName => "Browser Network Privacy";
-        public override string Description => "Analyzes how your browser's network settings may affect privacy";
+        public override string Description => "Analysing how your browser's network settings may affect privacy";
 
-        protected override Task<PrivacyMetricCategory> AnalyzeSettingsAsync(SettingsData settingsData)
+        protected override Task<PrivacyMetricCategory> AnalyseSettingsAsync(SettingsData settingsData)
         {
             var category = new PrivacyMetricCategory
             {
@@ -21,7 +18,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             };
 
             // Add the network prediction metric
-            var predictionMetric = AnalyzeNetworkPrediction(settingsData);
+            var predictionMetric = AnalyseNetworkPrediction(settingsData);
             category.Metrics.Add(predictionMetric);
 
             // We could add more network-related metrics here in the future
@@ -30,7 +27,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             return Task.FromResult(category);
         }
 
-        private PrivacyMetric AnalyzeNetworkPrediction(SettingsData settingsData)
+        private PrivacyMetric AnalyseNetworkPrediction(SettingsData settingsData)
         {
             // Find the network prediction setting from preferences
             var predictionSetting = settingsData.Preferences

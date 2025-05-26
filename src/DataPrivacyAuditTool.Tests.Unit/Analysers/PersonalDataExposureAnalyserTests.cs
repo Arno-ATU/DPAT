@@ -1,5 +1,5 @@
 using DataPrivacyAuditTool.Core.Models;
-using DataPrivacyAuditTool.Infrastructure.Services.Analyzers;
+using DataPrivacyAuditTool.Infrastructure.Services.Analysers;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
@@ -7,20 +7,20 @@ using Xunit;
 namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
 {
     /// <summary>
-    /// Tests for the PersonalDataExposureAnalyzer to verify it correctly assesses 
+    /// Tests for the PersonalDataExposureAnalyser to verify it correctly assesses 
     /// personal data exposure in the browser
     /// </summary>
-    public class PersonalDataExposureAnalyzerTests
+    public class PersonalDataExposureAnalyserTests
     {
-        private readonly PersonalDataExposureAnalyzer _analyzer;
+        private readonly PersonalDataExposureAnalyser _analyser;
 
-        public PersonalDataExposureAnalyzerTests()
+        public PersonalDataExposureAnalyserTests()
         {
-            _analyzer = new PersonalDataExposureAnalyzer();
+            _analyser = new PersonalDataExposureAnalyser();
         }
 
         [Fact]
-        public async Task AnalyzeAsync_EmailExposure_DetectsMultipleEmails()
+        public async Task AnalyseAsync_EmailExposure_DetectsMultipleEmails()
         {
             // Arrange
             var parsedData = new ParsedGoogleData
@@ -51,7 +51,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             };
 
             // Act
-            var result = await _analyzer.AnalyzeAsync(parsedData);
+            var result = await _analyser.AnalyseAsync(parsedData);
 
             // Assert
             Assert.NotNull(result);
@@ -64,7 +64,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
         }
 
         [Fact]
-        public async Task AnalyzeAsync_PhoneNumberExposure_DetectsStoredPhoneNumbers()
+        public async Task AnalyseAsync_PhoneNumberExposure_DetectsStoredPhoneNumbers()
         {
             // Arrange
             var parsedData = new ParsedGoogleData
@@ -90,7 +90,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             };
 
             // Act
-            var result = await _analyzer.AnalyzeAsync(parsedData);
+            var result = await _analyser.AnalyseAsync(parsedData);
 
             // Assert
             Assert.NotNull(result);
@@ -102,7 +102,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
         }
 
         [Fact]
-        public async Task AnalyzeAsync_AddressExposure_DetectsStoredAddresses()
+        public async Task AnalyseAsync_AddressExposure_DetectsStoredAddresses()
         {
             // Arrange
             var parsedData = new ParsedGoogleData
@@ -120,7 +120,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             };
 
             // Act
-            var result = await _analyzer.AnalyzeAsync(parsedData);
+            var result = await _analyser.AnalyseAsync(parsedData);
 
             // Assert
             Assert.NotNull(result);
@@ -133,7 +133,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
         }
 
         [Fact]
-        public async Task AnalyzeAsync_OverallExposure_CalculatesCorrectExposureLevel()
+        public async Task AnalyseAsync_OverallExposure_CalculatesCorrectExposureLevel()
         {
             // Arrange
             var parsedData = new ParsedGoogleData
@@ -167,7 +167,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             };
 
             // Act
-            var result = await _analyzer.AnalyzeAsync(parsedData);
+            var result = await _analyser.AnalyseAsync(parsedData);
 
             // Assert
             Assert.NotNull(result);

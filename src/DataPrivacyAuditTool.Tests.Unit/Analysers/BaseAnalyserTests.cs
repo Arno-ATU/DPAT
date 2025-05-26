@@ -1,24 +1,21 @@
-using DataPrivacyAuditTool.Core.Interfaces;
 using DataPrivacyAuditTool.Core.Models;
-using DataPrivacyAuditTool.Infrastructure.Services.Analyzers;
-using System;
-using System.Threading.Tasks;
-using Xunit;
+using DataPrivacyAuditTool.Infrastructure.Services.Analysers;
 
-namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
+
+namespace DataPrivacyAuditTool.Tests.Unit.Analysers
 {
     /// <summary>
     /// Tests for the abstract base analyzer classes that verify their core behavior
     /// </summary>
-    public class BaseAnalyzersTests
+    public class BaseAnalysersTests
     {
         // Test implementations of abstract classes
-        private class TestSettingsAnalyzer:SettingsAnalyzer
+        private class TestSettingsAnalyser : SettingsAnalyser
         {
             public override string CategoryName => "Test Settings Category";
             public override string Description => "Test Settings Description";
 
-            protected override Task<PrivacyMetricCategory> AnalyzeSettingsAsync(SettingsData settingsData)
+            protected override Task<PrivacyMetricCategory> AnalyseSettingsAsync(SettingsData settingsData)
             {
                 return Task.FromResult(new PrivacyMetricCategory
                 {
@@ -29,12 +26,12 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             }
         }
 
-        private class TestAddressesAnalyzer:AddressesAnalyzer
+        private class TestAddressesAnalyser:AddressesAnalyser
         {
             public override string CategoryName => "Test Addresses Category";
             public override string Description => "Test Addresses Description";
 
-            protected override Task<PrivacyMetricCategory> AnalyzeAddressesAsync(AddressData addressesData)
+            protected override Task<PrivacyMetricCategory> AnalyseAddressesAsync(AddressData addressesData)
             {
                 return Task.FromResult(new PrivacyMetricCategory
                 {
@@ -46,17 +43,17 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
         }
 
         [Fact]
-        public async Task SettingsAnalyzer_CallsAnalyzeSettingsAsync_WhenDataIsProvided()
+        public async Task SettingsAnalyser_CallsAnalyseSettingsAsync_WhenDataIsProvided()
         {
             // Arrange
-            var analyzer = new TestSettingsAnalyzer();
+            var analyzer = new TestSettingsAnalyser();
             var parsedData = new ParsedGoogleData
             {
                 SettingsData = new SettingsData()
             };
 
             // Act
-            var result = await analyzer.AnalyzeAsync(parsedData);
+            var result = await analyzer.AnalyseAsync(parsedData);
 
             // Assert
             Assert.NotNull(result);
@@ -66,10 +63,10 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
         }
 
         [Fact]
-        public async Task SettingsAnalyzer_ThrowsArgumentException_WhenSettingsDataIsNull()
+        public async Task SettingsAnalyser_ThrowsArgumentException_WhenSettingsDataIsNull()
         {
             // Arrange
-            var analyzer = new TestSettingsAnalyzer();
+            var analyser = new TestSettingsAnalyser();
             var parsedData = new ParsedGoogleData
             {
                 SettingsData = null,
@@ -77,21 +74,21 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             };
 
             // Act & Assert
-            await Assert.ThrowsAsync<ArgumentException>(() => analyzer.AnalyzeAsync(parsedData));
+            await Assert.ThrowsAsync<ArgumentException>(() => analyser.AnalyseAsync(parsedData));
         }
 
         [Fact]
-        public async Task AddressesAnalyzer_CallsAnalyzeAddressesAsync_WhenDataIsProvided()
+        public async Task AddressesAnalyser_CallsAnalyzeAddressesAsync_WhenDataIsProvided()
         {
             // Arrange
-            var analyzer = new TestAddressesAnalyzer();
+            var analyser = new TestAddressesAnalyser();
             var parsedData = new ParsedGoogleData
             {
                 AddressesData = new AddressData()
             };
 
             // Act
-            var result = await analyzer.AnalyzeAsync(parsedData);
+            var result = await analyser.AnalyseAsync(parsedData);
 
             // Assert
             Assert.NotNull(result);
@@ -101,10 +98,10 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
         }
 
         [Fact]
-        public async Task AddressesAnalyzer_ThrowsArgumentException_WhenAddressesDataIsNull()
+        public async Task AddressesAnalyser_ThrowsArgumentException_WhenAddressesDataIsNull()
         {
             // Arrange
-            var analyzer = new TestAddressesAnalyzer();
+            var analyser = new TestAddressesAnalyser();
             var parsedData = new ParsedGoogleData
             {
                 SettingsData = new SettingsData(),
@@ -112,7 +109,7 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             };
 
             // Act & Assert
-            await Assert.ThrowsAsync<ArgumentException>(() => analyzer.AnalyzeAsync(parsedData));
+            await Assert.ThrowsAsync<ArgumentException>(() => analyser.AnalyseAsync(parsedData));
         }
     }
 }

@@ -1,13 +1,15 @@
 using DataPrivacyAuditTool.Core.Models;
-using DataPrivacyAuditTool.Infrastructure.Services.Analyzers;
+using DataPrivacyAuditTool.Infrastructure.Services;
 using System.Text.Json;
 
-public class CookiePrivacyAnalyzer : SettingsAnalyzer
+namespace DataPrivacyAuditTool.Infrastructure.Services.Analysers
+{ 
+public class CookiePrivacyAnalyser : SettingsAnalyser
 {
     public override string CategoryName => "Cookie Privacy";
-    public override string Description => "Analyzes your cookie settings and exceptions for privacy implications";
+    public override string Description => "Analying your cookie settings and exceptions for privacy implications";
 
-    protected override Task<PrivacyMetricCategory> AnalyzeSettingsAsync(SettingsData settingsData)
+    protected override Task<PrivacyMetricCategory> AnalyseSettingsAsync(SettingsData settingsData)
     {
         var category = new PrivacyMetricCategory
         {
@@ -84,4 +86,5 @@ public class CookiePrivacyAnalyzer : SettingsAnalyzer
             Recommendation = recommendation
         };
     }
+}
 }
