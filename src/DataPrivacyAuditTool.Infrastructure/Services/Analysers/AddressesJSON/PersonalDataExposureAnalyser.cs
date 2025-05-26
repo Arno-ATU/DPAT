@@ -1,17 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DataPrivacyAuditTool.Core.Models;
 
-namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
+namespace DataPrivacyAuditTool.Infrastructure.Services.Analysers
 {
-    public class PersonalDataExposureAnalyser:AddressesAnalyzer
+    public class PersonalDataExposureAnalyser : AddressesAnalyser
     {
         public override string CategoryName => "Personal Data Exposure";
-        public override string Description => "Analyzes how much personal information is stored in autofill";
+        public override string Description => "Analysing how much personal information is stored in autofill";
 
-        protected override Task<PrivacyMetricCategory> AnalyzeAddressesAsync(AddressData addressesData)
+        protected override Task<PrivacyMetricCategory> AnalyseAddressesAsync(AddressData addressesData)
         {
             var category = new PrivacyMetricCategory
             {
@@ -21,15 +17,15 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             };
 
             // Analyse email exposure
-            var emailMetric = AnalyzeEmailExposure(addressesData);
+            var emailMetric = AnalyseEmailExposure(addressesData);
             category.Metrics.Add(emailMetric);
 
             // Analyse phone number exposure
-            var phoneMetric = AnalyzePhoneExposure(addressesData);
+            var phoneMetric = AnalysePhoneExposure(addressesData);
             category.Metrics.Add(phoneMetric);
 
             // Analyse address exposure
-            var addressMetric = AnalyzeAddressExposure(addressesData);
+            var addressMetric = AnalyseAddressExposure(addressesData);
             category.Metrics.Add(addressMetric);
 
             // Calculate overall exposure
@@ -39,7 +35,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             return Task.FromResult(category);
         }
 
-        private PrivacyMetric AnalyzeEmailExposure(AddressData addressesData)
+        private PrivacyMetric AnalyseEmailExposure(AddressData addressesData)
         {
             // Find emails in autofill entries
             var emailsInAutofill = addressesData.Autofill
@@ -125,7 +121,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             return normalized;
         }
 
-        private PrivacyMetric AnalyzePhoneExposure(AddressData addressesData)
+        private PrivacyMetric AnalysePhoneExposure(AddressData addressesData)
         {
             // Find phone numbers in autofill entries
             var phonesInAutofill = addressesData.Autofill
@@ -217,7 +213,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             return digitsOnly;
         }
 
-        private PrivacyMetric AnalyzeAddressExposure(AddressData addressesData)
+        private PrivacyMetric AnalyseAddressExposure(AddressData addressesData)
         {
             // Track forms with address data
             var addressFormsList = new List<string>();

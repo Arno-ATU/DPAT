@@ -14,7 +14,7 @@ namespace DataPrivacyAuditTool.Core.Interfaces
     public interface IMetricAnalyser
     {
 
-        AnalyzerFileType RequiredFileType { get; }
+        AnalyserFileType RequiredFileType { get; }
 
         string CategoryName { get; }
 
@@ -25,12 +25,12 @@ namespace DataPrivacyAuditTool.Core.Interfaces
         /// </summary>
         /// <param name="data">Parsed Google data containing available file content.</param>
         /// <returns>A task that resolves to privacy metrics for the analyzed category.</returns>
-        Task<PrivacyMetricCategory> AnalyzeAsync(ParsedGoogleData data);
+        Task<PrivacyMetricCategory> AnalyseAsync(ParsedGoogleData data);
     }
 
 
     /// Defines the types of files that can be analyzed by metric analyzers.
-    public enum AnalyzerFileType
+    public enum AnalyserFileType
     {
 
         Settings,

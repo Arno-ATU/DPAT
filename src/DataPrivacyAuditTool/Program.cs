@@ -1,5 +1,5 @@
 using DataPrivacyAuditTool.Core.Interfaces;
-using DataPrivacyAuditTool.Infrastructure.Services.Analyzers;
+using DataPrivacyAuditTool.Infrastructure.Services.Analysers;
 using DataPrivacyAuditTool.Infrastructure.Services;
 using DataPrivacyAuditTool.Data;
 using DataPrivacyAuditTool.Services;
@@ -26,7 +26,7 @@ builder.Services.AddScoped<IMetricAnalyser, SearchEnginePrivacyAnalyser>();
 builder.Services.AddScoped<IMetricAnalyser, PersonalDataExposureAnalyser>();
 builder.Services.AddScoped<IMetricAnalyser, CookiePrivacyAnalyser>();
 builder.Services.AddScoped<IMetricAnalyser, NetworkPredictionAnalyser>();
-builder.Services.AddScoped<IMetricAnalyser, ExtensionPrivacyAnalyzer>();
+builder.Services.AddScoped<IMetricAnalyser, ExtensionPrivacyAnalyser>();
 
 // Presentation Layer
 builder.Services.AddScoped<IPrivacyDashboardService, PrivacyDashboardService>();

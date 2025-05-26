@@ -2,23 +2,23 @@ using DataPrivacyAuditTool.Core.Interfaces;
 using DataPrivacyAuditTool.Core.Models;
 using Microsoft.Extensions.Logging;
 
-namespace DataPrivacyAuditTool.Infrastructure.Services
+namespace DataPrivacyAuditTool.Infrastructure.Services.Analysers
 {
     /// <summary>
     /// Coordinates the execution of all registered analyzers and compiles their results.
-    /// The engine determines which analyzers to run based on available data files and
+    /// The engine determines which analysers to run based on available data files and
     /// handles error recovery if individual analyzers fail.
     /// </summary>
-    public class AnalyserEngine:IAnalyserEngine
+    public class AnalyserEngine : IAnalyserEngine
     {
-        private readonly IEnumerable<IMetricAnalyser> _analyzers;
+        private readonly IEnumerable<IMetricAnalyser> _analysers;
         private readonly ILogger<AnalyserEngine> _logger;
 
         public AnalyserEngine(
-            IEnumerable<IMetricAnalyser> analyzers,
+            IEnumerable<IMetricAnalyser> analysers,
             ILogger<AnalyserEngine> logger)
         {
-            _analyzers = analyzers ?? throw new ArgumentNullException(nameof(analyzers));
+            _analysers = analysers ?? throw new ArgumentNullException(nameof(analysers));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -44,20 +44,20 @@ namespace DataPrivacyAuditTool.Infrastructure.Services
             _logger.LogInformation("Starting privacy analysis with available file types: {FileTypes}",
                 string.Join(", ", availableFileTypes));
 
-            // Only run analyzers that can be supported by available data
-            foreach (var analyzer in _analyzers.Where(a => availableFileTypes.Contains(a.RequiredFileType)))
+            // Only run analysers that can be supported by available data
+            foreach (var analyser in _analysers.Where(a => availableFileTypes.Contains(a.RequiredFileType)))
             {
                 try
                 {
-                    _logger.LogInformation("Running analyzer: {AnalyzerName}", analyzer.CategoryName);
-                    var category = await analyzer.AnalyzeAsync(data);
+                    _logger.LogInformation("Running analyer: {AnalyserName}", analyser.CategoryName);
+                    var category = await analyser.AnalyseAsync(data);
                     categories.Add(category);
                 }
                 catch (Exception ex)
                 {
                     // Log error and continue with other analyzers
-                    _logger.LogError(ex, "Error running analyzer {AnalyzerName}: {ErrorMessage}",
-                        analyzer.CategoryName, ex.Message);
+                    _logger.LogError(ex, "Error running analyser {AnalyserName}: {ErrorMessage}",
+                        analyser.CategoryName, ex.Message);
                 }
             }
 
@@ -82,35 +82,35 @@ namespace DataPrivacyAuditTool.Infrastructure.Services
         /// </remarks>
         /// <param name="data">The parsed Google data to check</param>
         /// <returns>A list of available file types</returns>
-        private List<AnalyzerFileType> GetAvailableFileTypes(ParsedGoogleData data)
+        private List<AnalyserFileType> GetAvailableFileTypes(ParsedGoogleData data)
         {
-            var availableTypes = new List<AnalyzerFileType>();
+            var availableTypes = new List<AnalyserFileType>();
 
             if (data.SettingsData != null)
-                availableTypes.Add(AnalyzerFileType.Settings);
+                availableTypes.Add(AnalyserFileType.Settings);
 
             if (data.AddressesData != null)
-                availableTypes.Add(AnalyzerFileType.Addresses);
+                availableTypes.Add(AnalyserFileType.Addresses);
 
             return availableTypes;
         }
 
-        private bool HasAllFileTypes(List<AnalyzerFileType> availableTypes)
+        private bool HasAllFileTypes(List<AnalyserFileType> availableTypes)
         {
-            return availableTypes.Contains(AnalyzerFileType.Settings) &&
-                   availableTypes.Contains(AnalyzerFileType.Addresses);
+            return availableTypes.Contains(AnalyserFileType.Settings) &&
+                   availableTypes.Contains(AnalyserFileType.Addresses);
         }
 
-        private string GetPartialAnalysisMessage(List<AnalyzerFileType> availableTypes)
+        private string GetPartialAnalysisMessage(List<AnalyserFileType> availableTypes)
         {
-            if (!availableTypes.Contains(AnalyzerFileType.Settings) &&
-                !availableTypes.Contains(AnalyzerFileType.Addresses))
+            if (!availableTypes.Contains(AnalyserFileType.Settings) &&
+                !availableTypes.Contains(AnalyserFileType.Addresses))
                 return "No files were uploaded. Please upload at least one file to perform analysis.";
 
-            if (!availableTypes.Contains(AnalyzerFileType.Settings))
+            if (!availableTypes.Contains(AnalyserFileType.Settings))
                 return "Settings.json file is missing. Only personal data analysis was performed. Upload Settings.json for browser configuration analysis.";
 
-            if (!availableTypes.Contains(AnalyzerFileType.Addresses))
+            if (!availableTypes.Contains(AnalyserFileType.Addresses))
                 return "Addresses and more.json file is missing. Only browser settings analysis was performed. Upload Addresses and more.json for personal data analysis.";
 
             return null; // Both files present

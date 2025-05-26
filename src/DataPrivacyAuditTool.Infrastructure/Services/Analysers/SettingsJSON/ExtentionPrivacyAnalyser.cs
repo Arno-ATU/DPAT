@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using DataPrivacyAuditTool.Core.Models;
 
-namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
+namespace DataPrivacyAuditTool.Infrastructure.Services.Analysers
 {
-    public class ExtensionPrivacyAnalyzer : SettingsAnalyzer
+    public class ExtensionPrivacyAnalyser : SettingsAnalyser
     {
         public override string CategoryName => "Browser Extensions";
         public override string Description => "Analyzes browser extensions for potential privacy implications";
@@ -25,7 +23,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             "fihnjjcciajhdojfnbdddfaoknhalnja"  // I don't care about cookies
         };
 
-        protected override Task<PrivacyMetricCategory> AnalyzeSettingsAsync(SettingsData settingsData)
+        protected override Task<PrivacyMetricCategory> AnalyseSettingsAsync(SettingsData settingsData)
         {
             var category = new PrivacyMetricCategory
             {
@@ -35,17 +33,17 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             };
 
             // Add the extension count/risk metric
-            var extensionMetric = AnalyzeExtensions(settingsData);
+            var extensionMetric = AnalyseExtensions(settingsData);
             category.Metrics.Add(extensionMetric);
 
             // Add the incognito enabled extensions metric
-            var incognitoMetric = AnalyzeIncognitoExtensions(settingsData);
+            var incognitoMetric = AnalyseIncognitoExtensions(settingsData);
             category.Metrics.Add(incognitoMetric);
 
             return Task.FromResult(category);
         }
 
-        private PrivacyMetric AnalyzeExtensions(SettingsData settingsData)
+        private PrivacyMetric AnalyseExtensions(SettingsData settingsData)
         {
             // Count total extensions
             int totalExtensions = settingsData.Apps?.Count ?? 0;
@@ -114,7 +112,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             };
         }
 
-        private PrivacyMetric AnalyzeIncognitoExtensions(SettingsData settingsData)
+        private PrivacyMetric AnalyseIncognitoExtensions(SettingsData settingsData)
         {
             int incognitoEnabledCount = 0;
 

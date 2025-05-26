@@ -1,15 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using DataPrivacyAuditTool.Core.Models;
 
-namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
+namespace DataPrivacyAuditTool.Infrastructure.Services.Analysers
 {
-    public class SearchEnginePrivacyAnalyser : SettingsAnalyzer
+    public class SearchEnginePrivacyAnalyser : SettingsAnalyser
     {
         public override string CategoryName => "Search Engine Privacy";
-        public override string Description => "Analyzes your search engine settings for privacy implications";
+        public override string Description => "Analyssing your search engine settings for privacy implications";
 
         private static readonly Dictionary<string, PrivacyLevel> SearchEnginePrivacyLevels = new Dictionary<string, PrivacyLevel>(StringComparer.OrdinalIgnoreCase)
         {
@@ -39,7 +36,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             High
         }
 
-        protected override Task<PrivacyMetricCategory> AnalyzeSettingsAsync(SettingsData settingsData)
+        protected override Task<PrivacyMetricCategory> AnalyseSettingsAsync(SettingsData settingsData)
         {
             var category = new PrivacyMetricCategory
             {
@@ -49,15 +46,15 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             };
 
             // Add default search engine metric
-            category.Metrics.Add(AnalyzeDefaultSearchEngine(settingsData));
+            category.Metrics.Add(AnalyseDefaultSearchEngine(settingsData));
 
             // Add search suggestions metric
-            category.Metrics.Add(AnalyzeSearchSuggestions(settingsData));
+            category.Metrics.Add(AnalyseSearchSuggestions(settingsData));
 
             return Task.FromResult(category);
         }
 
-        private PrivacyMetric AnalyzeDefaultSearchEngine(SettingsData settingsData)
+        private PrivacyMetric AnalyseDefaultSearchEngine(SettingsData settingsData)
         {
             // Find the default search engine GUID
             var defaultSearchGuid = settingsData.Preferences
@@ -104,7 +101,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
             };
         }
 
-        private PrivacyMetric AnalyzeSearchSuggestions(SettingsData settingsData)
+        private PrivacyMetric AnalyseSearchSuggestions(SettingsData settingsData)
         {
             bool suggestionsEnabled = false;
 
