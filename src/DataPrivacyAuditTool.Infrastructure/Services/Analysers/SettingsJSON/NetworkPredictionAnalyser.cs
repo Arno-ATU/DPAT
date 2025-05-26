@@ -18,7 +18,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analysers
             };
 
             // Add the network prediction metric
-            var predictionMetric = AnalyzeNetworkPrediction(settingsData);
+            var predictionMetric = AnalyseNetworkPrediction(settingsData);
             category.Metrics.Add(predictionMetric);
 
             // We could add more network-related metrics here in the future
@@ -27,7 +27,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analysers
             return Task.FromResult(category);
         }
 
-        private PrivacyMetric AnalyzeNetworkPrediction(SettingsData settingsData)
+        private PrivacyMetric AnalyseNetworkPrediction(SettingsData settingsData)
         {
             // Find the network prediction setting from preferences
             var predictionSetting = settingsData.Preferences

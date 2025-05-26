@@ -7,7 +7,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analysers
     public class ExtensionPrivacyAnalyser : SettingsAnalyser
     {
         public override string CategoryName => "Browser Extensions";
-        public override string Description => "Analyzes browser extensions for potential privacy implications";
+        public override string Description => "Analying browser extensions for potential privacy implications";
 
         // Known privacy-enhancing extensions (common privacy extensions by ID)
         private static readonly HashSet<string> PrivacyExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

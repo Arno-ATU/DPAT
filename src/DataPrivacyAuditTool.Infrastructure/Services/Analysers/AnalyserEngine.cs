@@ -49,7 +49,7 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analysers
             {
                 try
                 {
-                    _logger.LogInformation("Running analyer: {AnalyserName}", analyser.CategoryName);
+                    _logger.LogInformation("Running analyser: {AnalyserName}", analyser.CategoryName);
                     var category = await analyser.AnalyseAsync(data);
                     categories.Add(category);
                 }
