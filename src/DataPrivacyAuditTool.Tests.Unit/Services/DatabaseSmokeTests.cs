@@ -5,6 +5,9 @@ using System.IO;
 using Microsoft.Data.Sqlite;
 using Xunit;
 
+
+// This smoke test was generated with the help of Anthropic's Claude AI for DevOps automation to
+// ensure that the Staging environment has completed a separate autromated test to display a separation of concerns during exectution of CI/CD pipelines.
 namespace DataPrivacyAuditTool.Tests.Unit.Services
 {
     public class DatabaseSmokeTests
