@@ -13,24 +13,24 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analysers
     public class AnalyserEngineTests
     {
         private readonly Mock<ILogger<AnalyserEngine>> _loggerMock;
-        private readonly Mock<IMetricAnalyser> _settingsAnalyzerMock;
-        private readonly Mock<IMetricAnalyser> _addressesAnalyzerMock;
+        private readonly Mock<IMetricAnalyser> _settingsAnalyserMock;
+        private readonly Mock<IMetricAnalyser> _addressesAnalyserMock;
 
         public AnalyserEngineTests()
         {
             _loggerMock = new Mock<ILogger<AnalyserEngine>>();
 
             // Create the mock analyzers in the constructor
-            _settingsAnalyzerMock = new Mock<IMetricAnalyser>();
-            _settingsAnalyzerMock.Setup(a => a.RequiredFileType).Returns(AnalyserFileType.Settings);
-            _settingsAnalyzerMock.Setup(a => a.CategoryName).Returns("Test Settings Analyser");
-            _settingsAnalyzerMock.Setup(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()))
+            _settingsAnalyserMock = new Mock<IMetricAnalyser>();
+            _settingsAnalyserMock.Setup(a => a.RequiredFileType).Returns(AnalyserFileType.Settings);
+            _settingsAnalyserMock.Setup(a => a.CategoryName).Returns("Test Settings Analyser");
+            _settingsAnalyserMock.Setup(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()))
                 .ReturnsAsync(new PrivacyMetricCategory { Name = "Settings Category" });
 
-            _addressesAnalyzerMock = new Mock<IMetricAnalyser>();
-            _addressesAnalyzerMock.Setup(a => a.RequiredFileType).Returns(AnalyserFileType.Addresses);
-            _addressesAnalyzerMock.Setup(a => a.CategoryName).Returns("Test Addresses Analyser");
-            _addressesAnalyzerMock.Setup(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()))
+            _addressesAnalyserMock = new Mock<IMetricAnalyser>();
+            _addressesAnalyserMock.Setup(a => a.RequiredFileType).Returns(AnalyserFileType.Addresses);
+            _addressesAnalyserMock.Setup(a => a.CategoryName).Returns("Test Addresses Analyser");
+            _addressesAnalyserMock.Setup(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()))
                 .ReturnsAsync(new PrivacyMetricCategory { Name = "Addresses Category" });
         }
 
@@ -46,8 +46,8 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analysers
 
             var analysers = new List<IMetricAnalyser>
             {
-                _settingsAnalyzerMock.Object,
-                _addressesAnalyzerMock.Object
+                _settingsAnalyserMock.Object,
+                _addressesAnalyserMock.Object
             };
 
             var engine = new AnalyserEngine(analysers, _loggerMock.Object);
@@ -61,8 +61,8 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analysers
             Assert.False(result.IsPartialAnalysis);
             Assert.Null(result.PartialAnalysisMessage);
 
-            _settingsAnalyzerMock.Verify(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()), Times.Once);
-            _addressesAnalyzerMock.Verify(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()), Times.Once);
+            _settingsAnalyserMock.Verify(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()), Times.Once);
+            _addressesAnalyserMock.Verify(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()), Times.Once);
         }
 
         [Fact]
@@ -75,13 +75,13 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analysers
                 AddressesData = null
             };
 
-            var analyzers = new List<IMetricAnalyser>
+            var analysers = new List<IMetricAnalyser>
             {
-                _settingsAnalyzerMock.Object,
-                _addressesAnalyzerMock.Object
+                _settingsAnalyserMock.Object,
+                _addressesAnalyserMock.Object
             };
 
-            var engine = new AnalyserEngine(analyzers, _loggerMock.Object);
+            var engine = new AnalyserEngine(analysers, _loggerMock.Object);
 
             // Act
             var result = await engine.ExecuteAnalysisAsync(parsedData);
@@ -92,8 +92,8 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analysers
             Assert.True(result.IsPartialAnalysis);
             Assert.Contains("Addresses", result.PartialAnalysisMessage);
 
-            _settingsAnalyzerMock.Verify(a => a.AnalyzeAsync(It.IsAny<ParsedGoogleData>()), Times.Once);
-            _addressesAnalyzerMock.Verify(a => a.AnalyzeAsync(It.IsAny<ParsedGoogleData>()), Times.Never);
+            _settingsAnalyserMock.Verify(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()), Times.Once);
+            _addressesAnalyserMock.Verify(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()), Times.Never);
         }
 
         [Fact]
@@ -108,8 +108,8 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analysers
 
             var analyzers = new List<IMetricAnalyser>
             {
-                _settingsAnalyzerMock.Object,
-                _addressesAnalyzerMock.Object
+                _settingsAnalyserMock.Object,
+                _addressesAnalyserMock.Object
             };
 
             var engine = new AnalyserEngine(analyzers, _loggerMock.Object);
@@ -123,8 +123,8 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analysers
             Assert.True(result.IsPartialAnalysis);
             Assert.Contains("Settings", result.PartialAnalysisMessage);
 
-            _settingsAnalyzerMock.Verify(a => a.AnalyzeAsync(It.IsAny<ParsedGoogleData>()), Times.Never);
-            _addressesAnalyzerMock.Verify(a => a.AnalyzeAsync(It.IsAny<ParsedGoogleData>()), Times.Once);
+            _settingsAnalyserMock.Verify(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()), Times.Never);
+            _addressesAnalyserMock.Verify(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()), Times.Once);
         }
 
         [Fact]
@@ -138,13 +138,13 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analysers
             };
 
             // Override the setup to make settings analyzer throw an exception
-            _settingsAnalyzerMock.Setup(a => a.AnalyzeAsync(It.IsAny<ParsedGoogleData>()))
+            _settingsAnalyserMock.Setup(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()))
                 .ThrowsAsync(new Exception("Test exception"));
 
             var analyzers = new List<IMetricAnalyser>
             {
-                _settingsAnalyzerMock.Object,
-                _addressesAnalyzerMock.Object
+                _settingsAnalyserMock.Object,
+                _addressesAnalyserMock.Object
             };
 
             var engine = new AnalyserEngine(analyzers, _loggerMock.Object);
@@ -156,8 +156,8 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analysers
             Assert.NotNull(result);
             Assert.Single(result.Categories);  // Only addresses analyzer succeeded
 
-            _settingsAnalyzerMock.Verify(a => a.AnalyzeAsync(It.IsAny<ParsedGoogleData>()), Times.Once);
-            _addressesAnalyzerMock.Verify(a => a.AnalyzeAsync(It.IsAny<ParsedGoogleData>()), Times.Once);
+            _settingsAnalyserMock.Verify(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()), Times.Once);
+            _addressesAnalyserMock.Verify(a => a.AnalyseAsync(It.IsAny<ParsedGoogleData>()), Times.Once);
             _loggerMock.Verify(l => l.Log(
                 It.Is<LogLevel>(ll => ll == LogLevel.Error),
                 It.IsAny<EventId>(),
