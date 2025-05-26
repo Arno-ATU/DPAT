@@ -12,14 +12,14 @@ namespace DataPrivacyAuditTool.Controllers
     {
         private readonly IFileValidationService _fileValidationService;
         private readonly IJsonParsingService _jsonParsingService;
-        private readonly IAnalyzerEngine _analyzerEngine;
+        private readonly IAnalyserEngine _analyzerEngine;
         private readonly IPrivacyDashboardService _dashboardService;
         private readonly IAuditHistoryService _auditHistoryService;
 
         public PrivacyAnalysisController(
             IFileValidationService fileValidationService,
             IJsonParsingService jsonParsingService,
-            IAnalyzerEngine analyzerEngine,
+            IAnalyserEngine analyzerEngine,
             IPrivacyDashboardService dashboardService,
             IAuditHistoryService auditHistoryService)
         {

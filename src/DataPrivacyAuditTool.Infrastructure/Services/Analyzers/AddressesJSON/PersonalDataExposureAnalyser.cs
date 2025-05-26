@@ -6,7 +6,7 @@ using DataPrivacyAuditTool.Core.Models;
 
 namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
 {
-    public class PersonalDataExposureAnalyzer:AddressesAnalyzer
+    public class PersonalDataExposureAnalyser:AddressesAnalyzer
     {
         public override string CategoryName => "Personal Data Exposure";
         public override string Description => "Analyzes how much personal information is stored in autofill";
@@ -20,15 +20,15 @@ namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
                 Metrics = new List<PrivacyMetric>()
             };
 
-            // Analyze email exposure
+            // Analyse email exposure
             var emailMetric = AnalyzeEmailExposure(addressesData);
             category.Metrics.Add(emailMetric);
 
-            // Analyze phone number exposure
+            // Analyse phone number exposure
             var phoneMetric = AnalyzePhoneExposure(addressesData);
             category.Metrics.Add(phoneMetric);
 
-            // Analyze address exposure
+            // Analyse address exposure
             var addressMetric = AnalyzeAddressExposure(addressesData);
             category.Metrics.Add(addressMetric);
 

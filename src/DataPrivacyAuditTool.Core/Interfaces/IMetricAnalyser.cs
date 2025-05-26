@@ -11,7 +11,7 @@ namespace DataPrivacyAuditTool.Core.Interfaces
     /// Results are organized by "CategoryName" in the UI with contextual
     /// information from "Description"
     /// </remarks>
-    public interface IMetricAnalyzer
+    public interface IMetricAnalyser
     {
 
         AnalyzerFileType RequiredFileType { get; }

@@ -7,29 +7,29 @@ using Moq;
 namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
 {
     /// <summary>
-    /// Tests for the AnalyzerEngine to verify correct analysis orchestration
+    /// Tests for the AnalyserEngine to verify correct analysis orchestration
     /// and handling of different data scenarios.
     /// </summary>
-    public class AnalyzerEngineTests
+    public class AnalyserEngineTests
     {
-        private readonly Mock<ILogger<AnalyzerEngine>> _loggerMock;
-        private readonly Mock<IMetricAnalyzer> _settingsAnalyzerMock;
-        private readonly Mock<IMetricAnalyzer> _addressesAnalyzerMock;
+        private readonly Mock<ILogger<AnalyserEngine>> _loggerMock;
+        private readonly Mock<IMetricAnalyser> _settingsAnalyzerMock;
+        private readonly Mock<IMetricAnalyser> _addressesAnalyzerMock;
 
-        public AnalyzerEngineTests()
+        public AnalyserEngineTests()
         {
-            _loggerMock = new Mock<ILogger<AnalyzerEngine>>();
+            _loggerMock = new Mock<ILogger<AnalyserEngine>>();
 
             // Create the mock analyzers in the constructor
-            _settingsAnalyzerMock = new Mock<IMetricAnalyzer>();
+            _settingsAnalyzerMock = new Mock<IMetricAnalyser>();
             _settingsAnalyzerMock.Setup(a => a.RequiredFileType).Returns(AnalyzerFileType.Settings);
-            _settingsAnalyzerMock.Setup(a => a.CategoryName).Returns("Test Settings Analyzer");
+            _settingsAnalyzerMock.Setup(a => a.CategoryName).Returns("Test Settings Analyser");
             _settingsAnalyzerMock.Setup(a => a.AnalyzeAsync(It.IsAny<ParsedGoogleData>()))
                 .ReturnsAsync(new PrivacyMetricCategory { Name = "Settings Category" });
 
-            _addressesAnalyzerMock = new Mock<IMetricAnalyzer>();
+            _addressesAnalyzerMock = new Mock<IMetricAnalyser>();
             _addressesAnalyzerMock.Setup(a => a.RequiredFileType).Returns(AnalyzerFileType.Addresses);
-            _addressesAnalyzerMock.Setup(a => a.CategoryName).Returns("Test Addresses Analyzer");
+            _addressesAnalyzerMock.Setup(a => a.CategoryName).Returns("Test Addresses Analyser");
             _addressesAnalyzerMock.Setup(a => a.AnalyzeAsync(It.IsAny<ParsedGoogleData>()))
                 .ReturnsAsync(new PrivacyMetricCategory { Name = "Addresses Category" });
         }
@@ -44,13 +44,13 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
                 AddressesData = new AddressData()
             };
 
-            var analyzers = new List<IMetricAnalyzer>
+            var analyzers = new List<IMetricAnalyser>
             {
                 _settingsAnalyzerMock.Object,
                 _addressesAnalyzerMock.Object
             };
 
-            var engine = new AnalyzerEngine(analyzers, _loggerMock.Object);
+            var engine = new AnalyserEngine(analyzers, _loggerMock.Object);
 
             // Act
             var result = await engine.ExecuteAnalysisAsync(parsedData);
@@ -75,13 +75,13 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
                 AddressesData = null
             };
 
-            var analyzers = new List<IMetricAnalyzer>
+            var analyzers = new List<IMetricAnalyser>
             {
                 _settingsAnalyzerMock.Object,
                 _addressesAnalyzerMock.Object
             };
 
-            var engine = new AnalyzerEngine(analyzers, _loggerMock.Object);
+            var engine = new AnalyserEngine(analyzers, _loggerMock.Object);
 
             // Act
             var result = await engine.ExecuteAnalysisAsync(parsedData);
@@ -106,13 +106,13 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
                 AddressesData = new AddressData()
             };
 
-            var analyzers = new List<IMetricAnalyzer>
+            var analyzers = new List<IMetricAnalyser>
             {
                 _settingsAnalyzerMock.Object,
                 _addressesAnalyzerMock.Object
             };
 
-            var engine = new AnalyzerEngine(analyzers, _loggerMock.Object);
+            var engine = new AnalyserEngine(analyzers, _loggerMock.Object);
 
             // Act
             var result = await engine.ExecuteAnalysisAsync(parsedData);
@@ -141,13 +141,13 @@ namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
             _settingsAnalyzerMock.Setup(a => a.AnalyzeAsync(It.IsAny<ParsedGoogleData>()))
                 .ThrowsAsync(new Exception("Test exception"));
 
-            var analyzers = new List<IMetricAnalyzer>
+            var analyzers = new List<IMetricAnalyser>
             {
                 _settingsAnalyzerMock.Object,
                 _addressesAnalyzerMock.Object
             };
 
-            var engine = new AnalyzerEngine(analyzers, _loggerMock.Object);
+            var engine = new AnalyserEngine(analyzers, _loggerMock.Object);
 
             // Act
             var result = await engine.ExecuteAnalysisAsync(parsedData);

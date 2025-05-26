@@ -7,16 +7,16 @@ using Xunit;
 namespace DataPrivacyAuditTool.Tests.Unit.Analyzers
 {
     /// <summary>
-    /// Tests for the PersonalDataExposureAnalyzer to verify it correctly assesses 
+    /// Tests for the PersonalDataExposureAnalyser to verify it correctly assesses 
     /// personal data exposure in the browser
     /// </summary>
-    public class PersonalDataExposureAnalyzerTests
+    public class PersonalDataExposureAnalyserTests
     {
-        private readonly PersonalDataExposureAnalyzer _analyzer;
+        private readonly PersonalDataExposureAnalyser _analyzer;
 
-        public PersonalDataExposureAnalyzerTests()
+        public PersonalDataExposureAnalyserTests()
         {
-            _analyzer = new PersonalDataExposureAnalyzer();
+            _analyzer = new PersonalDataExposureAnalyser();
         }
 
         [Fact]

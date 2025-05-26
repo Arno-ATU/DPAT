@@ -6,7 +6,7 @@ using DataPrivacyAuditTool.Core.Models;
 
 namespace DataPrivacyAuditTool.Infrastructure.Services.Analyzers
 {
-    public class SearchEnginePrivacyAnalyzer : SettingsAnalyzer
+    public class SearchEnginePrivacyAnalyser : SettingsAnalyzer
     {
         public override string CategoryName => "Search Engine Privacy";
         public override string Description => "Analyzes your search engine settings for privacy implications";

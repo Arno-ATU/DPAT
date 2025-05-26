@@ -9,14 +9,14 @@ namespace DataPrivacyAuditTool.Infrastructure.Services
     /// The engine determines which analyzers to run based on available data files and
     /// handles error recovery if individual analyzers fail.
     /// </summary>
-    public class AnalyzerEngine:IAnalyzerEngine
+    public class AnalyserEngine:IAnalyserEngine
     {
-        private readonly IEnumerable<IMetricAnalyzer> _analyzers;
-        private readonly ILogger<AnalyzerEngine> _logger;
+        private readonly IEnumerable<IMetricAnalyser> _analyzers;
+        private readonly ILogger<AnalyserEngine> _logger;
 
-        public AnalyzerEngine(
-            IEnumerable<IMetricAnalyzer> analyzers,
-            ILogger<AnalyzerEngine> logger)
+        public AnalyserEngine(
+            IEnumerable<IMetricAnalyser> analyzers,
+            ILogger<AnalyserEngine> logger)
         {
             _analyzers = analyzers ?? throw new ArgumentNullException(nameof(analyzers));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
