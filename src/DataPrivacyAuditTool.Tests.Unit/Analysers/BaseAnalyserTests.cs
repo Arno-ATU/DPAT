@@ -5,7 +5,7 @@ using DataPrivacyAuditTool.Infrastructure.Services.Analysers;
 namespace DataPrivacyAuditTool.Tests.Unit.Analysers
 {
     /// <summary>
-    /// Tests for the abstract base analyzer classes that verify their core behavior
+    /// Tests for the abstract base analyser classes that verify their core behavior
     /// </summary>
     public class BaseAnalysersTests
     {
