@@ -4,7 +4,7 @@
 ![Test Status](https://github.com/Arno-ATU/DPAT/actions/workflows/tests.yml/badge.svg)
 ![Security Status](https://github.com/Arno-ATU/DPAT/actions/workflows/security.yml/badge.svg)
 ![Database Status](https://github.com/Arno-ATU/DPAT/actions/workflows/databases.yml/badge.svg)
-![Deploy Status](https://github.com/Arno-ATU/DPAT/actions/workflows/databases.yml/badge.svg)
+![Deploy Status](https://github.com/Arno-ATU/DPAT/actions/workflows/deploy.yml/badge.svg)
 
 ## Project Overview
 
