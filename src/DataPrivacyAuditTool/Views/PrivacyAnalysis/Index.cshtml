@@ -138,64 +138,6 @@
     <div class="container mt-5">
         <div class="row">
             <div class="col-lg-10 offset-lg-1">
-                <!-- Main Header Card -->
-                <div class="card shadow-lg border-0 mb-5">
-                    <div class="card-header bg-gradient text-white text-center py-4" style="background: linear-gradient(135deg, #4a6cf7 0%, #24226e 100%);">
-                        <div class="d-flex align-items-center justify-content-center">
-                            <i class="fas fa-shield-alt fs-1 me-3"></i>
-                            <div>
-                                <h1 class="mb-1 display-6 fw-bold">Personal Data Privacy Audit Tool</h1>
-                                <p class="mb-0 fs-5 opacity-90">Analyse your Google Chrome privacy settings with confidence</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body p-5">
-                        <div class="row align-items-center">
-                            <div class="col-md-8">
-                                <p class="lead mb-4">Upload your Google Takeout files to receive a comprehensive analysis of your privacy settings and personal data exposure in Google Chrome.</p>
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
-                                                <i class="fas fa-user-shield text-success"></i>
-                                            </div>
-                                            <small class="text-muted">100% Local Processing</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
-                                                <i class="fas fa-eye text-primary"></i>
-                                            </div>
-                                            <small class="text-muted">No Data Transmitted</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-info bg-opacity-10 rounded-circle p-2 me-3">
-                                                <i class="fas fa-chart-line text-info"></i>
-                                            </div>
-                                            <small class="text-muted">Detailed Insights</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-warning bg-opacity-10 rounded-circle p-2 me-3">
-                                                <i class="fas fa-lightbulb text-warning"></i>
-                                            </div>
-                                            <small class="text-muted">Actionable Recommendations</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
-                                    <i class="fas fa-google text-primary" style="font-size: 3rem;"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Detailed Instructions Card -->
                 <div class="card shadow-sm border-0 mb-5">
@@ -399,7 +341,7 @@
                             </div>
                             <div>
                                 <h3 class="mb-1">Upload Your Chrome Data Files</h3>
-                                <p class="mb-0 opacity-90">Select one or both files for comprehensive privacy analysis</p>
+                                <p class="mb-0 opacity-90">Select one or both files for more comprehensive privacy analysis</p>
                             </div>
                         </div>
                     </div>
@@ -419,7 +361,7 @@
                                                     </div>
                                                     <div>
                                                         <h5 class="card-title text-primary mb-2">Settings.json</h5>
-                                                        <p class="card-text mb-3">Analyzes your browser privacy settings, search engines, cookies, extensions, and tracking configurations to identify potential privacy exposures.</p>
+                                                        <p class="card-text mb-3">Analyses your browser privacy settings, search engines, cookies, extensions, and tracking configurations to identify potential privacy exposures.</p>
                                                         <div class="row g-2">
                                                             <div class="col-auto">
                                                                 <span class="badge bg-primary bg-opacity-10 text-primary">Search Engines</span>
@@ -460,7 +402,7 @@
                                                     </div>
                                                     <div>
                                                         <h5 class="card-title text-success mb-2">Addresses and more.json</h5>
-                                                        <p class="card-text mb-3">Analyzes personal data exposure through autofill data, saved addresses, contact information, and other personal details stored in your browser.</p>
+                                                        <p class="card-text mb-3">Analyses personal data exposure through autofill data, saved addresses, contact information, and other personal details stored in your browser.</p>
                                                         <div class="row g-2">
                                                             <div class="col-auto">
                                                                 <span class="badge bg-success bg-opacity-10 text-success">Email Exposure</span>
@@ -525,7 +467,7 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize all modals
+            // Initialise all modals
             const disclaimerModal = new bootstrap.Modal(document.getElementById('disclaimerModal'));
             const usernameModal = new bootstrap.Modal(document.getElementById('usernameModal'));
             
@@ -578,7 +520,7 @@
                 }
             });
             
-            // Your existing username modal functionality
+            //existing username modal functionality
             analyzeButton.addEventListener('click', function() {
                 usernameModal.show();
             });
