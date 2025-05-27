@@ -6,7 +6,6 @@ using System.Reflection.Emit;
 // Groups related metrics together. Each analyzer returns one PrivacyMetricCategory that contains multiple PrivacyMetric objects.
 // This establishes a hierarchy:
 // PrivacyAnalysisResult(top level)
-// Contains multiple PrivacyMetricCategories (one per analyzer)
 // Each contains multiple PrivacyMetrics (individual findings)
 
 namespace DataPrivacyAuditTool.Core.Models
