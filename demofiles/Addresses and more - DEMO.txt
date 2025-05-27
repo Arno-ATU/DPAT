@@ -1,0 +1,249 @@
+{
+    "Autofill": [
+        {
+            "usage_timestamp": [13370262659000000],
+            "name": "email",
+            "value": "john.demo@example.com"
+        },
+        {
+            "usage_timestamp": [13369021616000000, 13366488408000000],
+            "name": "phone",
+            "value": "555-0123"
+        },
+        {
+            "usage_timestamp": [13316805528000000, 13354651306000000],
+            "name": "FirstName",
+            "value": "John"
+        },
+        {
+            "usage_timestamp": [13354032380000000],
+            "name": "LastName",
+            "value": "Demo"
+        },
+        {
+            "usage_timestamp": [13332557174000000, 13357211657000000],
+            "name": "company",
+            "value": "Demo Corporation"
+        },
+        {
+            "usage_timestamp": [13333924945000000, 13356806800000000],
+            "name": "address",
+            "value": "123 Privacy Lane"
+        },
+        {
+            "usage_timestamp": [13358778552000000],
+            "name": "city",
+            "value": "Demo City"
+        },
+        {
+            "usage_timestamp": [13330017173000000, 13358901924000000],
+            "name": "state",
+            "value": "Demo State"
+        },
+        {
+            "usage_timestamp": [13354031698000000, 13354068872000000],
+            "name": "zipcode",
+            "value": "12345"
+        },
+        {
+            "usage_timestamp": [13364600484000000],
+            "name": "creditCardNumber",
+            "value": "****-****-****-1234"
+        },
+        {
+            "usage_timestamp": [13357683513000000],
+            "name": "cardholderName",
+            "value": "John Demo"
+        },
+        {
+            "usage_timestamp": [13353866765000000],
+            "name": "expiryDate",
+            "value": "12/25"
+        },
+        {
+            "usage_timestamp": [13356704139000000],
+            "name": "securityCode",
+            "value": "***"
+        },
+        {
+            "usage_timestamp": [13315789777000000, 13354068882000000],
+            "name": "website",
+            "value": "https://demo-portfolio.example.com"
+        },
+        {
+            "usage_timestamp": [13353544926000000],
+            "name": "birthdate",
+            "value": "01/01/1990"
+        },
+        {
+            "usage_timestamp": [13353544046000000, 13353544130000000],
+            "name": "socialSecurityNumber",
+            "value": "***-**-1234"
+        },
+        {
+            "usage_timestamp": [13333653057000000, 13354045551000000],
+            "name": "driverLicense",
+            "value": "D1234567"
+        },
+        {
+            "usage_timestamp": [13352246740000000, 13366042442000000],
+            "name": "passport",
+            "value": "P1234567"
+        },
+        {
+            "usage_timestamp": [13360613165000000],
+            "name": "bankAccount",
+            "value": "****-****-1234"
+        },
+        {
+            "usage_timestamp": [13365978572000000],
+            "name": "routingNumber",
+            "value": "123456789"
+        }
+    ],
+    "Autofill Profile": [
+        {
+            "guid": "12345678-1234-1234-1234-123456789012",
+            "full_name": "John Demo",
+            "company_name": "Demo Corporation",
+            "street_address": "123 Privacy Lane\nApt 456",
+            "city": "Demo City",
+            "state": "Demo State",
+            "zipcode": "12345",
+            "country_code": "US",
+            "phone": "555-0123",
+            "email": "john.demo@example.com",
+            "use_count": 25,
+            "use_date": 13384450850506217,
+            "date_modified": 13383240942000000
+        },
+        {
+            "guid": "abcdef12-3456-7890-abcd-ef1234567890",
+            "full_name": "Jane Demo",
+            "company_name": "Privacy Solutions Inc",
+            "street_address": "456 Security Boulevard",
+            "city": "Privacy Town",
+            "state": "Secure State",
+            "zipcode": "54321",
+            "country_code": "US",
+            "phone": "555-0456",
+            "email": "jane.demo@example.com",
+            "use_count": 12,
+            "use_date": 13384450850506100,
+            "date_modified": 13383240942000000
+        },
+        {
+            "guid": "fedcba98-7654-3210-fedc-ba9876543210",
+            "full_name": "Bob Wilson",
+            "company_name": "Tech Innovations LLC",
+            "street_address": "789 Data Drive",
+            "city": "Analytics City",
+            "state": "Information State",
+            "zipcode": "67890",
+            "country_code": "US",
+            "phone": "555-0789",
+            "email": "bob.wilson@example.com",
+            "use_count": 8,
+            "use_date": 13384450850506050,
+            "date_modified": 13383240942000000
+        }
+    ],
+    "Contact Info": [
+        {
+            "guid": "87654321-4321-4321-4321-210987654321",
+            "name": "Alice Johnson",
+            "email": "alice.johnson@example.com",
+            "company": "Digital Privacy Co",
+            "job_title": "Privacy Officer",
+            "phone_numbers": [
+                {
+                    "number": "555-0234",
+                    "type": "Mobile"
+                },
+                {
+                    "number": "555-0567",
+                    "type": "Work"
+                }
+            ],
+            "street_address": "321 Encryption Street",
+            "city": "Secure City",
+            "region": "Privacy State",
+            "postal_code": "98765",
+            "country": "United States",
+            "creation_date": 13375536402123441,
+            "last_used_date": 13383241381000000
+        },
+        {
+            "guid": "11223344-5566-7788-99aa-bbccddeeff00",
+            "name": "Charlie Brown",
+            "email": "charlie.brown@example.org",
+            "company": "Security Solutions",
+            "job_title": "Data Protection Specialist",
+            "phone_numbers": [
+                {
+                    "number": "555-0345",
+                    "type": "Mobile"
+                },
+                {
+                    "number": "555-0678",
+                    "type": "Home"
+                }
+            ],
+            "street_address": "654 Firewall Avenue",
+            "city": "Protection City",
+            "region": "Security State",
+            "postal_code": "13579",
+            "country": "United States",
+            "creation_date": 13376536402123442,
+            "last_used_date": 13383241381000001
+        },
+        {
+            "guid": "aabbccdd-eeff-1122-3344-556677889900",
+            "name": "Diana Prince",
+            "email": "diana.prince@example.net",
+            "company": "Guardian Systems",
+            "job_title": "Security Analyst",
+            "phone_numbers": [
+                {
+                    "number": "555-0987",
+                    "type": "Work"
+                }
+            ],
+            "street_address": "987 Shield Boulevard",
+            "city": "Guardian City",
+            "region": "Protection State",
+            "postal_code": "24680",
+            "country": "United States",
+            "creation_date": 13377536402123443,
+            "last_used_date": 13383241381000002
+        },
+        {
+            "guid": "99887766-5544-3322-1100-ffeeddccbbaa",
+            "name": "Edward Tech",
+            "email": "edward.tech@example.biz",
+            "company": "Innovation Labs",
+            "job_title": "Systems Administrator",
+            "phone_numbers": [
+                {
+                    "number": "555-0111",
+                    "type": "Mobile"
+                },
+                {
+                    "number": "555-0222",
+                    "type": "Work"
+                },
+                {
+                    "number": "555-0333",
+                    "type": "Home"
+                }
+            ],
+            "street_address": "111 Innovation Drive",
+            "city": "Tech City",
+            "region": "Digital State",
+            "postal_code": "11111",
+            "country": "United States",
+            "creation_date": 13378536402123444,
+            "last_used_date": 13383241381000003
+        }
+    ]
+}

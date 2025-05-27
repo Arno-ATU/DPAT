@@ -1,0 +1,249 @@
+{
+    "Autofill": [
+        {
+            "usage_timestamp": [13370262659000000],
+            "name": "email",
+            "value": "seamus.murphy@example.ie"
+        },
+        {
+            "usage_timestamp": [13369021616000000, 13366488408000000],
+            "name": "phone",
+            "value": "087 123 4567"
+        },
+        {
+            "usage_timestamp": [13316805528000000, 13354651306000000],
+            "name": "FirstName",
+            "value": "Seamus"
+        },
+        {
+            "usage_timestamp": [13354032380000000],
+            "name": "LastName",
+            "value": "Murphy"
+        },
+        {
+            "usage_timestamp": [13332557174000000, 13357211657000000],
+            "name": "company",
+            "value": "Éire Tech Solutions Ltd"
+        },
+        {
+            "usage_timestamp": [13333924945000000, 13356806800000000],
+            "name": "address",
+            "value": "15 O'Connell Street"
+        },
+        {
+            "usage_timestamp": [13358778552000000],
+            "name": "city",
+            "value": "Cork"
+        },
+        {
+            "usage_timestamp": [13330017173000000, 13358901924000000],
+            "name": "state",
+            "value": "County Cork"
+        },
+        {
+            "usage_timestamp": [13354031698000000, 13354068872000000],
+            "name": "zipcode",
+            "value": "T12 ABC1"
+        },
+        {
+            "usage_timestamp": [13364600484000000],
+            "name": "creditCardNumber",
+            "value": "****-****-****-5678"
+        },
+        {
+            "usage_timestamp": [13357683513000000],
+            "name": "cardholderName",
+            "value": "Seamus Murphy"
+        },
+        {
+            "usage_timestamp": [13353866765000000],
+            "name": "expiryDate",
+            "value": "03/27"
+        },
+        {
+            "usage_timestamp": [13356704139000000],
+            "name": "securityCode",
+            "value": "***"
+        },
+        {
+            "usage_timestamp": [13315789777000000, 13354068882000000],
+            "name": "website",
+            "value": "https://demo-portfolio.example.ie"
+        },
+        {
+            "usage_timestamp": [13353544926000000],
+            "name": "birthdate",
+            "value": "15/03/1988"
+        },
+        {
+            "usage_timestamp": [13353544046000000, 13353544130000000],
+            "name": "socialSecurityNumber",
+            "value": "***-**-5678A"
+        },
+        {
+            "usage_timestamp": [13333653057000000, 13354045551000000],
+            "name": "driverLicense",
+            "value": "123456789"
+        },
+        {
+            "usage_timestamp": [13352246740000000, 13366042442000000],
+            "name": "passport",
+            "value": "P9876543"
+        },
+        {
+            "usage_timestamp": [13360613165000000],
+            "name": "bankAccount",
+            "value": "IE29 AIBK 9311 5212 3456 78"
+        },
+        {
+            "usage_timestamp": [13365978572000000],
+            "name": "routingNumber",
+            "value": "931152"
+        }
+    ],
+    "Autofill Profile": [
+        {
+            "guid": "12345678-1234-1234-1234-123456789012",
+            "full_name": "Seamus Murphy",
+            "company_name": "Éire Tech Solutions Ltd",
+            "street_address": "15 O'Connell Street\nFlat 3A",
+            "city": "Cork",
+            "state": "County Cork",
+            "zipcode": "T12 ABC1",
+            "country_code": "IE",
+            "phone": "087 123 4567",
+            "email": "seamus.murphy@example.ie",
+            "use_count": 25,
+            "use_date": 13384450850506217,
+            "date_modified": 13383240942000000
+        },
+        {
+            "guid": "abcdef12-3456-7890-abcd-ef1234567890",
+            "full_name": "Áine O'Brien",
+            "company_name": "Dublin Digital Ltd",
+            "street_address": "42 Grafton Street",
+            "city": "Dublin",
+            "state": "County Dublin",
+            "zipcode": "D02 XY89",
+            "country_code": "IE",
+            "phone": "085 987 6543",
+            "email": "aine.obrien@example.ie",
+            "use_count": 12,
+            "use_date": 13384450850506100,
+            "date_modified": 13383240942000000
+        },
+        {
+            "guid": "fedcba98-7654-3210-fedc-ba9876543210",
+            "full_name": "Cian Walsh",
+            "company_name": "Galway Innovation Hub",
+            "street_address": "78 Shop Street",
+            "city": "Galway",
+            "state": "County Galway",
+            "zipcode": "H91 P2K6",
+            "country_code": "IE",
+            "phone": "086 234 5678",
+            "email": "cian.walsh@example.ie",
+            "use_count": 8,
+            "use_date": 13384450850506050,
+            "date_modified": 13383240942000000
+        }
+    ],
+    "Contact Info": [
+        {
+            "guid": "87654321-4321-4321-4321-210987654321",
+            "name": "Sinéad Kelly",
+            "email": "sinead.kelly@example.ie",
+            "company": "Cork Privacy Solutions",
+            "job_title": "Data Protection Officer",
+            "phone_numbers": [
+                {
+                    "number": "087 456 7890",
+                    "type": "Mobile"
+                },
+                {
+                    "number": "021 234 5678",
+                    "type": "Work"
+                }
+            ],
+            "street_address": "12 Patrick Street",
+            "city": "Cork",
+            "region": "County Cork",
+            "postal_code": "T12 XY34",
+            "country": "Ireland",
+            "creation_date": 13375536402123441,
+            "last_used_date": 13383241381000000
+        },
+        {
+            "guid": "11223344-5566-7788-99aa-bbccddeeff00",
+            "name": "Róisín McCarthy",
+            "email": "roisin.mccarthy@example.ie",
+            "company": "Limerick Security Ltd",
+            "job_title": "Cybersecurity Specialist",
+            "phone_numbers": [
+                {
+                    "number": "086 567 8901",
+                    "type": "Mobile"
+                },
+                {
+                    "number": "061 345 678",
+                    "type": "Home"
+                }
+            ],
+            "street_address": "25 O'Connell Street",
+            "city": "Limerick",
+            "region": "County Limerick",
+            "postal_code": "V94 ABC2",
+            "country": "Ireland",
+            "creation_date": 13376536402123442,
+            "last_used_date": 13383241381000001
+        },
+        {
+            "guid": "aabbccdd-eeff-1122-3344-556677889900",
+            "name": "Niamh Byrne",
+            "email": "niamh.byrne@example.ie",
+            "company": "Dublin Guardian Systems",
+            "job_title": "IT Security Analyst",
+            "phone_numbers": [
+                {
+                    "number": "01 456 7890",
+                    "type": "Work"
+                }
+            ],
+            "street_address": "88 Dame Street",
+            "city": "Dublin",
+            "region": "County Dublin",
+            "postal_code": "D02 K749",
+            "country": "Ireland",
+            "creation_date": 13377536402123443,
+            "last_used_date": 13383241381000002
+        },
+        {
+            "guid": "99887766-5544-3322-1100-ffeeddccbbaa",
+            "name": "Darragh Ryan",
+            "email": "darragh.ryan@example.ie",
+            "company": "Waterford Tech Solutions",
+            "job_title": "Systems Administrator",
+            "phone_numbers": [
+                {
+                    "number": "087 678 9012",
+                    "type": "Mobile"
+                },
+                {
+                    "number": "051 234 567",
+                    "type": "Work"
+                },
+                {
+                    "number": "051 345 678",
+                    "type": "Home"
+                }
+            ],
+            "street_address": "56 The Mall",
+            "city": "Waterford",
+            "region": "County Waterford",
+            "postal_code": "X91 PQR3",
+            "country": "Ireland",
+            "creation_date": 13378536402123444,
+            "last_used_date": 13383241381000003
+        }
+    ]
+}

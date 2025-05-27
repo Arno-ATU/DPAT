@@ -1,0 +1,447 @@
+{
+    "App Settings": [],
+    "App Lists": [],
+    "Search Engines": [
+        {
+            "suggestions_url": "https://search.brave.com/api/suggest?q={searchTerms}",
+            "favicon_url": "https://cdn.search.brave.com/serp/favicon.ico",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_UNSPECIFIED",
+            "date_created": 0,
+            "starter_pack_id": 0,
+            "url": "https://search.brave.com/search?q={searchTerms}",
+            "new_tab_url": "",
+            "originating_url": "",
+            "sync_guid": "485bf7d3-0215-45af-87dc-538868000109",
+            "short_name": "Brave",
+            "keyword": "search.brave.com",
+            "input_encodings": "UTF-8",
+            "prepopulate_id": 109,
+            "last_modified": 13388668205052825
+},
+        {
+            "suggestions_url": "{google:baseSuggestURL}search?{google:searchFieldtrialParameter}client={google:suggestClient}&gs_ri={google:suggestRid}&xssi=t&q={searchTerms}&{google:inputType}{google:omniboxFocusType}{google:cursorPosition}{google:currentPageUrl}{google:pageClassification}{google:clientCacheTimeToLive}{google:searchVersion}{google:sessionToken}{google:prefetchQuery}sugkey={google:suggestAPIKeyParameter}",
+            "image_url_post_params": "encoded_image={google:imageThumbnail},image_url={google:imageURL},sbisrc={google:imageSearchSource},original_width={google:imageOriginalWidth},original_height={google:imageOriginalHeight},processed_image_dimensions={google:processedImageDimensions}",
+            "favicon_url": "https://www.gstatic.com/images/branding/searchlogo/ico/favicon.ico",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_UNSPECIFIED",
+            "date_created": 0,
+            "image_url": "{google:baseSearchByImageURL}upload",
+            "starter_pack_id": 0,
+            "url": "{google:baseURL}search?q={searchTerms}&{google:RLZ}{google:originalQueryForSuggestion}{google:assistedQueryStats}{google:searchFieldtrialParameter}{google:language}{google:prefetchSource}{google:searchClient}{google:sourceId}{google:contextualSearchVersion}ie={inputEncoding}",
+            "new_tab_url": "",
+            "originating_url": "",
+            "sync_guid": "485bf7d3-0215-45af-87dc-538868000001",
+            "short_name": "Google",
+            "keyword": "google.com",
+            "input_encodings": "UTF-8",
+            "alternate_urls": [
+                        "{google:baseURL}#q={searchTerms}",
+                        "{google:baseURL}search#q={searchTerms}",
+                        "{google:baseURL}webhp#q={searchTerms}",
+                        "{google:baseURL}s#q={searchTerms}",
+                        "{google:baseURL}s?q={searchTerms}"
+            ],
+            "prepopulate_id": 1,
+            "last_modified": 0
+},
+        {
+            "suggestions_url": "https://uk.search.yahoo.com/sugg/chrome?output=fxjson&command={searchTerms}",
+            "favicon_url": "https://uk.search.yahoo.com/favicon.ico",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_UNSPECIFIED",
+            "date_created": 0,
+            "starter_pack_id": 0,
+            "url": "https://uk.search.yahoo.com/search{google:pathWildcard}?ei={inputEncoding}&p={searchTerms}",
+            "new_tab_url": "",
+            "originating_url": "",
+            "sync_guid": "485bf7d3-0215-45af-87dc-538868000002",
+            "short_name": "Yahoo Search",
+            "keyword": "uk.yahoo.com",
+            "input_encodings": "UTF-8",
+            "prepopulate_id": 2,
+            "last_modified": 13388668205052784
+},
+        {
+            "suggestions_url": "",
+            "favicon_url": "https://github.com/favicon.ico",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_UNSPECIFIED",
+            "date_created": 13388511049744403,
+            "starter_pack_id": 0,
+            "url": "https://github.com/search?q={searchTerms}&ref=opensearch",
+            "new_tab_url": "",
+            "originating_url": "https://github.com/opensearch.xml",
+            "sync_guid": "065a358b-4a5e-43e3-8500-91bb4f06ce3c",
+            "short_name": "GitHub",
+            "keyword": "eur06.safelinks.protection.outlook.com",
+            "input_encodings": "UTF-8",
+            "prepopulate_id": 0,
+            "last_modified": 13388511049744403
+},
+        {
+            "suggestions_url": "",
+            "favicon_url": "",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_TRUE",
+            "date_created": 13355490673348104,
+            "starter_pack_id": 4,
+            "url": "https://gemini.google.com/app?q={searchTerms}",
+            "new_tab_url": "",
+            "originating_url": "",
+            "sync_guid": "ec205736-edd7-4022-a9a3-b431fc000004",
+            "short_name": "Gemini",
+            "keyword": "@gemini",
+            "input_encodings": "",
+            "prepopulate_id": 0,
+            "last_modified": 13374232324557554
+},
+        {
+            "suggestions_url": "https://api.qwant.com/api/suggest/?q={searchTerms}",
+            "favicon_url": "https://www.qwant.com/favicon.ico",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_UNSPECIFIED",
+            "date_created": 0,
+            "starter_pack_id": 0,
+            "url": "https://www.qwant.com/?q={searchTerms}",
+            "new_tab_url": "",
+            "originating_url": "",
+            "sync_guid": "485bf7d3-0215-45af-87dc-538868000094",
+            "short_name": "Qwant",
+            "keyword": "qwant.com",
+            "input_encodings": "UTF-8",
+            "prepopulate_id": 94,
+            "last_modified": 13388668205052821
+},
+        {
+            "suggestions_url": "https://duckduckgo.com/ac/?q={searchTerms}&type=list",
+            "favicon_url": "https://duckduckgo.com/favicon.ico",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_UNSPECIFIED",
+            "date_created": 0,
+            "starter_pack_id": 0,
+            "url": "https://duckduckgo.com/?q={searchTerms}",
+            "new_tab_url": "https://duckduckgo.com/chrome_newtab",
+            "originating_url": "",
+            "sync_guid": "485bf7d3-0215-45af-87dc-538868000092",
+            "short_name": "DuckDuckGo",
+            "keyword": "duckduckgo.com",
+            "input_encodings": "UTF-8",
+            "prepopulate_id": 92,
+            "last_modified": 13388668205052787
+},
+        {
+            "suggestions_url": "",
+            "favicon_url": "",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_TRUE",
+            "date_created": 13344461583652260,
+            "starter_pack_id": 3,
+            "url": "chrome://tabs/?q={searchTerms}",
+            "new_tab_url": "",
+            "originating_url": "",
+            "sync_guid": "ec205736-edd7-4022-a9a3-b431fc000003",
+            "short_name": "Tabs",
+            "keyword": "@tabs",
+            "input_encodings": "",
+            "prepopulate_id": 0,
+            "last_modified": 13374232324557553
+},
+        {
+            "suggestions_url": "",
+            "favicon_url": "",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_TRUE",
+            "date_created": 13344461583652247,
+            "starter_pack_id": 1,
+            "url": "chrome://bookmarks/?q={searchTerms}",
+            "new_tab_url": "",
+            "originating_url": "",
+            "sync_guid": "ec205736-edd7-4022-a9a3-b431fc000001",
+            "short_name": "Bookmarks",
+            "keyword": "@bookmarks",
+            "input_encodings": "",
+            "prepopulate_id": 0,
+            "last_modified": 13374232324557549
+},
+        {
+            "suggestions_url": "",
+            "favicon_url": "https://github.com/favicon.ico",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_UNSPECIFIED",
+            "date_created": 13387721339895012,
+            "starter_pack_id": 0,
+            "url": "https://github.com/search?q={searchTerms}&ref=opensearch",
+            "new_tab_url": "",
+            "originating_url": "https://github.com/opensearch.xml",
+            "sync_guid": "7f55f3c1-1e89-4459-8b72-2564493c2c61",
+            "short_name": "GitHub",
+            "keyword": "github.com",
+            "input_encodings": "UTF-8",
+            "prepopulate_id": 0,
+            "last_modified": 13387721339895012
+},
+        {
+            "suggestions_url": "https://www.bing.com/osjson.aspx?query={searchTerms}&language={language}",
+            "image_url_post_params": "imageBin={google:imageThumbnailBase64}",
+            "favicon_url": "https://www.bing.com/sa/simg/bing_p_rr_teal_min.ico",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_UNSPECIFIED",
+            "date_created": 0,
+            "image_url": "https://www.bing.com/images/detail/search?iss=sbiupload&FORM=CHROMI#enterInsights",
+            "starter_pack_id": 0,
+            "url": "https://www.bing.com/search?q={searchTerms}",
+            "new_tab_url": "https://www.bing.com/chrome/newtab",
+            "originating_url": "",
+            "sync_guid": "485bf7d3-0215-45af-87dc-538868000003",
+            "short_name": "Microsoft Bing",
+            "keyword": "bing.com",
+            "input_encodings": "UTF-8",
+            "prepopulate_id": 3,
+            "last_modified": 13388668205052792
+},
+        {
+            "suggestions_url": "",
+            "favicon_url": "",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_TRUE",
+            "date_created": 13344461583652257,
+            "starter_pack_id": 2,
+            "url": "chrome://history/?q={searchTerms}",
+            "new_tab_url": "",
+            "originating_url": "",
+            "sync_guid": "ec205736-edd7-4022-a9a3-b431fc000002",
+            "short_name": "History",
+            "keyword": "@history",
+            "input_encodings": "",
+            "prepopulate_id": 0,
+            "last_modified": 13374232324557551
+},
+        {
+            "suggestions_url": "https://search.privacywall.org/suggest.php?q={searchTerms}",
+            "favicon_url": "https://www.privacywall.org/images/favicon_32x32.ico",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_UNSPECIFIED",
+            "date_created": 0,
+            "starter_pack_id": 0,
+            "url": "https://www.privacywall.org/search/secure/?q={searchTerms}",
+            "new_tab_url": "https://www.privacywall.org/newtab/",
+            "originating_url": "",
+            "sync_guid": "485bf7d3-0215-45af-87dc-538868000100",
+            "short_name": "PrivacyWall",
+            "keyword": "privacywall.org",
+            "input_encodings": "UTF-8",
+            "prepopulate_id": 100,
+            "last_modified": 13388668205052823
+},
+        {
+            "suggestions_url": "",
+            "favicon_url": "https://www.youtube.com/s/desktop/bfe4b043/img/logos/favicon_32x32.png",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_UNSPECIFIED",
+            "date_created": 13388071208701825,
+            "starter_pack_id": 0,
+            "url": "https://www.youtube.com/results?search_query={searchTerms}&page={startPage?}&utm_source=opensearch",
+            "new_tab_url": "",
+            "originating_url": "https://www.youtube.com/opensearch?locale=en_GB",
+            "sync_guid": "bdf25d7d-d722-47c6-91ac-04474e20847b",
+            "short_name": "YouTube",
+            "keyword": "youtube.com",
+            "input_encodings": "",
+            "prepopulate_id": 0,
+            "last_modified": 13388071208701825
+},
+        {
+            "suggestions_url": "https://ac.ecosia.org?q={searchTerms}&mkt={language}&type=list&language={language}",
+            "favicon_url": "https://cdn.ecosia.org/assets/images/ico/favicon.ico",
+            "safe_for_autoreplace": true,
+            "is_active": "ACTIVE_STATUS_UNSPECIFIED",
+            "date_created": 0,
+            "starter_pack_id": 0,
+            "url": "https://www.ecosia.org/search?q={searchTerms}",
+            "new_tab_url": "https://www.ecosia.org/newtab/",
+            "originating_url": "",
+            "sync_guid": "485bf7d3-0215-45af-87dc-538868000101",
+            "short_name": "Ecosia",
+            "keyword": "ecosia.org",
+            "input_encodings": "UTF-8",
+            "prepopulate_id": 101,
+            "last_modified": 13388668205052803
+}
+    ],
+    "Apps": [
+        {
+            "app_launch_ordinal": "t",
+            "extension": {
+                        "incognito_enabled": true,
+                        "remote_install": false,
+                        "disable_reasons": 0,
+                        "update_url": "",
+                        "id": "ahfgeienlihckogmohjhadlkjgocpleb",
+                        "version": "0.2",
+                        "enabled": true
+            },
+            "page_ordinal": "n"
+}
+    ],
+    "Preferences": [
+        {
+            "name": "profile.content_settings.exceptions.images",
+            "value": "{}"
+},
+        {
+            "name": "custom_links.list",
+            "value": "[]"
+},
+        {
+            "name": "translate_recent_target",
+            "value": "\"en\""
+},
+        {
+            "name": "default_search_provider.synced_guid",
+            "value": "\"485bf7d3-0215-45af-87dc-538868000001\""
+},
+        {
+            "name": "translate_denied_count_for_language",
+            "value": "{\"de\":0,\"ru\":0,\"si\":0,\"th\":1,\"zh-CN\":0}"
+},
+        {
+            "name": "browser.theme.user_color",
+            "value": "-14244198"
+},
+        {
+            "name": "payments.can_make_payment_enabled",
+            "value": "false"
+},
+        {
+            "name": "net.network_prediction_options",
+            "value": "0"
+},
+        {
+            "name": "profile.content_settings.exceptions.automatic_downloads",
+            "value": "{}"
+},
+        {
+            "name": "accessibility.captions.live_caption_language",
+            "value": "\"en-US\""
+},
+        {
+            "name": "hats.survey_metadata",
+            "value": "{\"any_last_survey_started_time\":\"13385156798530455\",\"permissions-prompt\":{\"last_major_version\":133,\"last_survey_check_time\":\"13385156797248787\",\"last_survey_started_time\":\"13385156798530453\"}}"
+},
+        {
+            "name": "toolbar.pinned_chrome_labs_migration_complete",
+            "value": "true"
+},
+        {
+            "name": "custom_links.initialized",
+            "value": "true"
+},
+        {
+            "name": "profile.content_settings.exceptions.anti_abuse",
+            "value": "{}"
+},
+        {
+            "name": "sharing.vapid_key",
+            "value": "{\"vapid_creation_timestamp\":\"13378753179032613\",\"vapid_private_key\":\"MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg7dniUY+j6HW53XojNZZ69t2yjcd/AH7Ao9xP4Bh528KhRANCAATh+4W2TqJRALHOm2178b9H1VzJBhDPca7qUgYbPuQaRv+BS8Ns75ISkpy7MJeMLhf6SabK1mtm8JOKZiibAwO2\"}"
+},
+        {
+            "name": "translate_site_blocklist_with_time",
+            "value": "{}"
+},
+        {
+            "name": "browser.theme.color_variant",
+            "value": "1"
+},
+        {
+            "name": "safebrowsing.enabled",
+            "value": "true"
+},
+        {
+            "name": "extensions.commands",
+            "value": "{\"windows:Ctrl+Shift+L\":{\"command_name\":\"lock\",\"extension\":\"aeblfdkhhhdcdjpifhhbdiojplfjncoa\",\"global\":false},\"windows:Ctrl+Shift+X\":{\"command_name\":\"_execute_action\",\"extension\":\"aeblfdkhhhdcdjpifhhbdiojplfjncoa\",\"global\":false}}"
+},
+        {
+            "name": "autofill.last_version_deduped",
+            "value": "136"
+},
+        {
+            "name": "privacy_sandbox.fake_notice.prompt_shown_time_sync",
+            "value": "\"13384450738167021\""
+},
+        {
+            "name": "translate_accepted_count",
+            "value": "{\"de\":2,\"ru\":1,\"si\":1,\"th\":0,\"zh-CN\":1}"
+},
+        {
+            "name": "profile.content_settings.exceptions.tracking_protection",
+            "value": "{}"
+},
+        {
+            "name": "profile.content_settings.exceptions.local_fonts",
+            "value": "{}"
+},
+        {
+            "name": "profile.content_settings.exceptions.cookies",
+            "value": "{}"
+},
+        {
+            "name": "profile.content_settings.exceptions.popups",
+            "value": "{\"https://library.itsligo.ie:443,*\":{\"last_modified\":\"13383320798430362\",\"setting\":1}}"
+},
+        {
+            "name": "profile.cookie_controls_mode",
+            "value": "1"
+},
+        {
+            "name": "profile.content_settings.exceptions.javascript",
+            "value": "{}"
+},
+        {
+            "name": "https_only_mode_enabled",
+            "value": "true"
+},
+        {
+            "name": "toolbar.pinned_actions",
+            "value": "[\"kActionShowChromeLabs\"]"
+},
+        {
+            "name": "profile.content_settings.exceptions.window_placement",
+            "value": "{}"
+},
+        {
+            "name": "intl.selected_languages",
+            "value": "\"en-US,en\""
+}
+    ],
+    "Themes": [
+        {
+            "user_color_theme": {
+                        "color": -14244198,
+                        "browser_color_variant": "TONAL_SPOT"
+            },
+            "browser_color_scheme": "SYSTEM",
+            "use_system_theme_by_default": false,
+            "use_custom_theme": false
+}
+    ],
+    "Priority Preferences": [
+        {"preference": {
+            "name": "credentials_enable_sync",
+            "value": "true"
+}},
+        {"preference": {
+            "name": "sync.demographics",
+            "value": "{\"gender\":1,\"birth_year\":1988}"
+}},
+        {"preference": {
+            "name": "credentials_need_first_time_welcome",
+            "value": "false"
+}},
+        {"preference": {
+            "name": "credentials_password_manager_warm_welcome_last_seen",
+            "value": "2025-03-05T18:33:27.713560Z"
+}}
+    ],
+    "Web Apps": []
+}

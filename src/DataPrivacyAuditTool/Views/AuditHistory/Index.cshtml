@@ -12,27 +12,6 @@
 				Audit Score Tracking
 			</h2>
 
-			<!-- Search Form -->
-			<div class="card mb-4">
-				<div class="card-body">
-					<form asp-action="Search" method="get" class="row g-3">
-						<div class="col-md-8">
-							<label for="username" class="form-label">Search by Username</label>
-							<input type="text" class="form-control" id="username" name="username"
-								   placeholder="Enter username to filter results..." value="@ViewBag.SearchUsername">
-						</div>
-						<div class="col-md-4 d-flex align-items-end">
-							<button type="submit" class="btn btn-primary me-2">
-								<i class="fas fa-search me-1"></i>Search
-							</button>
-							<a asp-action="Index" class="btn btn-outline-secondary">
-								<i class="fas fa-times me-1"></i>Clear
-							</a>
-						</div>
-					</form>
-				</div>
-			</div>
-
 			<!-- Results Summary -->
 			<div class="alert alert-info">
 				<i class="fas fa-info-circle me-2"></i>
