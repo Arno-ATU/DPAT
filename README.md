@@ -1,4 +1,4 @@
-# Personal Data Privacy Audit Tool (DPAT)
+# Data Privacy Audit Tool (DPAT)
 
 ![Build Status](https://github.com/Arno-ATU/DPAT/actions/workflows/build.yml/badge.svg)
 ![Test Status](https://github.com/Arno-ATU/DPAT/actions/workflows/tests.yml/badge.svg)
@@ -8,7 +8,7 @@
 
 ## Project Overview
 
-The Personal Data Privacy Audit Tool is a web application designed to help users understand and improve their Google account privacy settings. The tool works by analyzing specific JSON files from Google Takeout, providing privacy insights without accessing sensitive personal information.
+The Data Privacy Audit Tool is a web application designed to help users understand and improve their Google account privacy settings. The tool works by analyzing specific JSON files from Google Takeout, providing privacy insights without accessing sensitive personal information.
 
 ## Key Features
 
@@ -19,7 +19,7 @@ The Personal Data Privacy Audit Tool is a web application designed to help users
 
 ## Development
 
-This project follows DevOps best practices with continuous integration and deployment. We maintain separate environments for development, staging, and production to ensure code quality and stability.
+This project follows DevOps best practices with continuous integration and deployment. Maintaining separate environments for development, staging, and production to ensure code quality and stability.
 
 ## Branching Strategy
 
