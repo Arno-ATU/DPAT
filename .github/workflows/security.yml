@@ -26,7 +26,6 @@ jobs:
         with:
           dotnet-version: '9.0'
       
-      # Add this step to configure git
       - name: Configure Git
         run: |
           git config --global --add safe.directory /github/workspace
