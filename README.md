@@ -8,12 +8,12 @@
 
 ## Project Overview
 
-The Data Privacy Audit Tool is a web application designed to help users understand and improve their Google account privacy settings. The tool works by analyzing specific JSON files from Google Takeout, providing privacy insights without accessing sensitive personal information.
+The Data Privacy Audit Tool is a web application designed to help users understand and improve their Google account privacy settings. The tool works by analysing specific JSON files from Google Takeout, providing privacy insights without accessing sensitive personal information.
 
 ## Key Features
 
 - Privacy-first design with local data processing
-- Comprehensive privacy analysis across multiple dimensions
+- Privacy analysis across multiple dimensions
 - Interactive dashboard with privacy scoring
 - Actionable recommendations for privacy improvement
 
